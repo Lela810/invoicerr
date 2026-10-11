@@ -30,7 +30,11 @@ export interface WidgetBase {
    *  ordinary per-currency widgets when no consolidated one could be built at all. Optional and
    *  absent on every widget that has nothing to caveat — the common case, unaffected. */
   warnings?: string[];
+  /** Whether the amounts shown include VAT. Data, not label text, so every locale can render it. */
+  basis?: AmountBasis;
 }
+
+export type AmountBasis = 'inclVat' | 'exclVat';
 
 /**
  * Where a metric's tile links to when clicked: a LIST destination, not a URL. The frontend still
@@ -130,6 +134,7 @@ export interface ShortListWidget extends WidgetBase {
 export interface TableColumn {
   key: string;
   label: string;
+  basis?: AmountBasis;
 }
 
 /** A fully detailed table — the "statistics, all of it, ultra-detailed" shape. `rows` are plain

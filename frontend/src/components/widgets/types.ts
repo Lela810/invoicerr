@@ -8,7 +8,11 @@ export interface WidgetBase {
   /** Plain-English caveats about THIS widget's own numbers — e.g. the exchange rate(s) a currency
    *  consolidation used, or which currency was missing one. Always shown, never thrown. */
   warnings?: string[]
+  /** Whether the amounts shown include VAT — rendered through `widgets.basis.*`, never in `label`. */
+  basis?: AmountBasis
 }
+
+export type AmountBasis = "inclVat" | "exclVat"
 
 /**
  * Where a metric's tile links to when clicked: a LIST destination, not a URL. Mirrors the backend's
@@ -79,6 +83,7 @@ export interface ShortListWidget extends WidgetBase {
 export interface TableColumn {
   key: string
   label: string
+  basis?: AmountBasis
 }
 
 export interface TableWidget extends WidgetBase {

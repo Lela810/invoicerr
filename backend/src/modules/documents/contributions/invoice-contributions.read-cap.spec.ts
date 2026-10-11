@@ -36,7 +36,7 @@ const { buildInvoiceDashboardWidgets, buildInvoiceStatisticsWidgets } = await im
 /** Past the 500-row cap these reads used to apply, and past the 500-row display cap the statistics
  *  table still applies — so the same fixture exercises both fixes. */
 const INVOICE_COUNT = 600;
-/** `invoiceTotal` sums `quantity * unitPrice` per line: 100.00 per invoice. */
+/** One 100.00 line at 0% VAT: 100.00 per invoice, net and gross alike. */
 const TOTAL_PER_INVOICE = 100;
 
 function invoiceData() {

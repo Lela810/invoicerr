@@ -17,13 +17,16 @@ The **Dashboard** is the first page you see after signing in. It gives you a sna
 
 ## Which amount each figure shows
 
-- **Pending invoices**, **Pending invoices total** and **Overdue invoices total** show what your
-  clients owe, **including VAT**: the same figure as the invoice list.
+- **Pending invoices total** and **Overdue invoices total** show what your clients still owe,
+  **including VAT**: each invoice's total minus the payments and credit notes recorded against it,
+  the same balance its settlement panel shows.
+- Each row of **Pending invoices** shows the invoice's total including VAT, the figure its row in
+  the invoice list shows.
 - **Invoiced this month** (or **Invoiced in period**) shows your revenue **excluding VAT**.
 - **Collected this month** (or **Collected in period**) is the cash actually received, as recorded
   in each payment.
 
-Every amount tile says which basis it uses in its title, for example "(EUR, incl. VAT)".
+The invoice tiles and the pending list say "incl. VAT" or "excl. VAT" under their title.
 
 ## Usage
 

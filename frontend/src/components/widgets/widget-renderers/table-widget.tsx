@@ -4,6 +4,7 @@ import { DocumentStatusBadge } from "@/components/documents/document-status-badg
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+import { AmountBasisCaption } from "./amount-basis"
 import type { TableWidget } from "@/components/widgets/types"
 import type { WidgetRendererProps } from "./registry"
 
@@ -64,7 +65,13 @@ export function TableWidgetRenderer({ widget }: WidgetRendererProps) {
             <TableHeader>
               <TableRow>
                 {table.columns.map((column) => (
-                  <TableHead key={column.key}>{column.label}</TableHead>
+                  <TableHead key={column.key}>
+                    {column.label}
+                    <AmountBasisCaption
+                      basis={column.basis}
+                      dataCy={`widget-${table.id}-${column.key}-basis`}
+                    />
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>

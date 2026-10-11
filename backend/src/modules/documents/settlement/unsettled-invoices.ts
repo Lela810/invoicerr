@@ -1,7 +1,7 @@
 import { DocumentInstanceResult } from '../actions/action-registry';
 import { DocumentTypeDescriptor } from '../descriptors/types';
 import { computeDocumentTotals } from '../totals/compute-totals';
-import { computeSettlement } from './compute-settlement';
+import { DocumentSettlement, computeSettlement } from './compute-settlement';
 import { creditsForInvoiceFromNotes, listCreditNotes, toSettlementCreditInputs } from './credits';
 import { sumPaidMinorByDocument } from './payments';
 
@@ -27,23 +27,57 @@ export async function filterUnsettledInvoices(
   invoiceDescriptor: DocumentTypeDescriptor,
   invoices: readonly DocumentInstanceResult[],
 ): Promise<DocumentInstanceResult[]> {
-  const sentInvoices = invoices.filter(
-    (invoice) => invoice.status === 'sent' || invoice.status === 'imported',
-  );
+  const balances = await resolveUnsettledInvoiceBalances(companyId, invoiceDescriptor, invoices);
+  return balances.map((balance) => balance.invoice);
+}
+
+/** One invoice's totals and settlement, the same figures its settlement screen shows. */
+export interface InvoiceBalance {
+  invoice: DocumentInstanceResult;
+  netMinor: number;
+  grossMinor: number;
+  settlement: DocumentSettlement;
+}
+
+/** `filterUnsettledInvoices`, keeping each invoice's balance for callers that total what is owed. */
+export async function resolveUnsettledInvoiceBalances(
+  companyId: string,
+  invoiceDescriptor: DocumentTypeDescriptor,
+  invoices: readonly DocumentInstanceResult[],
+): Promise<InvoiceBalance[]> {
+  const sentInvoices = invoices.filter(isIssuedInvoice);
+  const balances = await resolveInvoiceBalances(companyId, invoiceDescriptor, sentInvoices);
+  return balances.filter((balance) => !balance.settlement.settled);
+}
+
+/** Payments and credit notes are read once for the whole batch, never once per invoice. */
+export async function resolveInvoiceBalances(
+  companyId: string,
+  invoiceDescriptor: DocumentTypeDescriptor,
+  invoices: readonly DocumentInstanceResult[],
+): Promise<InvoiceBalance[]> {
   const paidMinorByDocument = await sumPaidMinorByDocument(
     companyId,
-    sentInvoices.map((invoice) => invoice.id),
+    invoices.map((invoice) => invoice.id),
   );
   const creditNotes = await listCreditNotes(companyId);
 
-  return sentInvoices.filter((invoice) => {
+  return invoices.map((invoice) => {
     const data = (invoice.data ?? {}) as Record<string, unknown>;
-    const grossMinor = computeDocumentTotals(invoiceDescriptor, data).grossMinor;
+    const { netMinor, grossMinor } = computeDocumentTotals(invoiceDescriptor, data);
     const paidMinor = paidMinorByDocument.get(invoice.id) ?? 0;
     const { credits } = creditsForInvoiceFromNotes(creditNotes, invoice.id, invoiceDescriptor, data);
-    return !computeSettlement(grossMinor, [{ amountMinor: paidMinor }], toSettlementCreditInputs(credits))
-      .settled;
+    const settlement = computeSettlement(
+      grossMinor,
+      [{ amountMinor: paidMinor }],
+      toSettlementCreditInputs(credits),
+    );
+    return { invoice, netMinor, grossMinor, settlement };
   });
+}
+
+export function isIssuedInvoice(invoice: DocumentInstanceResult): boolean {
+  return invoice.status === 'sent' || invoice.status === 'imported';
 }
 
 /**

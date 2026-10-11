@@ -10,6 +10,7 @@ The **Statistics** page (route `/stats`) gives you a visual overview of your rev
 
 - **Revenue chart** — plotted over a configurable date range
 - **Key metrics** — total revenue, number of invoices paid, outstanding balance
+- **All invoices** table: each invoice's total and what is still owed on it, both including VAT
 - **Filter by period** — switch between monthly, quarterly, or yearly views
 
 ## Usage

@@ -58,10 +58,8 @@ function restrictToPeriod(
 
 /**
  * A quote's own gross (tax-included) total, for the statistics table's "Total" column — reuses
- * totals/compute-totals.ts's `computeDocumentTotals` rather than re-deriving a second, VAT-blind sum
- * the way invoice-contributions.ts's own `invoiceTotal` does. That shortcut works for the invoice's
- * table because it was written before this question mattered enough to answer properly; it is not
- * something to repeat here. A quote's lines carry a real `vatRate` (quote.descriptor.ts), so a
+ * totals/compute-totals.ts's `computeDocumentTotals`, the same function invoice-contributions.ts
+ * uses. A quote's lines carry a real `vatRate` (quote.descriptor.ts), so a
  * PER-DOCUMENT tax-included figure is fiscal arithmetic that already has a correct, tested
  * implementation — reinventing it in this file would be exactly the kind of home-grown machinery
  * this codebase avoids when a library (here, an in-repo one) already does the job.

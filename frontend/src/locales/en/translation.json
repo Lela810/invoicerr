@@ -1533,6 +1533,10 @@
     "emptyTitle": "Nothing to show yet",
     "emptyDescription": "This will fill in once your company has some documents to report on.",
     "unsupportedKind": "Widget \"{{label}}\" has kind \"{{kind}}\", which no renderer is registered for.",
+    "basis": {
+      "inclVat": "incl. VAT",
+      "exclVat": "excl. VAT"
+    },
     "shortList": {
       "empty": "Nothing to show."
     },
@@ -4517,13 +4521,13 @@
         },
         "widgets": {
           "invoice:pending": {
-            "label": "Pending invoices (incl. VAT)"
+            "label": "Pending invoices"
           },
           "invoice:issued-per-month": {
             "label": "Invoices issued"
           },
           "invoice:pending-total:consolidated": {
-            "label": "Pending invoices total (incl. VAT, consolidated, converted)"
+            "label": "Pending invoices total (consolidated, converted)"
           },
           "invoice:all": {
             "label": "All invoices"

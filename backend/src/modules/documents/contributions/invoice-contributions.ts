@@ -13,7 +13,12 @@ import {
   listRecentDocuments,
 } from '../persistence';
 import { listPaymentsInRange } from '../settlement/payments';
-import { filterUnsettledInvoices, isOverdueInvoice } from '../settlement/unsettled-invoices';
+import {
+  isIssuedInvoice,
+  isOverdueInvoice,
+  resolveInvoiceBalances,
+  resolveUnsettledInvoiceBalances,
+} from '../settlement/unsettled-invoices';
 import { ContributionHandler, ContributionRegistry } from './contribution-registry';
 import {
   consolidateByCurrency,
@@ -34,11 +39,9 @@ import {
  * The FIRST real contribution, written to be the model every other one follows — see this module's
  * own comments for the reasoning, not just the shape. It covers exactly what was asked for the
  * invoice: a dashboard curve and a pending-invoices list, plus a statistics table so both locations
- * have one worked example. Everything here is ARITHMETIC (counting, summing a document's own line
- * amounts, or — since payments (and now credits — credit matching) landed — its own recorded
- * payments and the credit notes correcting it) — never a fiscal rule: no VAT INVENTED here (though
- * `computeDocumentTotals` and `computeSettlement` are reused verbatim from their own modules for the
- * "pending" filter below, not reimplemented), no rounding convention invented, no numbering. See
+ * have one worked example. Everything here is ARITHMETIC (counting, and summing totals, payments and
+ * credit notes) — never a fiscal rule: every amount comes from `computeDocumentTotals` and
+ * `computeSettlement`, reused from their own modules, never reimplemented here. See
  * invoice.descriptor.ts's own header for the same boundary drawn for the invoice's FIELDS.
  */
 
@@ -68,22 +71,18 @@ const CURVE_MONTHS = 6;
  *  set instead — a sum or a count read off a capped page is simply a wrong number. */
 const STATISTICS_TABLE_ROW_LIMIT = 500;
 
-/** Net and gross through the same `computeDocumentTotals` the invoice list and the settlement use,
- *  so a dashboard figure can never disagree with the row it links to. */
-function invoiceTotals(data: Record<string, unknown>): { net: number; gross: number } {
-  const totals = computeDocumentTotals(INVOICE_DESCRIPTOR, data);
-  const currency = totals.currency ?? '';
-  return { net: fromMinor(totals.netMinor, currency), gross: fromMinor(totals.grossMinor, currency) };
+/** VAT-exclusive, through the same `computeDocumentTotals` the invoice list and the settlement use. */
+function invoiceNetMinor(data: Record<string, unknown>): number {
+  return computeDocumentTotals(INVOICE_DESCRIPTOR, data).netMinor;
 }
 
-/** What the client owes: the VAT-inclusive total. */
-function invoiceGrossTotal(data: Record<string, unknown>): number {
-  return invoiceTotals(data).gross;
+function currencyOf(data: Record<string, unknown>): string {
+  return typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
 }
 
-/** What was invoiced as revenue: the VAT-exclusive total. */
-function invoiceNetTotal(data: Record<string, unknown>): number {
-  return invoiceTotals(data).net;
+/** Sums stay in minor units; this is the one conversion, at the widget. */
+function widgetAmount(minor: number, currency: string): number {
+  return Number(fromMinor(minor, currency).toFixed(2));
 }
 
 /** "2026-08" for any parseable date-ish value, or null — used to bucket invoices by ISSUE month. */
@@ -221,14 +220,20 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
   // "excludes a 'cancelled' invoice" test proves it. The STATISTICS table below (`buildInvoice
   // StatisticsWidgets`) deliberately keeps counting it — that table is a full audit list of every
   // invoice ever issued, "cancelled" included, exactly like "draft"/"send_failed" already are.
-  const pendingInvoices = await filterUnsettledInvoices(companyId, INVOICE_DESCRIPTOR, periodInvoices);
+  const pendingBalances = await resolveUnsettledInvoiceBalances(
+    companyId,
+    INVOICE_DESCRIPTOR,
+    periodInvoices,
+  );
 
-  const pendingItems: ShortListItem[] = pendingInvoices
-    .map((invoice) => {
+  // A row shows the invoice's total, the figure its list row shows; the tiles below total what is
+  // still owed on it.
+  const pendingItems: ShortListItem[] = pendingBalances
+    .map(({ invoice, grossMinor }) => {
       const data = (invoice.data ?? {}) as Record<string, unknown>;
       const currency = typeof data.currency === 'string' ? data.currency : '';
       const dueDate = typeof data.dueDate === 'string' ? data.dueDate : undefined;
-      const total = invoiceGrossTotal(data);
+      const total = fromMinor(grossMinor, currency);
       return {
         id: invoice.id,
         // The invoice's own number when it has one (a "sent" invoice normally does — numbering
@@ -249,7 +254,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
   const pendingWidget: ShortListWidget = {
     id: 'invoice:pending',
     kind: 'shortList',
-    label: 'Pending invoices (incl. VAT)',
+    label: 'Pending invoices',
+    basis: 'inclVat',
     documentTypeId: 'invoice',
     items: pendingItems,
   };
@@ -267,7 +273,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
   // exactly the documents the figure aggregates. `...period` (issue #418) carries the active period
   // onto the link too - absent (spreading `undefined`) when no period is set, the pre-#418 shape.
   // 'imported' (issue #340) added to every link below alongside 'sent': the tile's own TOTAL already
-  // includes imported invoices (`pendingInvoices` comes from `filterUnsettledInvoices`, widened for
+  // includes imported invoices (`pendingBalances` comes from `resolveUnsettledInvoiceBalances`, widened for
   // this issue), so its drill-down link must offer the same statuses or "click through to see these"
   // would silently drop rows the tile just counted.
   const overdueLink: MetricWidgetLink = {
@@ -277,14 +283,10 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     ...period,
   };
   const overdueTotalsByCurrency = new Map<string, number>();
-  for (const invoice of pendingInvoices) {
-    const data = (invoice.data ?? {}) as Record<string, unknown>;
-    const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
-    const overdue = isOverdueInvoice(invoice, todayIso);
-    overdueTotalsByCurrency.set(
-      currency,
-      (overdueTotalsByCurrency.get(currency) ?? 0) + (overdue ? invoiceGrossTotal(data) : 0),
-    );
+  for (const { invoice, settlement } of pendingBalances) {
+    const currency = currencyOf((invoice.data ?? {}) as Record<string, unknown>);
+    const overdueMinor = isOverdueInvoice(invoice, todayIso) ? settlement.outstandingMinor : 0;
+    overdueTotalsByCurrency.set(currency, (overdueTotalsByCurrency.get(currency) ?? 0) + overdueMinor);
   }
   const overdueTotalWidgets: MetricWidget[] =
     overdueTotalsByCurrency.size === 0
@@ -292,7 +294,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
           {
             id: 'invoice:overdue-total',
             kind: 'metric',
-            label: 'Overdue invoices total (incl. VAT)',
+            label: 'Overdue invoices total',
+            basis: 'inclVat',
             value: 0,
             link: overdueLink,
           },
@@ -302,9 +305,10 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
           .map(([currency, total]) => ({
             id: `invoice:overdue-total:${currency}`,
             kind: 'metric',
-            label: `Overdue invoices total (${currency}, incl. VAT)`,
+            label: `Overdue invoices total (${currency})`,
+            basis: 'inclVat',
             unit: currency,
-            value: Number(total.toFixed(2)),
+            value: widgetAmount(total, currency),
             link: overdueLink,
           }));
 
@@ -320,12 +324,11 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     ...period,
   };
   const pendingTotalsByCurrency = new Map<string, number>();
-  for (const invoice of pendingInvoices) {
-    const data = (invoice.data ?? {}) as Record<string, unknown>;
-    const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
+  for (const { invoice, settlement } of pendingBalances) {
+    const currency = currencyOf((invoice.data ?? {}) as Record<string, unknown>);
     pendingTotalsByCurrency.set(
       currency,
-      (pendingTotalsByCurrency.get(currency) ?? 0) + invoiceGrossTotal(data),
+      (pendingTotalsByCurrency.get(currency) ?? 0) + settlement.outstandingMinor,
     );
   }
   const pendingTotalWidgets: MetricWidget[] = [...pendingTotalsByCurrency.entries()]
@@ -333,9 +336,10 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     .map(([currency, total]) => ({
       id: `invoice:pending-total:${currency}`,
       kind: 'metric',
-      label: `Pending invoices total (${currency}, incl. VAT)`,
+      label: `Pending invoices total (${currency})`,
+      basis: 'inclVat',
       unit: currency,
-      value: Number(total.toFixed(2)),
+      value: widgetAmount(total, currency),
       link: pendingLink,
     }));
 
@@ -389,10 +393,10 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
       const data = (invoice.data ?? {}) as Record<string, unknown>;
       const key = monthKey(data.issueDate);
       if (key !== thisMonthKey && key !== lastMonthKey) continue;
-      const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
+      const currency = currencyOf(data);
       const bucket = issuedByCurrency.get(currency) ?? { thisMonth: 0, lastMonth: 0 };
-      if (key === thisMonthKey) bucket.thisMonth += invoiceNetTotal(data);
-      else bucket.lastMonth += invoiceNetTotal(data);
+      if (key === thisMonthKey) bucket.thisMonth += invoiceNetMinor(data);
+      else bucket.lastMonth += invoiceNetMinor(data);
       issuedByCurrency.set(currency, bucket);
     }
     // Same month boundaries the figure itself buckets by (`monthKey`/`monthRange`), so the tile's own
@@ -408,7 +412,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             {
               id: 'invoice:issued-this-month',
               kind: 'metric',
-              label: 'Invoiced this month (excl. VAT)',
+              label: 'Invoiced this month',
+              basis: 'exclVat',
               value: 0,
               link: issuedLink,
             },
@@ -418,10 +423,11 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             .map(([currency, { thisMonth, lastMonth }]) => ({
               id: `invoice:issued-this-month:${currency}`,
               kind: 'metric',
-              label: `Invoiced this month (${currency}, excl. VAT)`,
+              label: `Invoiced this month (${currency})`,
+              basis: 'exclVat',
               unit: currency,
-              value: Number(thisMonth.toFixed(2)),
-              previousValue: Number(lastMonth.toFixed(2)),
+              value: widgetAmount(thisMonth, currency),
+              previousValue: widgetAmount(lastMonth, currency),
               link: issuedLink,
             }));
   } else {
@@ -436,8 +442,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     const issuedByCurrency = new Map<string, number>();
     for (const invoice of sentInPeriod) {
       const data = (invoice.data ?? {}) as Record<string, unknown>;
-      const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
-      issuedByCurrency.set(currency, (issuedByCurrency.get(currency) ?? 0) + invoiceNetTotal(data));
+      const currency = currencyOf(data);
+      issuedByCurrency.set(currency, (issuedByCurrency.get(currency) ?? 0) + invoiceNetMinor(data));
     }
     const issuedLink: MetricWidgetLink = { typeId: 'invoice', status: ['sent', 'imported'], ...period };
     issuedWidgets =
@@ -446,7 +452,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             {
               id: 'invoice:issued-in-period',
               kind: 'metric',
-              label: 'Invoiced in period (excl. VAT)',
+              label: 'Invoiced in period',
+              basis: 'exclVat',
               value: 0,
               link: issuedLink,
             },
@@ -456,9 +463,10 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             .map(([currency, total]) => ({
               id: `invoice:issued-in-period:${currency}`,
               kind: 'metric',
-              label: `Invoiced in period (${currency}, excl. VAT)`,
+              label: `Invoiced in period (${currency})`,
+              basis: 'exclVat',
               unit: currency,
-              value: Number(total.toFixed(2)),
+              value: widgetAmount(total, currency),
               link: issuedLink,
             }));
   }
@@ -630,7 +638,8 @@ export const buildInvoiceDashboardWidgetsWithConsolidation: ContributionHandler 
       extraWidgets.push({
         id: 'invoice:pending-total:consolidated',
         kind: 'metric',
-        label: 'Pending invoices total (incl. VAT, consolidated, converted)',
+        label: 'Pending invoices total (consolidated, converted)',
+        basis: 'inclVat',
         unit: `${consolidated.currency} (converted)`,
         approx: true,
         value: Number(fromMinor(consolidated.totalMinor, consolidated.currency).toFixed(2)),
@@ -678,7 +687,7 @@ export const buildInvoiceDashboardWidgetsWithConsolidation: ContributionHandler 
 /**
  * STATISTICS: "everything, in exhaustive detail" — one row per invoice, every field arithmetic can honestly
  * derive from what is already stored (no client name resolution, no cross-module join: this stays a
- * pure aggregation over the invoice's OWN data, the same boundary `invoiceTotals` draws).
+ * pure aggregation over the invoice's OWN data, its payments and the credit notes correcting it).
  */
 export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ companyId }) => {
   // TWO reads, deliberately: the table is a capped DISPLAY list, the count metric beside it is a
@@ -690,14 +699,18 @@ export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ compa
     countDocuments(companyId, 'invoice'),
   ]);
 
-  const rows = invoices.map((invoice) => {
+  const balances = await resolveInvoiceBalances(companyId, INVOICE_DESCRIPTOR, invoices);
+  const rows = balances.map(({ invoice, grossMinor, settlement }) => {
     const data = (invoice.data ?? {}) as Record<string, unknown>;
+    const currency = typeof data.currency === 'string' ? data.currency : '';
     return {
       issueDate: typeof data.issueDate === 'string' ? data.issueDate : '',
       dueDate: typeof data.dueDate === 'string' ? data.dueDate : '',
       status: invoice.status,
-      currency: typeof data.currency === 'string' ? data.currency : '',
-      total: Number(invoiceGrossTotal(data).toFixed(2)),
+      currency,
+      total: widgetAmount(grossMinor, currency),
+      // Nothing is owed on an invoice that was never issued, or was cancelled.
+      outstanding: isIssuedInvoice(invoice) ? widgetAmount(settlement.outstandingMinor, currency) : '',
     };
   });
 
@@ -719,7 +732,8 @@ export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ compa
       { key: 'dueDate', label: 'Due date' },
       { key: 'status', label: 'Status' },
       { key: 'currency', label: 'Currency' },
-      { key: 'total', label: 'Total (incl. VAT)' },
+      { key: 'total', label: 'Total', basis: 'inclVat' },
+      { key: 'outstanding', label: 'Outstanding', basis: 'inclVat' },
     ],
     rows,
   };
@@ -742,4 +756,4 @@ export function registerInvoiceContributions(registry: ContributionRegistry): vo
 // Re-exported for tests that want to prove the arithmetic directly, the same way
 // actions/email-template.ts exports its own pure pieces for email-template.spec.ts.
 export type { Widget };
-export { invoiceGrossTotal, invoiceNetTotal, monthKey, monthRange, monthsSpanning, recentMonths };
+export { monthKey, monthRange, monthsSpanning, recentMonths };
