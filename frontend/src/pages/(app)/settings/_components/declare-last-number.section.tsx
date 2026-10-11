@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePost } from "@/hooks/use-fetch"
@@ -133,7 +133,6 @@ export function DeclareLastNumberSection() {
           <FieldLabel
             htmlFor="declare-last-number-pattern"
             description={t("settings.declareLastNumber.patternHint")}
-            descriptionId="declare-last-number-pattern-help"
           >
             {t("settings.declareLastNumber.pattern")}
           </FieldLabel>
@@ -154,7 +153,7 @@ export function DeclareLastNumberSection() {
           value={pattern}
           onChange={(event) => setPattern(event.target.value)}
           placeholder="FA-{year}-{number:4}"
-          aria-describedby="declare-last-number-pattern-help"
+          aria-describedby={fieldHelpId("declare-last-number-pattern")}
           data-cy="declare-last-number-pattern"
         />
       </div>

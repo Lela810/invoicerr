@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { Separator } from "@/components/ui/separator"
@@ -389,12 +389,12 @@ function SystemTemplateCard({
             <FieldLabel
               htmlFor={`body-${template.id}`}
               description={t("settings.emailTemplates.editor.systemHtmlTip")}
-              descriptionId={`body-${template.id}-help`}
             >
               {t("settings.emailTemplates.editor.htmlBody")}
             </FieldLabel>
             <RichTextEditor
               id={`body-${template.id}`}
+              aria-describedby={fieldHelpId(`body-${template.id}`)}
               value={body}
               onChange={setBody}
               readOnly={!canEdit}
@@ -541,12 +541,12 @@ function DocumentTemplateCard({
             <FieldLabel
               htmlFor={`body-${template.typeId}`}
               description={t("settings.emailTemplates.editor.systemHtmlTip")}
-              descriptionId={`body-${template.typeId}-help`}
             >
               {t("settings.emailTemplates.editor.body")}
             </FieldLabel>
             <RichTextEditor
               id={`body-${template.typeId}`}
+              aria-describedby={fieldHelpId(`body-${template.typeId}`)}
               value={content}
               onChange={setContent}
               readOnly={!canEdit}

@@ -1,9 +1,5 @@
 export {}; // makes this spec a module, not a global script -- see tsconfig.json
 
-/**
- * A field's description sits behind the `?` next to its label: hovering, tapping or focusing it shows
- * the text in a popover, and nothing is printed under the field any more.
- */
 const row = '[data-cy="document-field-lines-row-0"]';
 const vatRateHelp = `${row} [data-cy="document-field-vatRate-help"]`;
 const vatRateTrigger = `${row} [data-cy="document-field-vatRate-help-trigger"]`;
@@ -45,6 +41,10 @@ describe("Field help popover", () => {
 				cy.get(vatRateTrigger).trigger("pointerover", { eventConstructor: "PointerEvent", pointerType: "mouse" });
 				cy.get(vatRateContent).should("be.visible").and("contain.text", description.trim());
 				cy.get(vatRateTrigger).trigger("pointerout", { eventConstructor: "PointerEvent", pointerType: "mouse" });
+				cy.get(vatRateContent).trigger("pointerover", { eventConstructor: "PointerEvent", pointerType: "mouse" });
+				cy.wait(300);
+				cy.get(vatRateContent).should("be.visible");
+				cy.get(vatRateContent).trigger("pointerout", { eventConstructor: "PointerEvent", pointerType: "mouse" });
 				cy.get(vatRateContent).should("not.exist");
 
 				cy.get(vatRateTrigger).click();

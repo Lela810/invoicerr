@@ -233,7 +233,11 @@ function ImportDocumentCsvButton({ descriptor }: DocumentCustomSlotProps) {
                     if (event.target.files) void handleOriginalFiles(event.target.files)
                   }}
                 />
-                <p className="text-xs text-muted-foreground" role="status">
+                <p
+                  className="text-xs text-muted-foreground"
+                  role="status"
+                  data-cy="import-document-csv-files-count"
+                >
                   {t("documents.custom.importCsv.filesHint", { count: Object.keys(files).length })}
                 </p>
               </div>

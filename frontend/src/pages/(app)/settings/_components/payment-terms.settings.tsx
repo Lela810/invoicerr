@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePaymentTerms, useSavePaymentTerms } from "@/hooks/queries/use-payment-terms"
@@ -72,7 +72,6 @@ function TermSection({
           <FieldLabel
             htmlFor={`payment-terms-${termKey}-days`}
             description={t("settings.paymentTerms.form.daysHint")}
-            descriptionId={`payment-terms-${termKey}-days-help`}
           >
             {t("settings.paymentTerms.form.days")}
           </FieldLabel>
@@ -86,7 +85,7 @@ function TermSection({
             placeholder={t("settings.paymentTerms.form.daysPlaceholder")}
             value={draft.days}
             aria-invalid={invalid}
-            aria-describedby={`payment-terms-${termKey}-days-help${invalid ? ` payment-terms-${termKey}-days-error` : ""}`}
+            aria-describedby={`${fieldHelpId(`payment-terms-${termKey}-days`)}${invalid ? ` payment-terms-${termKey}-days-error` : ""}`}
             onChange={(event) => onChange({ ...draft, days: event.target.value })}
             data-cy={`payment-terms-${termKey}-days-input`}
           />

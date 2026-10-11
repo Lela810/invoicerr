@@ -65,13 +65,98 @@ describe("field descriptions guard", () => {
     expect(findDescriptionsUnderFields(source)).toEqual([])
   })
 
-  it("leaves live status lines and inline separators next to a control alone", () => {
+  it("leaves the allow-listed live status lines and inline separators alone", () => {
     const source = `
       <input type="file" onChange={onFiles} />
-      <p className="text-xs text-muted-foreground" role="status">{files_count}</p>
+      <p className="text-xs text-muted-foreground" role="status" data-cy="import-document-csv-files-count">{files_count}</p>
       <DatePicker value={from} />
       <span className="text-muted-foreground text-sm">-</span>
       <DatePicker value={to} />`
+    expect(findDescriptionsUnderFields(source)).toEqual([])
+  })
+
+  it.each([
+    [
+      "a role=status line that is not allow-listed",
+      `<Input id="x" />
+      <p className="text-xs text-muted-foreground" role="status">{x_hint}</p>`,
+    ],
+    [
+      "a paragraph after a wrapper holding the input",
+      `<Label htmlFor="uri">{uri_label}</Label>
+      <div className="flex gap-2">
+        <Input id="uri" readOnly value={uri} />
+        <Button onClick={copy}>{copy_label}</Button>
+      </div>
+      <p className="text-xs text-muted-foreground">{uri_hint}</p>`,
+    ],
+    [
+      "a paragraph after a Radix select",
+      `<Select value={v} onValueChange={setV}>
+        <SelectTrigger id="mode"><SelectValue /></SelectTrigger>
+      </Select>
+      <p className="text-xs text-muted-foreground">{mode_hint}</p>`,
+    ],
+    [
+      "a span after an input",
+      `<Input id="days" />
+      <span className="text-xs text-muted-foreground">{days_hint}</span>`,
+    ],
+    [
+      "a small after an input",
+      `<Input id="days" />
+      <small className="text-muted-foreground">{days_hint}</small>`,
+    ],
+    [
+      "a class built with a template literal",
+      `<Input id="days" />
+      <p className={\`\${size} text-muted-foreground\`}>{days_hint}</p>`,
+    ],
+  ])("flags %s", (_case, source) => {
+    expect(findDescriptionsUnderFields(source)).toHaveLength(1)
+  })
+
+  it.each([
+    [
+      "muted text inside a FormControl that carries a className",
+      `<FormItem>
+        <FormLabel>Date</FormLabel>
+        <FormControl className="w-full">
+          <div><span className="text-xs text-muted-foreground">{date_format}</span></div>
+        </FormControl>
+      </FormItem>`,
+    ],
+    [
+      "an (optional) marker inside the label",
+      `<FormItem>
+        <FormLabel>{name_label} <span className="text-muted-foreground">{optional_label}</span></FormLabel>
+        <FormControl><Input {...field} /></FormControl>
+      </FormItem>`,
+    ],
+    [
+      "a unit suffix next to the control",
+      `<FormItem>
+        <FormLabel>{rate_label}</FormLabel>
+        <div className="flex items-center gap-2">
+          <FormControl><Input {...field} /></FormControl>
+          <span className="text-sm text-muted-foreground">%</span>
+        </div>
+      </FormItem>`,
+    ],
+    [
+      "an empty state after a component whose name ends in Field",
+      `<DocumentField field={f} name={n} />
+      <p className="text-sm text-muted-foreground">{rows_empty}</p>`,
+    ],
+    [
+      "a note after a toolbar that holds a control but no label",
+      `<div className="flex gap-2">
+        <Select value={period} onValueChange={setPeriod}><SelectTrigger /></Select>
+        <Button onClick={exportReport}>{export_label}</Button>
+      </div>
+      {report && <p className="text-xs text-muted-foreground">{report_note}</p>}`,
+    ],
+  ])("leaves %s alone", (_case, source) => {
     expect(findDescriptionsUnderFields(source)).toEqual([])
   })
 

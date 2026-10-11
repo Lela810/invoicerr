@@ -9,8 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
-import { Label } from "@/components/ui/label"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { authenticatedFetch, useDelete, useGet, usePost, usePut } from "@/hooks/use-fetch"
 import { useDemoMode } from "@/hooks/queries"
 import { useMutationWithToast } from "@/hooks/use-mutation-with-toast"
@@ -386,10 +385,19 @@ export default function SsoSettings() {
           {/* Needed BEFORE anything is configured — it is what the customer registers at their IdP in
               order to create the application in the first place — so it is always shown. */}
           <div className="space-y-1.5">
-            <Label htmlFor="sso-redirect-uri">{t("settings.sso.redirectUri.label", "Redirect URI")}</Label>
+            <FieldLabel
+              htmlFor="sso-redirect-uri"
+              description={t(
+                "settings.sso.redirectUri.hint",
+                "Register this exact URL as the redirect/callback URI at your identity provider.",
+              )}
+            >
+              {t("settings.sso.redirectUri.label", "Redirect URI")}
+            </FieldLabel>
             <div className="flex items-center gap-2">
               <Input
                 id="sso-redirect-uri"
+                aria-describedby={fieldHelpId("sso-redirect-uri")}
                 readOnly
                 value={redirectUri}
                 className="font-mono text-xs"
@@ -405,22 +413,23 @@ export default function SsoSettings() {
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t(
-                "settings.sso.redirectUri.hint",
-                "Register this exact URL as the redirect/callback URI at your identity provider.",
-              )}
-            </p>
           </div>
 
           {provider && (
             <div className="space-y-1.5">
-              <Label htmlFor="sso-direct-link">
+              <FieldLabel
+                htmlFor="sso-direct-link"
+                description={t(
+                  "settings.sso.directLink.hint",
+                  "Share this link with your team: it offers your provider straight away, with no email lookup.",
+                )}
+              >
                 {t("settings.sso.directLink.label", "Direct sign-in link")}
-              </Label>
+              </FieldLabel>
               <div className="flex items-center gap-2">
                 <Input
                   id="sso-direct-link"
+                  aria-describedby={fieldHelpId("sso-direct-link")}
                   readOnly
                   value={directLink}
                   className="font-mono text-xs"
@@ -436,12 +445,6 @@ export default function SsoSettings() {
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {t(
-                  "settings.sso.directLink.hint",
-                  "Share this link with your team: it offers your provider straight away, with no email lookup.",
-                )}
-              </p>
             </div>
           )}
         </div>
@@ -631,7 +634,6 @@ export default function SsoSettings() {
                 <FieldLabel
                   htmlFor={`sso-${field.key}`}
                   description={field.hintKey ? t(field.hintKey, field.hintDefault ?? "") : undefined}
-                  descriptionId={`sso-${field.key}-help`}
                 >
                   {t(field.labelKey, field.labelDefault)}
                 </FieldLabel>
@@ -642,7 +644,7 @@ export default function SsoSettings() {
                   placeholder={field.placeholder}
                   value={form[field.key] ?? ""}
                   onChange={(e) => setForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                  aria-describedby={field.hintKey ? `sso-${field.key}-help` : undefined}
+                  aria-describedby={field.hintKey ? fieldHelpId(`sso-${field.key}`) : undefined}
                 />
               </div>
             ))}

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FormField, FormGroup, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useSelectableRows } from "@/hooks/queries"
 
 import { useConditionallyRequired } from "./primitive-fields"
@@ -76,64 +76,62 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
             >
               {field.label}
             </FormLabel>
-            <FormControl>
-              <div className="space-y-2 rounded-md border p-3">
-                {!sourceId && (
-                  <p
-                    className="text-sm text-muted-foreground"
-                    data-cy={`document-field-${field.key}-no-source`}
-                  >
-                    {t("documents.form.rowSelection.selectSourceFirst")}
-                  </p>
-                )}
-                {sourceId && isLoading && (
-                  <p className="text-sm text-muted-foreground">{t("documents.form.rowSelection.loading")}</p>
-                )}
-                {sourceId && !isLoading && rows.length === 0 && (
-                  <p className="text-sm text-muted-foreground" data-cy={`document-field-${field.key}-empty`}>
-                    {t("documents.form.rowSelection.noRows")}
-                  </p>
-                )}
+            <FormGroup className="space-y-2 rounded-md border p-3">
+              {!sourceId && (
+                <p
+                  className="text-sm text-muted-foreground"
+                  data-cy={`document-field-${field.key}-no-source`}
+                >
+                  {t("documents.form.rowSelection.selectSourceFirst")}
+                </p>
+              )}
+              {sourceId && isLoading && (
+                <p className="text-sm text-muted-foreground">{t("documents.form.rowSelection.loading")}</p>
+              )}
+              {sourceId && !isLoading && rows.length === 0 && (
+                <p className="text-sm text-muted-foreground" data-cy={`document-field-${field.key}-empty`}>
+                  {t("documents.form.rowSelection.noRows")}
+                </p>
+              )}
 
-                {rows.map((row) => (
-                  <label
-                    key={row.id}
-                    className="flex items-center gap-2 text-sm"
-                    data-cy={`document-field-${field.key}-row-${row.id}`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-primary"
-                      checked={selected.includes(row.id)}
-                      onChange={(e) => toggle(row.id, e.target.checked)}
-                      disabled={readOnly}
-                      data-cy={`document-field-${field.key}-row-${row.id}-checkbox`}
-                    />
-                    <span>{previewRow(row.data)}</span>
-                  </label>
-                ))}
+              {rows.map((row) => (
+                <label
+                  key={row.id}
+                  className="flex items-center gap-2 text-sm"
+                  data-cy={`document-field-${field.key}-row-${row.id}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-primary"
+                    checked={selected.includes(row.id)}
+                    onChange={(e) => toggle(row.id, e.target.checked)}
+                    disabled={readOnly}
+                    data-cy={`document-field-${field.key}-row-${row.id}-checkbox`}
+                  />
+                  <span>{previewRow(row.data)}</span>
+                </label>
+              ))}
 
-                {missing.map((id) => (
-                  <div
-                    key={id}
-                    className="flex items-center justify-between gap-2 rounded-md border border-dashed border-destructive/50 p-2 text-sm text-destructive"
-                    data-cy={`document-field-${field.key}-missing-${id}`}
+              {missing.map((id) => (
+                <div
+                  key={id}
+                  className="flex items-center justify-between gap-2 rounded-md border border-dashed border-destructive/50 p-2 text-sm text-destructive"
+                  data-cy={`document-field-${field.key}-missing-${id}`}
+                >
+                  <span>{t("documents.form.rowSelection.missingRow")}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggle(id, false)}
+                    disabled={readOnly}
+                    dataCy={`document-field-${field.key}-missing-${id}-remove`}
                   >
-                    <span>{t("documents.form.rowSelection.missingRow")}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggle(id, false)}
-                      disabled={readOnly}
-                      dataCy={`document-field-${field.key}-missing-${id}-remove`}
-                    >
-                      {t("documents.form.rowSelection.removeMissing")}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </FormControl>
+                    {t("documents.form.rowSelection.removeMissing")}
+                  </Button>
+                </div>
+              ))}
+            </FormGroup>
             <FormMessage />
           </FormItem>
         )

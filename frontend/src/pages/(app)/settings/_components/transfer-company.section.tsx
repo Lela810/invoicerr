@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "@/hooks/use-api-query"
@@ -169,7 +169,6 @@ export default function TransferCompanySection() {
             <FieldLabel
               htmlFor="transfer-company-email"
               description={t("settings.transferCompany.form.emailHint")}
-              descriptionId="transfer-company-email-help"
             >
               {t("settings.transferCompany.form.emailLabel")}
             </FieldLabel>
@@ -179,7 +178,7 @@ export default function TransferCompanySection() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("settings.transferCompany.form.emailPlaceholder")}
-              aria-describedby="transfer-company-email-help"
+              aria-describedby={fieldHelpId("transfer-company-email")}
               data-cy="transfer-company-email-input"
             />
           </div>

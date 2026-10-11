@@ -418,21 +418,21 @@ function FiscalStep({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("clients.upsert.fields.kind.label", "Client kind")}</FormLabel>
-              <FormControl>
-                <Select value={field.value || "BUSINESS"} onValueChange={(value) => field.onChange(value)}>
+              <Select value={field.value || "BUSINESS"} onValueChange={(value) => field.onChange(value)}>
+                <FormControl>
                   <SelectTrigger dataCy="client-kind-select">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BUSINESS" dataCy="client-kind-business">
-                      {t("clients.upsert.fields.kind.business", "Business")}
-                    </SelectItem>
-                    <SelectItem value="GOVERNMENT" dataCy="client-kind-government">
-                      {t("clients.upsert.fields.kind.government", "Government / public body")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="BUSINESS" dataCy="client-kind-business">
+                    {t("clients.upsert.fields.kind.business", "Business")}
+                  </SelectItem>
+                  <SelectItem value="GOVERNMENT" dataCy="client-kind-government">
+                    {t("clients.upsert.fields.kind.government", "Government / public body")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -522,33 +522,33 @@ function FiscalStep({
                     >
                       {req.label}
                     </FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2">
+                    <div className="flex gap-2">
+                      <FormControl>
                         <Input
                           {...field}
                           placeholder={req.label}
                           data-cy={`client-identifier-${req.scheme}`}
                         />
-                        {canLookupScheme(req.scheme) && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={companyLookupLoading || !String(field.value || "").trim()}
-                            onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
-                            aria-label={t("clients.upsert.actions.lookupCompany")}
-                            title={
-                              lookupIdentifierLabel
-                                ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                : t("clients.upsert.actions.lookupCompany")
-                            }
-                            dataCy="client-company-lookup"
-                          >
-                            {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                          </Button>
-                        )}
-                      </div>
-                    </FormControl>
+                      </FormControl>
+                      {canLookupScheme(req.scheme) && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={companyLookupLoading || !String(field.value || "").trim()}
+                          onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
+                          aria-label={t("clients.upsert.actions.lookupCompany")}
+                          title={
+                            lookupIdentifierLabel
+                              ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                              : t("clients.upsert.actions.lookupCompany")
+                          }
+                          dataCy="client-company-lookup"
+                        >
+                          {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                        </Button>
+                      )}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -574,31 +574,32 @@ function FiscalStep({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("clients.upsert.fields.peppolSchemeId.label") || "Peppol scheme"}</FormLabel>
-              <FormControl>
-                <Select value={field.value || "0088"} onValueChange={field.onChange}>
+              <Select value={field.value || "0088"} onValueChange={field.onChange}>
+                <FormControl>
                   <SelectTrigger data-cy="client-peppol-scheme-select">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0088" dataCy="client-peppol-scheme-option-0088">
-                      0088 — GLN
-                    </SelectItem>
-                    <SelectItem value="0192" dataCy="client-peppol-scheme-option-0192">
-                      0192 — NO org.nr
-                    </SelectItem>
-                    <SelectItem value="0009" dataCy="client-peppol-scheme-option-0009">
-                      0009 — FR SIRET
-                    </SelectItem>
-                    <SelectItem value="9925" dataCy="client-peppol-scheme-option-9925">
-                      9925 — EU VAT
-                    </SelectItem>
-                    <SelectItem value="0007" dataCy="client-peppol-scheme-option-0007">
-                      0007 — SE org.nr
-                    </SelectItem>
-                    <SelectItem value="0208" dataCy="client-peppol-scheme-option-0208">
-                      0208 — BE org.nr
-                    </SelectItem>
-                    {/*
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="0088" dataCy="client-peppol-scheme-option-0088">
+                    0088 — GLN
+                  </SelectItem>
+                  <SelectItem value="0192" dataCy="client-peppol-scheme-option-0192">
+                    0192 — NO org.nr
+                  </SelectItem>
+                  <SelectItem value="0009" dataCy="client-peppol-scheme-option-0009">
+                    0009 — FR SIRET
+                  </SelectItem>
+                  <SelectItem value="9925" dataCy="client-peppol-scheme-option-9925">
+                    9925 — EU VAT
+                  </SelectItem>
+                  <SelectItem value="0007" dataCy="client-peppol-scheme-option-0007">
+                    0007 — SE org.nr
+                  </SelectItem>
+                  <SelectItem value="0208" dataCy="client-peppol-scheme-option-0208">
+                    0208 — BE org.nr
+                  </SelectItem>
+                  {/*
                       Was "0106 — DK CVR", WRONG: 0106 is the Dutch
                       KVK ("Vereniging van Kamers van Koophandel en Fabrieken in Nederland", NL,
                       active) in the Peppol v9.7 Participant Identifier Schemes codelist
@@ -607,19 +608,19 @@ function FiscalStep({
                       2026-09-03. The real Danish CVR is 0184 (Peppol scheme name: "The Danish
                       Business Authority - CVR-number (DK:CVR)"), added just below.
                     */}
-                    <SelectItem value="0106" dataCy="client-peppol-scheme-option-0106">
-                      0106 — NL KVK
-                    </SelectItem>
-                    <SelectItem value="0184" dataCy="client-peppol-scheme-option-0184">
-                      0184 — DK CVR
-                    </SelectItem>
-                    <SelectItem value="0151" dataCy="client-peppol-scheme-option-0151">
-                      0151 — AU ABN
-                    </SelectItem>
-                    <SelectItem value="0060" dataCy="client-peppol-scheme-option-0060">
-                      0060 — DUNS
-                    </SelectItem>
-                    {/*
+                  <SelectItem value="0106" dataCy="client-peppol-scheme-option-0106">
+                    0106 — NL KVK
+                  </SelectItem>
+                  <SelectItem value="0184" dataCy="client-peppol-scheme-option-0184">
+                    0184 — DK CVR
+                  </SelectItem>
+                  <SelectItem value="0151" dataCy="client-peppol-scheme-option-0151">
+                    0151 — AU ABN
+                  </SelectItem>
+                  <SelectItem value="0060" dataCy="client-peppol-scheme-option-0060">
+                    0060 — DUNS
+                  </SelectItem>
+                  {/*
                       The seven EAS the 2026-09-02 B2G audit added routing rules for
                       (backend/src/modules/documents/b2g-routing/data/{ee,lt,lv,lu,cy,gr,mt}.json)
                       but this selector never offered — each label below is the scheme name the
@@ -632,30 +633,29 @@ function FiscalStep({
                       their VAT scheme (9928/9933/9943) exists, per those same three files' own
                       notes.
                     */}
-                    <SelectItem value="0191" dataCy="client-peppol-scheme-option-0191">
-                      0191 — EE Company code
-                    </SelectItem>
-                    <SelectItem value="0200" dataCy="client-peppol-scheme-option-0200">
-                      0200 — LT Legal entity code
-                    </SelectItem>
-                    <SelectItem value="0218" dataCy="client-peppol-scheme-option-0218">
-                      0218 — LV Unified registration number
-                    </SelectItem>
-                    <SelectItem value="0240" dataCy="client-peppol-scheme-option-0240">
-                      0240 — LU Register of legal persons
-                    </SelectItem>
-                    <SelectItem value="9928" dataCy="client-peppol-scheme-option-9928">
-                      9928 — CY VAT number
-                    </SelectItem>
-                    <SelectItem value="9933" dataCy="client-peppol-scheme-option-9933">
-                      9933 — GR VAT number
-                    </SelectItem>
-                    <SelectItem value="9943" dataCy="client-peppol-scheme-option-9943">
-                      9943 — MT VAT number
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                  <SelectItem value="0191" dataCy="client-peppol-scheme-option-0191">
+                    0191 — EE Company code
+                  </SelectItem>
+                  <SelectItem value="0200" dataCy="client-peppol-scheme-option-0200">
+                    0200 — LT Legal entity code
+                  </SelectItem>
+                  <SelectItem value="0218" dataCy="client-peppol-scheme-option-0218">
+                    0218 — LV Unified registration number
+                  </SelectItem>
+                  <SelectItem value="0240" dataCy="client-peppol-scheme-option-0240">
+                    0240 — LU Register of legal persons
+                  </SelectItem>
+                  <SelectItem value="9928" dataCy="client-peppol-scheme-option-9928">
+                    9928 — CY VAT number
+                  </SelectItem>
+                  <SelectItem value="9933" dataCy="client-peppol-scheme-option-9933">
+                    9933 — GR VAT number
+                  </SelectItem>
+                  <SelectItem value="9943" dataCy="client-peppol-scheme-option-9943">
+                    9943 — MT VAT number
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

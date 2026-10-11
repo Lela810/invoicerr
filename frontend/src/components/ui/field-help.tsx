@@ -3,36 +3,32 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { CircleHelp } from "lucide-react"
 import type * as React from "react"
-import { useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Label } from "@/components/ui/label"
 import { PopoverContent } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
-// Focus from a mouse press must not open the help (the click that follows would toggle it shut
-// again), so focus only opens it when the last input was the keyboard.
-let lastInputWasKeyboard = false
+export const fieldHelpId = (fieldId: string) => `${fieldId}-help`
+
+// Only a Tab press opens the help on focus, so a dialog's autofocus or a focus restore never does.
+let focusCameFromTab = false
 if (typeof document !== "undefined") {
-  document.addEventListener("keydown", () => (lastInputWasKeyboard = true), true)
-  document.addEventListener("pointerdown", () => (lastInputWasKeyboard = false), true)
+  document.addEventListener("keydown", (event) => (focusCameFromTab = event.key === "Tab"), true)
+  document.addEventListener("pointerdown", () => (focusCameFromTab = false), true)
 }
 
-/**
- * The `?` next to a field label. The description lives in a visually hidden node carrying `id`, so
- * the input it describes points at it with `aria-describedby`; the popover is the sighted copy.
- */
-export function FieldHelp({
-  id,
-  children,
-  dataCy,
-  className,
-}: {
+type FieldHelpProps = Readonly<{
   id: string
   children: React.ReactNode
+  label?: string
   dataCy?: string
   className?: string
-}) {
+}>
+
+// The hidden node is what aria-describedby resolves; the popover is the sighted copy.
+export function FieldHelp({ id, children, label, dataCy, className }: FieldHelpProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [pinned, setPinned] = useState(false)
@@ -45,29 +41,40 @@ export function FieldHelp({
     setOpen(false)
     setPinned(false)
   }
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(closeTimer.current), [])
+
+  const hoverIn = (event: React.PointerEvent) => {
+    if (event.pointerType === "touch") return
+    clearTimeout(closeTimer.current)
+    if (!open) show(false)
+  }
+  // A short delay lets the pointer cross from the trigger onto the text without closing it (WCAG 1.4.13).
+  const hoverOut = (event: React.PointerEvent) => {
+    if (event.pointerType === "touch" || pinned) return
+    closeTimer.current = setTimeout(hide, 150)
+  }
 
   return (
     <>
-      <span id={id} className="sr-only" data-cy={dataCy}>
+      <span id={id} hidden data-cy={dataCy}>
         {children}
       </span>
       <PopoverPrimitive.Root open={open} onOpenChange={(next) => (next ? show(true) : hide())}>
         <PopoverPrimitive.Trigger
           type="button"
-          aria-label={t("common.fieldHelp.trigger")}
+          aria-label={
+            label ? t("common.fieldHelp.triggerFor", { field: label }) : t("common.fieldHelp.trigger")
+          }
           data-cy={dataCy ? `${dataCy}-trigger` : "field-help-trigger"}
           className={cn(
-            "-my-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[state=open]:text-foreground",
+            "relative -my-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors after:absolute after:-inset-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[state=open]:text-foreground",
             className,
           )}
-          onPointerEnter={(event) => {
-            if (event.pointerType !== "touch" && !open) show(false)
-          }}
-          onPointerLeave={(event) => {
-            if (event.pointerType !== "touch" && !pinned) hide()
-          }}
+          onPointerEnter={hoverIn}
+          onPointerLeave={hoverOut}
           onFocus={() => {
-            if (lastInputWasKeyboard) show(true)
+            if (focusCameFromTab) show(true)
           }}
           onClick={(event) => {
             event.preventDefault()
@@ -82,6 +89,8 @@ export function FieldHelp({
           align="start"
           collisionPadding={16}
           data-cy={dataCy ? `${dataCy}-content` : "field-help-content"}
+          onPointerEnter={hoverIn}
+          onPointerLeave={hoverOut}
           onOpenAutoFocus={(event) => event.preventDefault()}
           onCloseAutoFocus={(event) => event.preventDefault()}
           className="w-auto max-w-[min(20rem,calc(100vw-2rem))] p-3 text-sm leading-relaxed text-pretty break-words whitespace-pre-line"
@@ -93,10 +102,15 @@ export function FieldHelp({
   )
 }
 
-/**
- * A field label: `Name *` when required, followed by the `?` help when a description is given.
- * Outside react-hook-form, pass `descriptionId` and point the input's `aria-describedby` at it.
- */
+type FieldLabelProps = React.ComponentProps<typeof Label> &
+  Readonly<{
+    required?: boolean
+    description?: React.ReactNode
+    descriptionId?: string
+    helpDataCy?: string
+  }>
+
+// Without descriptionId, the id is fieldHelpId(htmlFor), or a generated one when htmlFor is absent.
 export function FieldLabel({
   children,
   required,
@@ -105,23 +119,23 @@ export function FieldLabel({
   helpDataCy,
   className,
   ...props
-}: React.ComponentProps<typeof Label> & {
-  required?: boolean
-  description?: React.ReactNode
-  descriptionId?: string
-  helpDataCy?: string
-}) {
+}: FieldLabelProps) {
+  const generatedId = useId()
   const label = (
     <Label className={cn(required && "gap-1", className)} {...props}>
       {children}
       {required && <span className="text-destructive">*</span>}
     </Label>
   )
-  if (!description || !descriptionId) return label
+  if (!description) return label
   return (
     <div className="flex items-center gap-1" data-slot="field-label-row">
       {label}
-      <FieldHelp id={descriptionId} dataCy={helpDataCy}>
+      <FieldHelp
+        id={descriptionId ?? fieldHelpId(props.htmlFor ?? generatedId)}
+        label={typeof children === "string" ? children : undefined}
+        dataCy={helpDataCy}
+      >
         {description}
       </FieldHelp>
     </div>

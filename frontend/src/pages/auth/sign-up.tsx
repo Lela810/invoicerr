@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { LegalLinks } from "@/components/legal-links"
 import { ServerUnavailableBanner } from "@/components/server-unavailable-banner"
@@ -359,7 +359,6 @@ export default function SignupPage() {
                   ? t("auth.signup.form.invitationCode.requiredHint")
                   : t("auth.signup.form.invitationCode.hint")
               }
-              descriptionId="invitationCode-help"
               helpDataCy={invitationOnly ? "auth-invitation-required-hint" : undefined}
             >
               {invitationOnly
@@ -374,7 +373,7 @@ export default function SignupPage() {
                 placeholder={t("auth.signup.form.invitationCode.placeholder")}
                 disabled={loading}
                 required={invitationOnly}
-                aria-describedby="invitationCode-help"
+                aria-describedby={fieldHelpId("invitationCode")}
                 defaultValue={codeFromUrl ?? undefined}
                 className="ps-9 font-mono uppercase"
                 data-cy="auth-invitation-code-input"

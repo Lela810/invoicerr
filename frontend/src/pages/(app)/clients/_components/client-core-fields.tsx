@@ -23,21 +23,21 @@ export function ClientTypeAndNameFields({ form, clientType }: ClientTypeAndNameF
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("clients.upsert.fields.type.label") || "Client type"}</FormLabel>
-            <FormControl>
-              <Select value={field.value || "COMPANY"} onValueChange={(value) => field.onChange(value)}>
+            <Select value={field.value || "COMPANY"} onValueChange={(value) => field.onChange(value)}>
+              <FormControl>
                 <SelectTrigger dataCy="client-type-select">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="COMPANY" dataCy="client-type-company">
-                    {t("clients.upsert.fields.type.company") || "Company"}
-                  </SelectItem>
-                  <SelectItem value="INDIVIDUAL" dataCy="client-type-individual">
-                    {t("clients.upsert.fields.type.individual") || "Individual"}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="COMPANY" dataCy="client-type-company">
+                  {t("clients.upsert.fields.type.company") || "Company"}
+                </SelectItem>
+                <SelectItem value="INDIVIDUAL" dataCy="client-type-individual">
+                  {t("clients.upsert.fields.type.individual") || "Individual"}
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}

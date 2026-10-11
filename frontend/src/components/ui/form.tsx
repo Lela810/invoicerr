@@ -56,6 +56,7 @@ const useFormField = () => {
     id,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
+    formLabelId: `${id}-form-item-label`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
@@ -92,13 +93,14 @@ function FormLabel({
   description?: React.ReactNode
   helpDataCy?: string
 }) {
-  const { error, formItemId, formDescriptionId } = useFormField()
+  const { error, formItemId, formLabelId, formDescriptionId } = useFormField()
 
   return (
     <FieldLabel
       data-slot="form-label"
       data-error={!!error}
       className={cn("data-[error=true]:text-destructive", className)}
+      id={formLabelId}
       htmlFor={formItemId}
       required={required}
       description={description}
@@ -127,6 +129,24 @@ const FormControl = React.forwardRef<
 })
 FormControl.displayName = "FormControl"
 
+// For a control made of several inputs: the label cannot point at a group, so the group names itself.
+const FormGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
+  const { error, formItemId, formLabelId, formDescriptionId, formMessageId } = useFormField()
+
+  return (
+    <div
+      ref={ref}
+      role="group"
+      id={formItemId}
+      aria-labelledby={formLabelId}
+      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
+      aria-invalid={!!error}
+      {...props}
+    />
+  )
+})
+FormGroup.displayName = "FormGroup"
+
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
     const { error, formMessageId } = useFormField()
@@ -150,4 +170,4 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 )
 FormMessage.displayName = "FormMessage"
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormMessage, FormField }
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormGroup, FormMessage, FormField }

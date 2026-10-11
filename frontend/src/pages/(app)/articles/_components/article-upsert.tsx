@@ -134,8 +134,8 @@ function PricingStep({
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("articles.fields.type.label")}</FormLabel>
-            <FormControl>
-              <Select value={field.value} onValueChange={(val) => field.onChange(val as any)}>
+            <Select value={field.value} onValueChange={(val) => field.onChange(val as any)}>
+              <FormControl>
                 <SelectTrigger
                   className="w-full"
                   size="sm"
@@ -144,15 +144,15 @@ function PricingStep({
                 >
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent dataCy="article-type-content">
-                  <SelectItem value="HOUR">{t("articles.fields.type.hour")}</SelectItem>
-                  <SelectItem value="DAY">{t("articles.fields.type.day")}</SelectItem>
-                  <SelectItem value="DEPOSIT">{t("articles.fields.type.deposit")}</SelectItem>
-                  <SelectItem value="SERVICE">{t("articles.fields.type.service")}</SelectItem>
-                  <SelectItem value="PRODUCT">{t("articles.fields.type.product")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
+              </FormControl>
+              <SelectContent dataCy="article-type-content">
+                <SelectItem value="HOUR">{t("articles.fields.type.hour")}</SelectItem>
+                <SelectItem value="DAY">{t("articles.fields.type.day")}</SelectItem>
+                <SelectItem value="DEPOSIT">{t("articles.fields.type.deposit")}</SelectItem>
+                <SelectItem value="SERVICE">{t("articles.fields.type.service")}</SelectItem>
+                <SelectItem value="PRODUCT">{t("articles.fields.type.product")}</SelectItem>
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}

@@ -639,43 +639,41 @@ export default function OnBoarding({
                                 >
                                   {req.label}
                                 </FormLabel>
-                                <FormControl>
-                                  <div className="flex gap-2">
+                                <div className="flex gap-2">
+                                  <FormControl>
                                     <Input
                                       {...field}
                                       placeholder={req.label}
                                       data-cy={req.scheme === "VAT" ? "onboarding-vat-input" : undefined}
                                     />
-                                    {canLookupScheme(req.scheme) && (
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="icon"
-                                        disabled={companyLookupLoading || !String(field.value || "").trim()}
-                                        onClick={() =>
-                                          onCompanyLookup(field.value, req.scheme as LookupScheme)
-                                        }
-                                        aria-label={
-                                          lookupIdentifierLabel
-                                            ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                            : t("clients.upsert.actions.lookupCompany")
-                                        }
-                                        tooltip={
-                                          lookupIdentifierLabel
-                                            ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                            : t("clients.upsert.actions.lookupCompany")
-                                        }
-                                        data-cy="onboarding-company-lookup"
-                                      >
-                                        {companyLookupLoading ? (
-                                          <Loader2 className="animate-spin" />
-                                        ) : (
-                                          <Search />
-                                        )}
-                                      </Button>
-                                    )}
-                                  </div>
-                                </FormControl>
+                                  </FormControl>
+                                  {canLookupScheme(req.scheme) && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      disabled={companyLookupLoading || !String(field.value || "").trim()}
+                                      onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
+                                      aria-label={
+                                        lookupIdentifierLabel
+                                          ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                          : t("clients.upsert.actions.lookupCompany")
+                                      }
+                                      tooltip={
+                                        lookupIdentifierLabel
+                                          ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                          : t("clients.upsert.actions.lookupCompany")
+                                      }
+                                      data-cy="onboarding-company-lookup"
+                                    >
+                                      {companyLookupLoading ? (
+                                        <Loader2 className="animate-spin" />
+                                      ) : (
+                                        <Search />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
                                 <FormMessage />
                               </FormItem>
                             )}

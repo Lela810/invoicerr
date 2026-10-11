@@ -1,3 +1,4 @@
+import { useId } from "react"
 import { Plus, Trash2 } from "lucide-react"
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -8,7 +9,7 @@ import { formatTotal } from "@/components/documents/document-totals"
 import { toMinor } from "@/components/documents/totals-calculator"
 import type { DocumentFieldDescriptor } from "@/components/documents/types"
 import { Button } from "@/components/ui/button"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { fetchPrefillFields } from "@/hooks/queries"
 
 import { type TextFieldCatalog, TextField } from "./primitive-fields"
@@ -207,11 +208,8 @@ function LineRowCard({
  * The one recursive core kind: a row is just another `data` object rendered against `field.fields`
  * — the same DocumentField every top-level field goes through, which is what makes "a table of
  * sub-fields" a structural feature of the core rather than a per-document-type special case.
- *
- * Uses plain <FieldLabel>, not <FormLabel>: the array as a whole isn't bound to one react-hook-form
- * Controller (each ROW's sub-fields are, individually), so there is no single field name for
- * <FormLabel>'s error-aware styling to attach to here.
  */
+// No single react-hook-form field backs the array, so the rows container names itself as a group.
 export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) {
   const { t } = useTranslation()
   const {
@@ -222,6 +220,7 @@ export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) 
   const { fields: rows, append, remove } = useFieldArray({ control, name })
   const rowFields = field.fields ?? []
   const readOnly = useDocumentFormReadOnly()
+  const groupId = useId()
 
   const emptyRow = Object.fromEntries(rowFields.map((rowField) => [rowField.key, undefined]))
   const applyPrefill = (index: number, values: Record<string, unknown>) => {
@@ -239,14 +238,20 @@ export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) 
       <FieldLabel
         className="text-base font-semibold"
         required={field.required}
+        id={`${groupId}-label`}
         description={field.helpText}
-        descriptionId={`${name}-help`}
+        descriptionId={fieldHelpId(groupId)}
         helpDataCy={`document-field-${field.key}-help`}
       >
         {field.label}
       </FieldLabel>
 
-      <div className="space-y-4 sm:space-y-3">
+      <div
+        role="group"
+        aria-labelledby={`${groupId}-label`}
+        aria-describedby={field.helpText ? fieldHelpId(groupId) : undefined}
+        className="space-y-4 sm:space-y-3"
+      >
         {rows.map((row, index) => (
           <LineRowCard
             key={row.id}

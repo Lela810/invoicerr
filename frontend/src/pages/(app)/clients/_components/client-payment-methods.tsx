@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { FieldLabel } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
@@ -122,13 +122,12 @@ export function ClientPaymentMethodsDialog({ client, onOpenChange }: ClientPayme
               <FieldLabel
                 htmlFor="client-payment-methods-restrict"
                 description={t("clients.paymentMethods.restrictDescription")}
-                descriptionId="client-payment-methods-restrict-help"
               >
                 {t("clients.paymentMethods.restrictLabel")}
               </FieldLabel>
               <Switch
                 id="client-payment-methods-restrict"
-                aria-describedby="client-payment-methods-restrict-help"
+                aria-describedby={fieldHelpId("client-payment-methods-restrict")}
                 checked={restricted}
                 onCheckedChange={setRestricted}
                 data-cy="client-payment-methods-restrict-switch"

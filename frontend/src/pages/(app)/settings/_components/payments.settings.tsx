@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useCompanies } from "@/hooks/queries"
@@ -307,12 +308,22 @@ function PaymentProviderCard({
           // Needed BEFORE connecting — it is what gets registered as a webhook endpoint in the
           // provider's own dashboard in order to obtain the value one of the fields below asks for.
           <div className="space-y-1.5">
-            <Label htmlFor={`payment-webhook-url-${provider.id}`}>
+            <FieldLabel
+              htmlFor={`payment-webhook-url-${provider.id}`}
+              description={
+                provider.webhookHintKey
+                  ? t(provider.webhookHintKey, provider.webhookHintFallback ?? "")
+                  : undefined
+              }
+            >
               {t("settings.payments.webhookUrl.label", "Webhook URL")}
-            </Label>
+            </FieldLabel>
             <div className="flex items-center gap-2">
               <Input
                 id={`payment-webhook-url-${provider.id}`}
+                aria-describedby={
+                  provider.webhookHintKey ? fieldHelpId(`payment-webhook-url-${provider.id}`) : undefined
+                }
                 readOnly
                 className="font-mono"
                 value={webhookUrl}
@@ -329,11 +340,6 @@ function PaymentProviderCard({
                 <Copy aria-hidden="true" />
               </Button>
             </div>
-            {provider.webhookHintKey && (
-              <p className="text-xs text-muted-foreground">
-                {t(provider.webhookHintKey, provider.webhookHintFallback ?? "")}
-              </p>
-            )}
           </div>
         )}
 
