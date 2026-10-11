@@ -874,6 +874,7 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   {otherRowLocked && (
                     <FieldLock
                       id={fieldLockId(`client-contact-primary-${index}`)}
+                      label={t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
                       dataCy={`client-contact-primary-locked-${index}`}
                     >
                       {t("clients.upsert.fields.contacts.primaryLockedHint")}

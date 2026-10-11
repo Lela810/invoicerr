@@ -371,6 +371,21 @@ describe("<FormLabel lockReason>", () => {
   })
 })
 
+describe("aria-describedby lists only what is rendered", () => {
+  it("leaves an unlocked field without a description undescribed", () => {
+    render(<CurrencyForm locked={false} />)
+    expect(screen.getByRole("textbox", { name: /Currency/ })).not.toHaveAttribute("aria-describedby")
+  })
+
+  it("points a locked field without a description at its lock reason only", () => {
+    render(<CurrencyForm />)
+    const input = screen.getByRole("textbox", { name: /Currency/ })
+    const ids = input.getAttribute("aria-describedby")?.split(" ") ?? []
+    expect(ids).toHaveLength(1)
+    expect(document.getElementById(ids[0])).toHaveTextContent(LOCK)
+  })
+})
+
 describe("<FieldLabel lockReason> outside a form", () => {
   it("derives the lock reason id from htmlFor", () => {
     render(

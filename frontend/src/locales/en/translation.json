@@ -4991,7 +4991,7 @@
         "removeRow": "Remove row"
       },
       "select": {
-        "lockedFromReference": "Follows the linked record — cannot be edited directly."
+        "lockedFromReference": "Follows the linked record and cannot be edited directly."
       },
       "rowSelection": {
         "selectSourceFirst": "Select the related document above first.",
