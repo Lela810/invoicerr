@@ -530,11 +530,12 @@ describe("Credit note — the mandatory reference, the locked currency, the cred
     fireEvent.click(invoiceTrigger())
     fireEvent.click(await screen.findByTestId("document-field-invoice-input-option-invoice-inv-2026-0009"))
 
-    // Picking the invoice locks the currency to ITS OWN ("EUR") — disabled, with the reference
-    // note shown — never a value the user could still pick independently.
+    // Picking the invoice locks the currency to ITS OWN ("EUR"): disabled, with the reason behind
+    // the label's lock, never a value the user could still pick independently.
     await waitFor(() => expect(currencyTrigger()).toHaveTextContent("EUR"))
     expect(currencyTrigger()).toBeDisabled()
-    expect(screen.getByTestId("document-field-currency-note")).toHaveTextContent("cannot be edited directly")
+    expect(screen.getByTestId("document-field-currency-lock")).toHaveTextContent("cannot be edited directly")
+    expect(currencyTrigger()).toHaveAccessibleDescription(/cannot be edited directly/)
 
     // "invoice"/"currency" are the wizard's own "Details" step (both `required`) — `correctedLines`
     // (kind 'rowSelection') is table-shaped and gets its own "Lines" step (stepped-dialog.tsx /

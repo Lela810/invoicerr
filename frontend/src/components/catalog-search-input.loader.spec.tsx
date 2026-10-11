@@ -38,7 +38,8 @@ describe("CatalogSearchInput loading and empty states", () => {
     typeQuery("Lo")
     expect(document.querySelector('[data-cy="designation-loading"]')).toBeNull()
     act(() => vi.advanceTimersByTime(150))
-    expect(document.querySelector('[data-cy="designation-loading"]')).not.toBeNull()
+    expect(document.querySelector('[data-cy="designation-loading"]')).toHaveAttribute("aria-hidden", "true")
+    expect(screen.getByRole("combobox")).toHaveAttribute("aria-busy", "true")
   })
 
   it("never shows the loader for an answer already there", () => {

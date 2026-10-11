@@ -1,10 +1,11 @@
 // biome-ignore-all lint/security/noDangerouslySetInnerHtml: markdown-it output sanitized via DOMPurify below
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useMemo, useState } from "react"
+import { useId, useMemo, useState } from "react"
 
 import DOMPurify from "dompurify"
 import MarkdownIt from "markdown-it"
 import type React from "react"
+import { FieldHelp } from "@/components/ui/field-help"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
@@ -26,24 +27,28 @@ type MarkdownNotesFieldProps = Omit<React.ComponentProps<"textarea">, "value" | 
 export function MarkdownNotesField({ value, onChange, ref, className, ...props }: MarkdownNotesFieldProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("edit")
+  const hintId = useId()
 
   const sanitizedHtml = useMemo(() => DOMPurify.sanitize(md.render(value || "")), [value])
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList>
-        <TabsTrigger value="edit">{t("common.markdownNotes.edit")}</TabsTrigger>
-        <TabsTrigger value="preview">{t("common.markdownNotes.preview")}</TabsTrigger>
-      </TabsList>
+      <div className="flex items-center gap-1">
+        <TabsList>
+          <TabsTrigger value="edit">{t("common.markdownNotes.edit")}</TabsTrigger>
+          <TabsTrigger value="preview">{t("common.markdownNotes.preview")}</TabsTrigger>
+        </TabsList>
+        <FieldHelp id={hintId}>{t("common.markdownNotes.hint")}</FieldHelp>
+      </div>
       <TabsContent value="edit">
         <Textarea
           ref={ref}
           value={value ?? ""}
           onChange={onChange}
           className={cn("max-h-40 font-mono text-sm", className)}
+          aria-describedby={hintId}
           {...props}
         />
-        <p className="text-xs text-muted-foreground mt-1">{t("common.markdownNotes.hint")}</p>
       </TabsContent>
       <TabsContent value="preview">
         <div

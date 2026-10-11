@@ -421,8 +421,23 @@ describe("Receiving invoices", () => {
 		cy.get('input[name="lines.0.quantity"]').should("have.value", "5");
 		cy.get('input[name="lines.0.unitPrice"]').should("have.value", "100");
 		cy.get('input[name="lines.0.vatRate"]').should("have.value", "20");
-		// Lines read from the supplier's e-invoice are read-only.
-		cy.get('[data-cy="document-field-lines-read-only-note"]').should("be.visible");
+		// Lines read from the supplier's e-invoice are read-only, the reason behind a lock on the label.
+		const lock = "document-field-lines-lock";
+		cy.get(`[data-cy="${lock}-trigger"]`)
+			.should("be.visible")
+			.and("have.attr", "aria-label", "Why is Lines locked?")
+			.click();
+		cy.get(`[data-cy="${lock}-content"]`)
+			.should("be.visible")
+			.and("contain.text", "supplier's e-invoice");
+		cy.get("body").type("{esc}");
+		cy.get(`[data-cy="${lock}"]`)
+			.invoke("attr", "id")
+			.then((id) => {
+				cy.get(`[data-cy="document-field-lines"] [role="group"][aria-describedby~="${id}"]`).should(
+					"exist",
+				);
+			});
 		for (const key of ["description", "quantity", "unit", "unitPrice", "discountPercent"]) {
 			cy.get(`input[name="lines.0.${key}"]`).should("be.disabled");
 		}

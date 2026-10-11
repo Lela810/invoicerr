@@ -73,14 +73,15 @@ describe("INDIVIDUAL client primary contact is the identity person (#474 follow-
 				cy.get('[data-cy="client-contact-row-0"]').should("contain.text", "Primary");
 				cy.get('[name="contacts.0.firstName"]').should("be.disabled").and("have.value", "Jean");
 				cy.get('[name="contacts.0.lastName"]').should("be.disabled").and("have.value", "Dupont");
-				cy.get('[data-cy="client-contact-row-0"]').should(
+				cy.get('[data-cy="client-contact-firstName-0-lock-trigger"]').should("be.visible");
+				cy.get('[data-cy="client-contact-lastName-0-lock-trigger"]').should("be.visible");
+				cy.get('[data-cy="client-contact-firstName-0-lock"]').should(
 					"contain.text",
 					"Comes from the identity step",
 				);
-				// Element screenshot of the WHOLE row card - shows the "Primary" badge, the read-only
-				// firstName/lastName inputs (Jean/Dupont) and the "Comes from the identity step" helper
-				// together, so the locked state is legible from the image alone, not just the assertions
-				// above.
+				// Element screenshot of the WHOLE row card - shows the "Primary" badge and the read-only
+				// firstName/lastName inputs (Jean/Dupont) with the lock on each label, so the locked state
+				// is legible from the image alone, not just the assertions above.
 				cy.get('[data-cy="client-contact-row-0"]').scrollIntoView().screenshot(
 					"474r2-after-primary-row-locked",
 				);
@@ -88,14 +89,11 @@ describe("INDIVIDUAL client primary contact is the identity person (#474 follow-
 				// Row 1 is Marie - her OWN "set primary" control is disabled: no other row can ever
 				// become primary for an INDIVIDUAL client.
 				cy.get('[data-cy="client-contact-primary-radio-1"]').should("be.disabled");
-				cy.get('[data-cy="client-contact-primary-locked-1"]').should("be.visible").and("contain.text", "Only the person on the identity step");
-				// Hover the label so the native tooltip (`title`, the disabled-reason text) has a chance
-				// to render into the screenshot alongside the row - a disabled radio's own visual state
-				// (opacity/cursor) can be too subtle to read from a static image on its own.
-				cy.get('[data-cy="client-contact-primary-radio-1"]')
-					.parent()
-					.scrollIntoView()
-					.trigger("mouseover");
+				cy.get('[data-cy="client-contact-primary-locked-1"]').should("contain.text", "Only the person on the identity step");
+				// Open the reason so it renders into the screenshot alongside the row: a disabled radio's
+				// own visual state can be too subtle to read from a static image on its own.
+				cy.get('[data-cy="client-contact-primary-locked-1-trigger"]').scrollIntoView().click();
+				cy.get('[data-cy="client-contact-primary-locked-1-content"]').should("be.visible");
 				cy.get('[data-cy="client-contact-row-1"]').screenshot(
 					"474r2-after-marie-row-cannot-be-primary",
 				);

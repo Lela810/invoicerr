@@ -8,9 +8,17 @@ interface CurrencySelectProps {
   value: string | null | undefined
   onChange: (value: string | string[]) => void
   "data-cy"?: string
+  id?: string
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
 }
 
-export default function CurrencySelect({ value, onChange, "data-cy": dataCyValue }: CurrencySelectProps) {
+export default function CurrencySelect({
+  value,
+  onChange,
+  "data-cy": dataCyValue,
+  ...aria
+}: CurrencySelectProps) {
   const [currencySearch, setCurrencySearch] = useState("")
   const [searchedCurrencies, setSearchedCurrencies] = useState<
     {
@@ -78,6 +86,7 @@ export default function CurrencySelect({ value, onChange, "data-cy": dataCyValue
       noResultsText={t("component.currency-select.noResults")}
       className="w-full"
       data-cy={dataCyValue}
+      {...aria}
     />
   )
 }

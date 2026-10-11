@@ -271,21 +271,21 @@ function MailSettingsForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("settings.mail.form.provider", "Provider")}</FormLabel>
-                    <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
                         <SelectTrigger data-cy="mail-settings-provider-select">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="smtp" data-cy="mail-settings-provider-option-smtp">
-                            {PROVIDER_LABELS.smtp}
-                          </SelectItem>
-                          <SelectItem value="resend" data-cy="mail-settings-provider-option-resend">
-                            {PROVIDER_LABELS.resend}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="smtp" data-cy="mail-settings-provider-option-smtp">
+                          {PROVIDER_LABELS.smtp}
+                        </SelectItem>
+                        <SelectItem value="resend" data-cy="mail-settings-provider-option-resend">
+                          {PROVIDER_LABELS.resend}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

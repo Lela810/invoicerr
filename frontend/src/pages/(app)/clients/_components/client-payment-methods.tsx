@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
@@ -118,15 +119,15 @@ export function ClientPaymentMethodsDialog({ client, onOpenChange }: ClientPayme
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-foreground">
-                  {t("clients.paymentMethods.restrictLabel")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("clients.paymentMethods.restrictDescription")}
-                </p>
-              </div>
+              <FieldLabel
+                htmlFor="client-payment-methods-restrict"
+                description={t("clients.paymentMethods.restrictDescription")}
+              >
+                {t("clients.paymentMethods.restrictLabel")}
+              </FieldLabel>
               <Switch
+                id="client-payment-methods-restrict"
+                aria-describedby={fieldHelpId("client-payment-methods-restrict")}
                 checked={restricted}
                 onCheckedChange={setRestricted}
                 data-cy="client-payment-methods-restrict-switch"

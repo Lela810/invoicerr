@@ -6,14 +6,7 @@ import { FileText, Paperclip, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormField, FormGroup, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { ApiError } from "@/hooks/use-api-query"
 import { buildFileUploadForm, downloadAttachment, useUploadAttachment } from "@/hooks/queries"
 
@@ -184,86 +177,89 @@ export function FileField({ field, name }: FieldRendererProps) {
       name={name}
       render={() => (
         <FormItem data-cy={`document-field-${field.key}`}>
-          <FormLabel required={field.required}>{field.label}</FormLabel>
-          <FormControl>
-            <div className="flex flex-col gap-2">
-              {hasValue ? (
-                <div
-                  className="flex items-center gap-3 rounded-md border p-2"
-                  data-cy={`document-field-${field.key}-value`}
-                >
-                  {loadingPreview ? (
-                    <span className="text-sm text-muted-foreground">
-                      {t("documents.form.file.loadingPreview")}
-                    </span>
-                  ) : isImage && safePreviewUrl ? (
-                    <img
-                      src={safePreviewUrl}
-                      alt={t("documents.form.file.previewAlt")}
-                      className="h-16 w-16 rounded object-cover"
-                      data-cy={`document-field-${field.key}-preview-image`}
-                    />
-                  ) : (
-                    <FileText className="h-8 w-8 shrink-0 text-muted-foreground" />
+          <FormLabel
+            required={field.required}
+            description={field.helpText}
+            helpDataCy={`document-field-${field.key}-help`}
+          >
+            {field.label}
+          </FormLabel>
+          <FormGroup className="flex flex-col gap-2">
+            {hasValue ? (
+              <div
+                className="flex items-center gap-3 rounded-md border p-2"
+                data-cy={`document-field-${field.key}-value`}
+              >
+                {loadingPreview ? (
+                  <span className="text-sm text-muted-foreground">
+                    {t("documents.form.file.loadingPreview")}
+                  </span>
+                ) : isImage && safePreviewUrl ? (
+                  <img
+                    src={safePreviewUrl}
+                    alt={t("documents.form.file.previewAlt")}
+                    className="h-16 w-16 rounded object-cover"
+                    data-cy={`document-field-${field.key}-preview-image`}
+                  />
+                ) : (
+                  <FileText className="h-8 w-8 shrink-0 text-muted-foreground" />
+                )}
+                <div className="flex flex-1 flex-col overflow-hidden">
+                  <span className="truncate text-sm">{fileName}</span>
+                  {!isImage && safePreviewUrl && (
+                    <a
+                      href={safePreviewUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary underline"
+                      data-cy={`document-field-${field.key}-open-link`}
+                    >
+                      {t("documents.form.file.openFile")}
+                    </a>
                   )}
-                  <div className="flex flex-1 flex-col overflow-hidden">
-                    <span className="truncate text-sm">{fileName}</span>
-                    {!isImage && safePreviewUrl && (
-                      <a
-                        href={safePreviewUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-primary underline"
-                        data-cy={`document-field-${field.key}-open-link`}
-                      >
-                        {t("documents.form.file.openFile")}
-                      </a>
-                    )}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleRemove}
-                    disabled={readOnly}
-                    tooltip={t("documents.form.file.remove")}
-                    aria-label={t("documents.form.file.remove")}
-                    dataCy={`document-field-${field.key}-remove`}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
-              ) : (
-                <div className="flex flex-col items-start gap-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    loading={upload.isPending}
-                    disabled={readOnly}
-                    onClick={() => fileInputRef.current?.click()}
-                    dataCy={`document-field-${field.key}-input`}
-                  >
-                    <Paperclip className="h-4 w-4 me-2" />
-                    {t("documents.form.file.browse")}
-                  </Button>
-                  <span className="text-xs text-muted-foreground">{t("documents.form.file.maxSize")}</span>
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/pdf,image/jpeg,image/png,image/webp"
-                className="hidden"
-                disabled={readOnly}
-                data-cy={`document-field-${field.key}-file-input`}
-                onChange={(event) => {
-                  const file = event.target.files?.[0]
-                  if (file) void handleFile(file)
-                }}
-              />
-            </div>
-          </FormControl>
-          {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRemove}
+                  disabled={readOnly}
+                  tooltip={t("documents.form.file.remove")}
+                  aria-label={t("documents.form.file.remove")}
+                  dataCy={`document-field-${field.key}-remove`}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-start gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  loading={upload.isPending}
+                  disabled={readOnly}
+                  onClick={() => fileInputRef.current?.click()}
+                  dataCy={`document-field-${field.key}-input`}
+                >
+                  <Paperclip className="h-4 w-4 me-2" />
+                  {t("documents.form.file.browse")}
+                </Button>
+                <span className="text-xs text-muted-foreground">{t("documents.form.file.maxSize")}</span>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,image/jpeg,image/png,image/webp"
+              className="hidden"
+              disabled={readOnly}
+              data-cy={`document-field-${field.key}-file-input`}
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) void handleFile(file)
+              }}
+            />
+          </FormGroup>
           <FormMessage />
         </FormItem>
       )}

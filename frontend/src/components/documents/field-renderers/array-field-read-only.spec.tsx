@@ -53,7 +53,11 @@ describe("ArrayField: lines read from a supplier e-invoice", () => {
     expect(screen.getByTestId("document-field-date-input")).toBeDisabled()
     expect(screen.getByTestId("document-field-lines-add-row")).toBeDisabled()
     expect(screen.getByTestId("document-field-lines-remove-row-0")).toBeDisabled()
-    expect(screen.getByTestId("document-field-lines-read-only-note")).toBeInTheDocument()
+    expect(screen.getByTestId("document-field-lines-lock-trigger")).toBeInTheDocument()
+    expect(screen.getByRole("group")).toHaveAccessibleDescription(
+      "These lines come from the supplier's e-invoice and cannot be edited.",
+    )
+    expect(screen.queryByText(/supplier's e-invoice/, { selector: "p" })).toBeNull()
   })
 
   it("stays editable without the flag", () => {
@@ -61,6 +65,7 @@ describe("ArrayField: lines read from a supplier e-invoice", () => {
 
     expect(screen.getByTestId("document-field-description-input")).not.toBeDisabled()
     expect(screen.getByTestId("document-field-lines-add-row")).not.toBeDisabled()
-    expect(screen.queryByTestId("document-field-lines-read-only-note")).toBeNull()
+    expect(screen.queryByTestId("document-field-lines-lock-trigger")).toBeNull()
+    expect(screen.getByRole("group")).not.toHaveAttribute("aria-describedby")
   })
 })

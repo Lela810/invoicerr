@@ -19,15 +19,7 @@ import { DatePicker } from "@/components/date-picker"
 import { fromCalendarDate, toCalendarDateInstant } from "@/lib/calendar-date"
 import { applyAddressSuggestion } from "@/lib/apply-address-suggestion"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -566,7 +558,9 @@ export default function CompanySettings() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.company.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.company.description")} required>
+                      {t("settings.company.form.company.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t("settings.company.form.company.placeholder")}
@@ -574,7 +568,6 @@ export default function CompanySettings() {
                         data-cy="company-name-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.company.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -585,7 +578,9 @@ export default function CompanySettings() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("settings.company.form.description.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.description.description")}>
+                      {t("settings.company.form.description.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t("settings.company.form.description.placeholder")}
@@ -593,7 +588,6 @@ export default function CompanySettings() {
                         data-cy="company-description-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.description.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -604,7 +598,9 @@ export default function CompanySettings() {
                 name="foundedAt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.foundedAt.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.foundedAt.description")} required>
+                      {t("settings.company.form.foundedAt.label")}
+                    </FormLabel>
                     <FormControl>
                       <DatePicker
                         className="w-full bg-opacity-100"
@@ -614,7 +610,6 @@ export default function CompanySettings() {
                         data-cy="company-foundedat-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.foundedAt.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -627,7 +622,9 @@ export default function CompanySettings() {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.country.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.country.description")} required>
+                      {t("settings.company.form.country.label")}
+                    </FormLabel>
                     <FormControl>
                       <CountrySelect
                         value={field.value}
@@ -640,7 +637,6 @@ export default function CompanySettings() {
                         data-cy="company-country-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.country.description")}</FormDescription>
                     <FormMessage />
                     <CountryReadinessAlert countryCode={countryCodeValue} countryName={field.value} />
                   </FormItem>
@@ -652,7 +648,9 @@ export default function CompanySettings() {
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.currency.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.currency.description")} required>
+                      {t("settings.company.form.currency.label")}
+                    </FormLabel>
                     <FormControl>
                       <CurrencySelect
                         value={field.value}
@@ -660,7 +658,6 @@ export default function CompanySettings() {
                         data-cy="company-currency-select"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.currency.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -685,9 +682,15 @@ export default function CompanySettings() {
                         name={`identifiers.${formIndex}.value`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel required={req.required}>{req.label}</FormLabel>
-                            <FormControl>
-                              <div className="flex gap-2">
+                            <FormLabel
+                              description={helpText}
+                              helpDataCy={`company-identifier-${req.scheme}-help`}
+                              required={req.required}
+                            >
+                              {req.label}
+                            </FormLabel>
+                            <div className="flex gap-2">
+                              <FormControl>
                                 <Input
                                   dir="ltr"
                                   {...field}
@@ -700,38 +703,30 @@ export default function CompanySettings() {
                                         : undefined
                                   }
                                 />
-                                {canLookupScheme(req.scheme) && (
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="icon"
-                                    disabled={companyLookupLoading || !String(field.value || "").trim()}
-                                    onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
-                                    aria-label={
-                                      lookupIdentifierLabel
-                                        ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                        : t("clients.upsert.actions.lookupCompany")
-                                    }
-                                    tooltip={
-                                      lookupIdentifierLabel
-                                        ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                        : t("clients.upsert.actions.lookupCompany")
-                                    }
-                                    dataCy="company-lookup"
-                                  >
-                                    {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                                  </Button>
-                                )}
-                              </div>
-                            </FormControl>
-                            {helpText && (
-                              <p
-                                className="text-xs text-muted-foreground"
-                                data-cy={`company-identifier-${req.scheme}-help`}
-                              >
-                                {helpText}
-                              </p>
-                            )}
+                              </FormControl>
+                              {canLookupScheme(req.scheme) && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  disabled={companyLookupLoading || !String(field.value || "").trim()}
+                                  onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
+                                  aria-label={
+                                    lookupIdentifierLabel
+                                      ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                      : t("clients.upsert.actions.lookupCompany")
+                                  }
+                                  tooltip={
+                                    lookupIdentifierLabel
+                                      ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                      : t("clients.upsert.actions.lookupCompany")
+                                  }
+                                  dataCy="company-lookup"
+                                >
+                                  {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                                </Button>
+                              )}
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -801,78 +796,78 @@ export default function CompanySettings() {
                       <FormLabel>
                         {t("settings.company.form.peppolSchemeId.label") || "Peppol scheme"}
                       </FormLabel>
-                      <FormControl>
-                        <Select value={field.value || "0088"} onValueChange={field.onChange}>
+                      <Select value={field.value || "0088"} onValueChange={field.onChange}>
+                        <FormControl>
                           <SelectTrigger data-cy="company-peppol-scheme-select">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0088" data-cy="company-peppol-scheme-option-0088">
-                              0088 — GLN
-                            </SelectItem>
-                            <SelectItem value="0192" data-cy="company-peppol-scheme-option-0192">
-                              0192 — NO org.nr
-                            </SelectItem>
-                            <SelectItem value="0009" data-cy="company-peppol-scheme-option-0009">
-                              0009 — FR SIRET
-                            </SelectItem>
-                            <SelectItem value="9925" data-cy="company-peppol-scheme-option-9925">
-                              9925 — EU VAT
-                            </SelectItem>
-                            <SelectItem value="0007" data-cy="company-peppol-scheme-option-0007">
-                              0007 — SE org.nr
-                            </SelectItem>
-                            <SelectItem value="0208" data-cy="company-peppol-scheme-option-0208">
-                              0208 — BE org.nr
-                            </SelectItem>
-                            {/*
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="0088" data-cy="company-peppol-scheme-option-0088">
+                            0088 — GLN
+                          </SelectItem>
+                          <SelectItem value="0192" data-cy="company-peppol-scheme-option-0192">
+                            0192 — NO org.nr
+                          </SelectItem>
+                          <SelectItem value="0009" data-cy="company-peppol-scheme-option-0009">
+                            0009 — FR SIRET
+                          </SelectItem>
+                          <SelectItem value="9925" data-cy="company-peppol-scheme-option-9925">
+                            9925 — EU VAT
+                          </SelectItem>
+                          <SelectItem value="0007" data-cy="company-peppol-scheme-option-0007">
+                            0007 — SE org.nr
+                          </SelectItem>
+                          <SelectItem value="0208" data-cy="company-peppol-scheme-option-0208">
+                            0208 — BE org.nr
+                          </SelectItem>
+                          {/*
                                 Same fix as clients/_components/client-
                                 upsert.tsx's own identical selector (see that file's own comment for
                                 the full citation): 0106 is the Dutch KVK in the Peppol v9.7
                                 codelist, not Danish. The real Danish CVR is 0184, added just below.
                               */}
-                            <SelectItem value="0106" data-cy="company-peppol-scheme-option-0106">
-                              0106 — NL KVK
-                            </SelectItem>
-                            <SelectItem value="0184" data-cy="company-peppol-scheme-option-0184">
-                              0184 — DK CVR
-                            </SelectItem>
-                            <SelectItem value="0151" data-cy="company-peppol-scheme-option-0151">
-                              0151 — AU ABN
-                            </SelectItem>
-                            <SelectItem value="0060" data-cy="company-peppol-scheme-option-0060">
-                              0060 — DUNS
-                            </SelectItem>
-                            {/*
+                          <SelectItem value="0106" data-cy="company-peppol-scheme-option-0106">
+                            0106 — NL KVK
+                          </SelectItem>
+                          <SelectItem value="0184" data-cy="company-peppol-scheme-option-0184">
+                            0184 — DK CVR
+                          </SelectItem>
+                          <SelectItem value="0151" data-cy="company-peppol-scheme-option-0151">
+                            0151 — AU ABN
+                          </SelectItem>
+                          <SelectItem value="0060" data-cy="company-peppol-scheme-option-0060">
+                            0060 — DUNS
+                          </SelectItem>
+                          {/*
                                 Same seven EAS as clients/_components/client-
                                 upsert.tsx's own identical selector (see that file's own comment for
                                 the full citation, sourced from the 2026-09-02 B2G audit's
                                 b2g-routing/data/{ee,lt,lv,lu,cy,gr,mt}.json).
                               */}
-                            <SelectItem value="0191" data-cy="company-peppol-scheme-option-0191">
-                              0191 — EE Company code
-                            </SelectItem>
-                            <SelectItem value="0200" data-cy="company-peppol-scheme-option-0200">
-                              0200 — LT Legal entity code
-                            </SelectItem>
-                            <SelectItem value="0218" data-cy="company-peppol-scheme-option-0218">
-                              0218 — LV Unified registration number
-                            </SelectItem>
-                            <SelectItem value="0240" data-cy="company-peppol-scheme-option-0240">
-                              0240 — LU Register of legal persons
-                            </SelectItem>
-                            <SelectItem value="9928" data-cy="company-peppol-scheme-option-9928">
-                              9928 — CY VAT number
-                            </SelectItem>
-                            <SelectItem value="9933" data-cy="company-peppol-scheme-option-9933">
-                              9933 — GR VAT number
-                            </SelectItem>
-                            <SelectItem value="9943" data-cy="company-peppol-scheme-option-9943">
-                              9943 — MT VAT number
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
+                          <SelectItem value="0191" data-cy="company-peppol-scheme-option-0191">
+                            0191 — EE Company code
+                          </SelectItem>
+                          <SelectItem value="0200" data-cy="company-peppol-scheme-option-0200">
+                            0200 — LT Legal entity code
+                          </SelectItem>
+                          <SelectItem value="0218" data-cy="company-peppol-scheme-option-0218">
+                            0218 — LV Unified registration number
+                          </SelectItem>
+                          <SelectItem value="0240" data-cy="company-peppol-scheme-option-0240">
+                            0240 — LU Register of legal persons
+                          </SelectItem>
+                          <SelectItem value="9928" data-cy="company-peppol-scheme-option-9928">
+                            9928 — CY VAT number
+                          </SelectItem>
+                          <SelectItem value="9933" data-cy="company-peppol-scheme-option-9933">
+                            9933 — GR VAT number
+                          </SelectItem>
+                          <SelectItem value="9943" data-cy="company-peppol-scheme-option-9943">
+                            9943 — MT VAT number
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -882,7 +877,12 @@ export default function CompanySettings() {
                   name="peppolEndpointId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel
+                        description={
+                          t("settings.company.form.peppolEndpointId.helpText") ||
+                          "Leave blank if your company is not registered on the Peppol network"
+                        }
+                      >
                         {t("settings.company.form.peppolEndpointId.label") || "Peppol endpoint ID"}
                       </FormLabel>
                       <FormControl>
@@ -894,10 +894,6 @@ export default function CompanySettings() {
                           data-cy="company-peppol-endpoint-input"
                         />
                       </FormControl>
-                      <p className="text-xs text-muted-foreground">
-                        {t("settings.company.form.peppolEndpointId.helpText") ||
-                          "Leave blank if your company is not registered on the Peppol network"}
-                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -916,7 +912,9 @@ export default function CompanySettings() {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.address.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.address.description")} required>
+                    {t("settings.company.form.address.label")}
+                  </FormLabel>
                   <FormControl>
                     <AddressAutocompleteInput
                       placeholder={t("settings.company.form.address.placeholder")}
@@ -927,7 +925,6 @@ export default function CompanySettings() {
                       }
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.address.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -938,7 +935,9 @@ export default function CompanySettings() {
               name="addressLine2"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.addressLine2.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.addressLine2.description")}>
+                    {t("settings.company.form.addressLine2.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t("settings.company.form.addressLine2.placeholder")}
@@ -946,7 +945,6 @@ export default function CompanySettings() {
                       data-cy="company-address-line2-input"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.addressLine2.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1020,7 +1018,9 @@ export default function CompanySettings() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.phone.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.phone.description")} required>
+                      {t("settings.company.form.phone.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
@@ -1029,7 +1029,6 @@ export default function CompanySettings() {
                         data-cy="company-phone-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.phone.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1040,7 +1039,9 @@ export default function CompanySettings() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.email.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.email.description")} required>
+                      {t("settings.company.form.email.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -1049,7 +1050,6 @@ export default function CompanySettings() {
                         data-cy="company-email-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.email.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1061,7 +1061,9 @@ export default function CompanySettings() {
               name="iban"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.iban.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.iban.description")}>
+                    {t("settings.company.form.iban.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       dir="ltr"
@@ -1070,7 +1072,6 @@ export default function CompanySettings() {
                       data-cy="company-iban-input"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.iban.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1087,35 +1088,36 @@ export default function CompanySettings() {
               name="invoicePDFFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.invoicePDFFormat.label")}</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                  <FormLabel description={t("settings.company.form.invoicePDFFormat.description")} required>
+                    {t("settings.company.form.invoicePDFFormat.label")}
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
                       <SelectTrigger className="w-full" data-cy="company-pdfformat-select">
                         <SelectValue placeholder={t("settings.company.form.invoicePDFFormat.placeholder")} />
                       </SelectTrigger>
-                      <SelectContent data-cy="company-pdfformat-options">
-                        <SelectItem value="pdf" data-cy="company-pdfformat-option-pdf">
-                          {t("settings.company.form.invoicePDFFormat.options.pdf")}
-                        </SelectItem>
-                        <SelectItem value="facturx" data-cy="company-pdfformat-option-facturx">
-                          {t("settings.company.form.invoicePDFFormat.options.facturx")}
-                        </SelectItem>
-                        <SelectItem value="zugferd" data-cy="company-pdfformat-option-zugferd">
-                          {t("settings.company.form.invoicePDFFormat.options.zugferd")}
-                        </SelectItem>
-                        <SelectItem value="xrechnung" data-cy="company-pdfformat-option-xrechnung">
-                          {t("settings.company.form.invoicePDFFormat.options.xrechnung")}
-                        </SelectItem>
-                        <SelectItem value="ubl" data-cy="company-pdfformat-option-ubl">
-                          {t("settings.company.form.invoicePDFFormat.options.ubl")}
-                        </SelectItem>
-                        <SelectItem value="cii" data-cy="company-pdfformat-option-cii">
-                          {t("settings.company.form.invoicePDFFormat.options.cii")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>{t("settings.company.form.invoicePDFFormat.description")}</FormDescription>
+                    </FormControl>
+                    <SelectContent data-cy="company-pdfformat-options">
+                      <SelectItem value="pdf" data-cy="company-pdfformat-option-pdf">
+                        {t("settings.company.form.invoicePDFFormat.options.pdf")}
+                      </SelectItem>
+                      <SelectItem value="facturx" data-cy="company-pdfformat-option-facturx">
+                        {t("settings.company.form.invoicePDFFormat.options.facturx")}
+                      </SelectItem>
+                      <SelectItem value="zugferd" data-cy="company-pdfformat-option-zugferd">
+                        {t("settings.company.form.invoicePDFFormat.options.zugferd")}
+                      </SelectItem>
+                      <SelectItem value="xrechnung" data-cy="company-pdfformat-option-xrechnung">
+                        {t("settings.company.form.invoicePDFFormat.options.xrechnung")}
+                      </SelectItem>
+                      <SelectItem value="ubl" data-cy="company-pdfformat-option-ubl">
+                        {t("settings.company.form.invoicePDFFormat.options.ubl")}
+                      </SelectItem>
+                      <SelectItem value="cii" data-cy="company-pdfformat-option-cii">
+                        {t("settings.company.form.invoicePDFFormat.options.cii")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1126,49 +1128,48 @@ export default function CompanySettings() {
               name="invoiceTransportId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.invoiceTransportId.label")}</FormLabel>
-                  <FormControl>
-                    <Select
-                      // NOT `field.onChange` directly — found empirically (a real "no transport
-                      // configured" 501 hit while proving this picker's own e2e coverage, never from a
-                      // guess): `invoiceTransports` (useDocumentTransports) loads ASYNCHRONOUSLY,
-                      // unlike every other <Select>'s options on this page (all static arrays,
-                      // available on the very first render). Radix's own hidden native-`<select>`
-                      // mirror ("SelectBubbleInput", kept in sync for native form semantics) fires
-                      // a REAL `change` event the moment `SelectItem`s go from zero (before the
-                      // fetch resolves) to populated — and since NONE matched the already-loaded
-                      // `field.value` while the list was still empty, that native mirror's own
-                      // value is "", which bubbles up as a SPURIOUS `onValueChange("")` call,
-                      // silently wiping a value this form never touched. A real user selection
-                      // NEVER produces "" here (there is no "none" `SelectItem`), so simply
-                      // ignoring an empty callback drops only that spurious event, never a genuine
-                      // choice.
-                      onValueChange={(value) => {
-                        if (value) field.onChange(value)
-                      }}
-                      value={field.value || ""}
-                    >
+                  <FormLabel description={t("settings.company.form.invoiceTransportId.description")}>
+                    {t("settings.company.form.invoiceTransportId.label")}
+                  </FormLabel>
+                  <Select
+                    // NOT `field.onChange` directly — found empirically (a real "no transport
+                    // configured" 501 hit while proving this picker's own e2e coverage, never from a
+                    // guess): `invoiceTransports` (useDocumentTransports) loads ASYNCHRONOUSLY,
+                    // unlike every other <Select>'s options on this page (all static arrays,
+                    // available on the very first render). Radix's own hidden native-`<select>`
+                    // mirror ("SelectBubbleInput", kept in sync for native form semantics) fires
+                    // a REAL `change` event the moment `SelectItem`s go from zero (before the
+                    // fetch resolves) to populated — and since NONE matched the already-loaded
+                    // `field.value` while the list was still empty, that native mirror's own
+                    // value is "", which bubbles up as a SPURIOUS `onValueChange("")` call,
+                    // silently wiping a value this form never touched. A real user selection
+                    // NEVER produces "" here (there is no "none" `SelectItem`), so simply
+                    // ignoring an empty callback drops only that spurious event, never a genuine
+                    // choice.
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value)
+                    }}
+                    value={field.value || ""}
+                  >
+                    <FormControl>
                       <SelectTrigger className="w-full" data-cy="company-invoice-transport-select">
                         <SelectValue
                           placeholder={t("settings.company.form.invoiceTransportId.placeholder")}
                         />
                       </SelectTrigger>
-                      <SelectContent data-cy="company-invoice-transport-options">
-                        {(invoiceTransports ?? []).map((transport) => (
-                          <SelectItem
-                            key={transport.id}
-                            value={transport.id}
-                            data-cy={`company-invoice-transport-option-${transport.id}`}
-                          >
-                            {transport.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.invoiceTransportId.description")}
-                  </FormDescription>
+                    </FormControl>
+                    <SelectContent data-cy="company-invoice-transport-options">
+                      {(invoiceTransports ?? []).map((transport) => (
+                        <SelectItem
+                          key={transport.id}
+                          value={transport.id}
+                          data-cy={`company-invoice-transport-option-${transport.id}`}
+                        >
+                          {transport.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1179,26 +1180,27 @@ export default function CompanySettings() {
               name="dateFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.dateFormat.label")}</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                  <FormLabel description={t("settings.company.form.dateFormat.description")} required>
+                    {t("settings.company.form.dateFormat.label")}
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
                       <SelectTrigger className="w-full" data-cy="company-dateformat-select">
                         <SelectValue placeholder={t("settings.company.form.dateFormat.placeholder")} />
                       </SelectTrigger>
-                      <SelectContent data-cy="company-dateformat-options">
-                        {ALLOWED_DATE_FORMATS.map((format) => (
-                          <SelectItem
-                            key={format}
-                            value={format}
-                            data-cy={`company-dateformat-option-${format.replace(/\//g, "-")}`}
-                          >
-                            {getDateFormatOption(format)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>{t("settings.company.form.dateFormat.description")}</FormDescription>
+                    </FormControl>
+                    <SelectContent data-cy="company-dateformat-options">
+                      {ALLOWED_DATE_FORMATS.map((format) => (
+                        <SelectItem
+                          key={format}
+                          value={format}
+                          data-cy={`company-dateformat-option-${format.replace(/\//g, "-")}`}
+                        >
+                          {getDateFormatOption(format)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1209,7 +1211,9 @@ export default function CompanySettings() {
               name="language"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.language.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.language.description")}>
+                    {t("settings.company.form.language.label")}
+                  </FormLabel>
                   <FormControl>
                     <DocumentLanguageSelect
                       value={field.value}
@@ -1217,7 +1221,6 @@ export default function CompanySettings() {
                       data-cy="company-language-select"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.language.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1228,7 +1231,9 @@ export default function CompanySettings() {
               name="exemptVat"
               render={({ field }) => (
                 <FormItem className="flex flex-col space-y-3">
-                  <FormLabel>{t("settings.company.form.exemptVat.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.exemptVat.description")}>
+                    {t("settings.company.form.exemptVat.label")}
+                  </FormLabel>
                   <FormControl>
                     <Switch
                       checked={!!field.value}
@@ -1236,7 +1241,6 @@ export default function CompanySettings() {
                       data-cy="company-exemptvat-switch"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.exemptVat.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1247,44 +1251,43 @@ export default function CompanySettings() {
               name="distanceSalesRegime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.distanceSalesRegime.label")}</FormLabel>
-                  <FormControl>
-                    {/* "" is a real, selectable state — "not declared yet" — not a placeholder: the
+                  <FormLabel description={t("settings.company.form.distanceSalesRegime.description")}>
+                    {t("settings.company.form.distanceSalesRegime.label")}
+                  </FormLabel>
+                  {/* "" is a real, selectable state — "not declared yet" — not a placeholder: the
                         backend refuses a cross-border B2C sale of goods inside the EU until one of the
                         two regimes is chosen, and clearing it again must be possible. Radix Select
                         forbids an empty-string item value, so the "undeclared" option carries its own
                         sentinel and is mapped back to "" on the way into the form. */}
-                    <Select
-                      value={field.value?.trim() ? field.value : UNDECLARED_DISTANCE_SALES_REGIME}
-                      onValueChange={(value) =>
-                        field.onChange(value === UNDECLARED_DISTANCE_SALES_REGIME ? "" : value)
-                      }
-                    >
+                  <Select
+                    value={field.value?.trim() ? field.value : UNDECLARED_DISTANCE_SALES_REGIME}
+                    onValueChange={(value) =>
+                      field.onChange(value === UNDECLARED_DISTANCE_SALES_REGIME ? "" : value)
+                    }
+                  >
+                    <FormControl>
                       <SelectTrigger data-cy="company-distance-sales-regime-select">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          value={UNDECLARED_DISTANCE_SALES_REGIME}
-                          data-cy="company-distance-sales-regime-option-undeclared"
-                        >
-                          {t("settings.company.form.distanceSalesRegime.options.undeclared")}
-                        </SelectItem>
-                        <SelectItem value="ORIGIN" data-cy="company-distance-sales-regime-option-origin">
-                          {t("settings.company.form.distanceSalesRegime.options.origin")}
-                        </SelectItem>
-                        <SelectItem
-                          value="DESTINATION"
-                          data-cy="company-distance-sales-regime-option-destination"
-                        >
-                          {t("settings.company.form.distanceSalesRegime.options.destination")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.distanceSalesRegime.description")}
-                  </FormDescription>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        value={UNDECLARED_DISTANCE_SALES_REGIME}
+                        data-cy="company-distance-sales-regime-option-undeclared"
+                      >
+                        {t("settings.company.form.distanceSalesRegime.options.undeclared")}
+                      </SelectItem>
+                      <SelectItem value="ORIGIN" data-cy="company-distance-sales-regime-option-origin">
+                        {t("settings.company.form.distanceSalesRegime.options.origin")}
+                      </SelectItem>
+                      <SelectItem
+                        value="DESTINATION"
+                        data-cy="company-distance-sales-regime-option-destination"
+                      >
+                        {t("settings.company.form.distanceSalesRegime.options.destination")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1301,7 +1304,9 @@ export default function CompanySettings() {
               name="approvalThreshold"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.approvalThreshold.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.approvalThreshold.description")}>
+                    {t("settings.company.form.approvalThreshold.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1316,9 +1321,6 @@ export default function CompanySettings() {
                       data-cy="company-approval-threshold-input"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.approvalThreshold.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1335,7 +1337,11 @@ export default function CompanySettings() {
               name="reconciliationTolerancePercent"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.reconciliationTolerancePercent.label")}</FormLabel>
+                  <FormLabel
+                    description={t("settings.company.form.reconciliationTolerancePercent.description")}
+                  >
+                    {t("settings.company.form.reconciliationTolerancePercent.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1347,9 +1353,6 @@ export default function CompanySettings() {
                       data-cy="company-reconciliation-tolerance-input"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.reconciliationTolerancePercent.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1366,7 +1369,9 @@ export default function CompanySettings() {
               name="remindersEnabled"
               render={({ field }) => (
                 <FormItem className="flex flex-col space-y-3">
-                  <FormLabel>{t("settings.company.form.remindersEnabled.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.remindersEnabled.description")}>
+                    {t("settings.company.form.remindersEnabled.label")}
+                  </FormLabel>
                   <FormControl>
                     <Switch
                       checked={!!field.value}
@@ -1374,7 +1379,6 @@ export default function CompanySettings() {
                       data-cy="company-reminders-enabled"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.remindersEnabled.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1394,7 +1398,12 @@ export default function CompanySettings() {
               name="referenceCurrency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel
+                    description={t(
+                      "settings.company.form.referenceCurrency.description",
+                      "Requires an exchange rate (below) for every OTHER currency you actually use before a consolidated total appears.",
+                    )}
+                  >
                     {t("settings.company.form.referenceCurrency.label", "Reference currency")}
                   </FormLabel>
                   <FormControl>
@@ -1404,12 +1413,6 @@ export default function CompanySettings() {
                       data-cy="company-reference-currency-select"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t(
-                      "settings.company.form.referenceCurrency.description",
-                      "Requires an exchange rate (below) for every OTHER currency you actually use before a consolidated total appears.",
-                    )}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1429,51 +1432,55 @@ export default function CompanySettings() {
               name="revenueBasis"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.revenueBasis.label", "Revenue basis")}</FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value?.trim() ? field.value : USE_DEFAULT_REVENUE_BASIS}
-                      onValueChange={(value) =>
-                        field.onChange(value === USE_DEFAULT_REVENUE_BASIS ? "" : value)
-                      }
-                    >
+                  <FormLabel
+                    description={
+                      !field.value?.trim() && resolvedRevenueSettings
+                        ? resolvedRevenueSettings.basisDefaultReason
+                        : t(
+                            "settings.company.form.revenueBasis.description",
+                            '"Invoiced" counts revenue when a document is issued (this product\'s own dashboard totals); "cashed" counts it when a payment actually arrives.',
+                          )
+                    }
+                    helpDataCy="company-revenue-basis-reason"
+                  >
+                    {t("settings.company.form.revenueBasis.label", "Revenue basis")}
+                  </FormLabel>
+                  <Select
+                    value={field.value?.trim() ? field.value : USE_DEFAULT_REVENUE_BASIS}
+                    onValueChange={(value) =>
+                      field.onChange(value === USE_DEFAULT_REVENUE_BASIS ? "" : value)
+                    }
+                  >
+                    <FormControl>
                       <SelectTrigger data-cy="company-revenue-basis-select">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          value={USE_DEFAULT_REVENUE_BASIS}
-                          data-cy="company-revenue-basis-option-default"
-                        >
-                          {t(
-                            "settings.company.form.revenueBasis.options.default",
-                            "Use the default ({{basis}})",
-                            {
-                              basis: resolvedRevenueSettings
-                                ? t(
-                                    `settings.company.form.revenueBasis.options.${resolvedRevenueSettings.basis}`,
-                                  )
-                                : "…",
-                            },
-                          )}
-                        </SelectItem>
-                        <SelectItem value="invoiced" data-cy="company-revenue-basis-option-invoiced">
-                          {t("settings.company.form.revenueBasis.options.invoiced", "Invoiced")}
-                        </SelectItem>
-                        <SelectItem value="cashed" data-cy="company-revenue-basis-option-cashed">
-                          {t("settings.company.form.revenueBasis.options.cashed", "Cashed")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription data-cy="company-revenue-basis-reason">
-                    {!field.value?.trim() && resolvedRevenueSettings
-                      ? resolvedRevenueSettings.basisDefaultReason
-                      : t(
-                          "settings.company.form.revenueBasis.description",
-                          '"Invoiced" counts revenue when a document is issued (this product\'s own dashboard totals); "cashed" counts it when a payment actually arrives.',
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        value={USE_DEFAULT_REVENUE_BASIS}
+                        data-cy="company-revenue-basis-option-default"
+                      >
+                        {t(
+                          "settings.company.form.revenueBasis.options.default",
+                          "Use the default ({{basis}})",
+                          {
+                            basis: resolvedRevenueSettings
+                              ? t(
+                                  `settings.company.form.revenueBasis.options.${resolvedRevenueSettings.basis}`,
+                                )
+                              : "…",
+                          },
                         )}
-                  </FormDescription>
+                      </SelectItem>
+                      <SelectItem value="invoiced" data-cy="company-revenue-basis-option-invoiced">
+                        {t("settings.company.form.revenueBasis.options.invoiced", "Invoiced")}
+                      </SelectItem>
+                      <SelectItem value="cashed" data-cy="company-revenue-basis-option-cashed">
+                        {t("settings.company.form.revenueBasis.options.cashed", "Cashed")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1484,44 +1491,43 @@ export default function CompanySettings() {
               name="revenuePeriod"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {t("settings.company.form.revenuePeriod.label", "Declaration period")}
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value?.trim() ? field.value : USE_DEFAULT_REVENUE_PERIOD}
-                      onValueChange={(value) =>
-                        field.onChange(value === USE_DEFAULT_REVENUE_PERIOD ? "" : value)
-                      }
-                    >
-                      <SelectTrigger data-cy="company-revenue-period-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          value={USE_DEFAULT_REVENUE_PERIOD}
-                          data-cy="company-revenue-period-option-default"
-                        >
-                          {t(
-                            "settings.company.form.revenuePeriod.options.default",
-                            "Use the default (monthly)",
-                          )}
-                        </SelectItem>
-                        <SelectItem value="monthly" data-cy="company-revenue-period-option-monthly">
-                          {t("settings.company.form.revenuePeriod.options.monthly", "Monthly")}
-                        </SelectItem>
-                        <SelectItem value="quarterly" data-cy="company-revenue-period-option-quarterly">
-                          {t("settings.company.form.revenuePeriod.options.quarterly", "Quarterly")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>
-                    {t(
+                  <FormLabel
+                    description={t(
                       "settings.company.form.revenuePeriod.description",
                       "Used by the cashed-revenue view (Cashed revenue tab) to bucket what was received.",
                     )}
-                  </FormDescription>
+                  >
+                    {t("settings.company.form.revenuePeriod.label", "Declaration period")}
+                  </FormLabel>
+                  <Select
+                    value={field.value?.trim() ? field.value : USE_DEFAULT_REVENUE_PERIOD}
+                    onValueChange={(value) =>
+                      field.onChange(value === USE_DEFAULT_REVENUE_PERIOD ? "" : value)
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger data-cy="company-revenue-period-select">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        value={USE_DEFAULT_REVENUE_PERIOD}
+                        data-cy="company-revenue-period-option-default"
+                      >
+                        {t(
+                          "settings.company.form.revenuePeriod.options.default",
+                          "Use the default (monthly)",
+                        )}
+                      </SelectItem>
+                      <SelectItem value="monthly" data-cy="company-revenue-period-option-monthly">
+                        {t("settings.company.form.revenuePeriod.options.monthly", "Monthly")}
+                      </SelectItem>
+                      <SelectItem value="quarterly" data-cy="company-revenue-period-option-quarterly">
+                        {t("settings.company.form.revenuePeriod.options.quarterly", "Quarterly")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

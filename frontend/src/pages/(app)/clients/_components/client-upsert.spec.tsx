@@ -209,6 +209,45 @@ describe("<ClientUpsert>", () => {
     expect(toast.error).not.toHaveBeenCalled()
   })
 
+  it("names the lock on another contact's primary radio after that control, for an individual client", async () => {
+    installFetchMock({
+      "GET /api/custom-fields/resolved": () => [],
+      "GET /api/clients/duplicates": () => [],
+    })
+
+    renderDialog({
+      ...CLIENT,
+      type: "INDIVIDUAL",
+      name: "",
+      contactFirstname: "Jean",
+      contactLastname: "Dupont",
+      contacts: [
+        {
+          id: "contact-1",
+          firstName: "Jean",
+          lastName: "Dupont",
+          email: "jean@example.test",
+          isPrimary: true,
+        },
+        {
+          id: "contact-2",
+          firstName: "Marie",
+          lastName: "Curie",
+          email: "marie@example.test",
+          isPrimary: false,
+        },
+      ],
+    })
+
+    fireEvent.click(await screen.findByTestId("client-dialog-step-contact"))
+    await screen.findByTestId("client-dialog-step-body-contact")
+    const lock = screen.getByRole("button", { name: "Why is Set as primary locked?" })
+    expect(lock).toHaveAttribute("data-cy", "client-contact-primary-locked-1-trigger")
+    expect(screen.getByTestId("client-contact-primary-radio-1")).toHaveAccessibleDescription(
+      "Only the person on the identity step can be the primary contact of an individual client.",
+    )
+  })
+
   it("shows a non-blocking duplicate warning naming the existing client, without stopping the save", async () => {
     const patch = vi.fn()
     installFetchMock({

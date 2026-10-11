@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import { buildMetricLinkHref } from "@/components/widgets/metric-link"
+import { AmountBasisCaption } from "./amount-basis"
 import type { MetricWidget } from "@/components/widgets/types"
 import type { WidgetRendererProps } from "./registry"
 
@@ -122,7 +123,14 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
     <>
       <CardHeader className="gap-0 px-4">
         <CardTitle className="flex items-start justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          <span className="min-w-0">{metric.label}</span>
+          <span className="min-w-0">
+            {metric.label}
+            <AmountBasisCaption
+              basis={metric.basis}
+              dataCy={`widget-${metric.id}-basis`}
+              className="mt-0.5"
+            />
+          </span>
           {metric.link && (
             <ChevronRight
               className="mt-px size-3.5 shrink-0 text-muted-foreground/70 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"

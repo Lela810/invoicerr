@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import type { ShortListItem, ShortListWidget } from "@/components/widgets/types"
+import { AmountBasisCaption } from "./amount-basis"
 import type { WidgetRendererProps } from "./registry"
 
 /** Today, as an ISO date-only string — the same UTC-midnight comparison the backend's own overdue
@@ -79,7 +80,10 @@ export function ShortListWidgetRenderer({ widget }: WidgetRendererProps) {
   return (
     <Card data-cy={`widget-${shortList.id}`} data-widget-kind="shortList">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{shortList.label}</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {shortList.label}
+          <AmountBasisCaption basis={shortList.basis} dataCy={`widget-${shortList.id}-basis`} />
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {shortList.items.length === 0 ? (

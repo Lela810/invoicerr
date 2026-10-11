@@ -3,7 +3,6 @@ import { vi, type Mock } from 'vitest';
 import {
   buildInvoiceDashboardWidgets,
   buildInvoiceStatisticsWidgets,
-  invoiceTotal,
   monthsSpanning,
 } from './invoice-contributions';
 import * as persistence from '../persistence';
@@ -77,23 +76,6 @@ function invoice(
   };
 }
 
-describe('invoiceTotal', () => {
-  it('sums quantity * unitPrice across the lines, arithmetic only', () => {
-    const total = invoiceTotal({
-      lines: [
-        { description: 'A', quantity: 2, unitPrice: 10 },
-        { description: 'B', quantity: 1, unitPrice: 5.5 },
-      ],
-    });
-    expect(total).toBeCloseTo(25.5);
-  });
-
-  it('treats a missing quantity/unitPrice as 0 rather than throwing — a draft-in-progress is normal', () => {
-    expect(invoiceTotal({ lines: [{ description: 'A' }] })).toBe(0);
-    expect(invoiceTotal({})).toBe(0);
-  });
-});
-
 describe('buildInvoiceDashboardWidgets', () => {
   beforeEach(() => {
     vi.useFakeTimers().setSystemTime(new Date('2026-08-30'));
@@ -141,6 +123,61 @@ describe('buildInvoiceDashboardWidgets', () => {
       status: 'sent',
       dueDate: '2026-09-05',
       amount: { value: 30, currency: 'USD' },
+    });
+  });
+
+  it('totals what is still owed: a 40%-paid invoice counts for 60% of its gross, while its row shows the list figure', async () => {
+    seedDocuments([
+      invoice({
+        id: 'partly-paid',
+        status: 'sent',
+        data: {
+          currency: 'EUR',
+          issueDate: '2026-08-10',
+          dueDate: '2026-08-20',
+          lines: [{ quantity: 1, unitPrice: 1000, vatRate: '20' }],
+        },
+      }),
+    ]);
+    sumPaidMinorByDocument.mockResolvedValue(new Map([['partly-paid', 48000]]));
+
+    const widgets = await buildInvoiceDashboardWidgets({ companyId: 'c1' });
+    const pending = widgets.find((w) => w.id === 'invoice:pending') as ShortListWidget;
+
+    expect(pending.items[0].amount).toEqual({ value: 1200, currency: 'EUR' });
+    expect(widgets.find((w) => w.id === 'invoice:pending-total:EUR')).toMatchObject({ value: 720 });
+    expect(widgets.find((w) => w.id === 'invoice:overdue-total:EUR')).toMatchObject({ value: 720 });
+  });
+
+  it('says which basis each amount uses as data, outside the translatable label', async () => {
+    seedDocuments([
+      invoice({
+        id: 'sent',
+        status: 'sent',
+        data: {
+          currency: 'EUR',
+          issueDate: '2026-08-10',
+          dueDate: '2026-08-20',
+          lines: [{ quantity: 1, unitPrice: 100, vatRate: '20' }],
+        },
+      }),
+    ]);
+
+    const widgets = await buildInvoiceDashboardWidgets({ companyId: 'c1' });
+    const byId = (id: string) => widgets.find((w) => w.id === id);
+
+    expect(byId('invoice:pending')).toMatchObject({ label: 'Pending invoices', basis: 'inclVat' });
+    expect(byId('invoice:pending-total:EUR')).toMatchObject({
+      label: 'Pending invoices total (EUR)',
+      basis: 'inclVat',
+    });
+    expect(byId('invoice:overdue-total:EUR')).toMatchObject({
+      label: 'Overdue invoices total (EUR)',
+      basis: 'inclVat',
+    });
+    expect(byId('invoice:issued-this-month:EUR')).toMatchObject({
+      label: 'Invoiced this month (EUR)',
+      basis: 'exclVat',
     });
   });
 
@@ -569,6 +606,7 @@ describe('buildInvoiceDashboardWidgets with a period set', () => {
       unit: 'EUR',
       value: 300,
       label: 'Invoiced in period (EUR)',
+      basis: 'exclVat',
     });
     expect(issued).not.toHaveProperty('previousValue');
   });
@@ -833,6 +871,37 @@ describe('buildInvoiceStatisticsWidgets', () => {
     listAllDocuments.mockReset();
     listRecentDocuments.mockReset();
     countDocuments.mockReset();
+    sumPaidMinorByDocument.mockReset().mockResolvedValue(new Map());
+    listCreditNotes.mockReset().mockResolvedValue([]);
+  });
+
+  it('shows what is still owed on each issued invoice, next to its total', async () => {
+    seedDocuments([
+      invoice({
+        id: 'partly-paid',
+        status: 'sent',
+        data: {
+          issueDate: '2026-01-01',
+          dueDate: '2026-01-31',
+          currency: 'EUR',
+          lines: [{ quantity: 1, unitPrice: 1000, vatRate: '20' }],
+        },
+      }),
+      invoice({
+        id: 'draft',
+        status: 'draft',
+        data: { issueDate: '2026-02-01', currency: 'EUR', lines: [{ quantity: 1, unitPrice: 50 }] },
+      }),
+    ]);
+    sumPaidMinorByDocument.mockResolvedValue(new Map([['partly-paid', 48000]]));
+
+    const widgets = await buildInvoiceStatisticsWidgets({ companyId: 'c1' });
+    const table = widgets.find((w) => w.kind === 'table') as TableWidget;
+
+    expect(table.rows.map(({ total, outstanding }) => ({ total, outstanding }))).toEqual([
+      { total: 1200, outstanding: 720 },
+      { total: 50, outstanding: '' },
+    ]);
   });
 
   it('renders one detailed row per invoice, and a total count metric', async () => {
@@ -874,9 +943,30 @@ describe('buildInvoiceStatisticsWidgets', () => {
 
     expect(metric).toMatchObject({ value: 3 });
     expect(table.rows).toEqual([
-      { issueDate: '2026-01-01', dueDate: '2026-01-31', status: 'sent', currency: 'EUR', total: 20 },
-      { issueDate: '2026-02-01', dueDate: '2026-03-01', status: 'draft', currency: 'USD', total: 0 },
-      { issueDate: '2026-03-01', dueDate: '2026-03-31', status: 'cancelled', currency: 'EUR', total: 500 },
+      {
+        issueDate: '2026-01-01',
+        dueDate: '2026-01-31',
+        status: 'sent',
+        currency: 'EUR',
+        total: 20,
+        outstanding: 20,
+      },
+      {
+        issueDate: '2026-02-01',
+        dueDate: '2026-03-01',
+        status: 'draft',
+        currency: 'USD',
+        total: 0,
+        outstanding: '',
+      },
+      {
+        issueDate: '2026-03-01',
+        dueDate: '2026-03-31',
+        status: 'cancelled',
+        currency: 'EUR',
+        total: 500,
+        outstanding: '',
+      },
     ]);
   });
 });

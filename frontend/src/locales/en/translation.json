@@ -289,7 +289,6 @@
           "setPrimary": "Set as primary",
           "primaryFromIdentity": "Comes from the identity step",
           "primaryLockedHint": "Only the person on the identity step can be the primary contact of an individual client.",
-          "primaryLockedTitle": "The primary contact of an individual client is the person on the identity step - edit the identity step to change it",
           "removeLockedTitle": "The primary contact of an individual client is the person on the identity step and cannot be removed here"
         }
       },
@@ -1533,6 +1532,10 @@
     "emptyTitle": "Nothing to show yet",
     "emptyDescription": "This will fill in once your company has some documents to report on.",
     "unsupportedKind": "Widget \"{{label}}\" has kind \"{{kind}}\", which no renderer is registered for.",
+    "basis": {
+      "inclVat": "incl. VAT",
+      "exclVat": "excl. VAT"
+    },
     "shortList": {
       "empty": "Nothing to show."
     },
@@ -3795,7 +3798,6 @@
     },
     "catalog-search": {
       "suggestionsLabel": "Catalog suggestions",
-      "searching": "Searching the catalog",
       "noMatch": "No matching item in the catalog"
     },
     "document-language-select": {
@@ -3830,6 +3832,14 @@
     }
   },
   "common": {
+    "fieldHelp": {
+      "trigger": "Show help",
+      "triggerFor": "Help for {{field}}"
+    },
+    "fieldLock": {
+      "trigger": "Why is this field locked?",
+      "triggerFor": "Why is {{field}} locked?"
+    },
     "loading": "Loading...",
     "finish": "Finish",
     "valueWithCurrency": "{{amount}} {{currency}}",
@@ -5057,7 +5067,7 @@
         "readOnlyFromSource": "These lines come from the supplier's e-invoice and cannot be edited."
       },
       "select": {
-        "lockedFromReference": "Follows the linked record — cannot be edited directly."
+        "lockedFromReference": "Follows the linked record and cannot be edited directly."
       },
       "rowSelection": {
         "selectSourceFirst": "Select the related document above first.",
@@ -5189,6 +5199,7 @@
       "downloadXmlError": "The normalized XML export could not be generated.",
       "shareLink": "Share link",
       "processing": "Processing…",
+      "amountInclVat": "incl. VAT",
       "lastActionError": "Last error: {{message}}",
       "rowMenu": "More actions",
       "sort": {

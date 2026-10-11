@@ -64,9 +64,8 @@ function restrictToPeriod(
   );
 }
 
-/** `data.amount` if it is actually a number, 0 otherwise - the same "a still-being-filled draft is a
- *  normal state to aggregate over, not an error" rule invoice-contributions.ts's own `invoiceTotal`
- *  applies to a missing line amount. */
+/** `data.amount` if it is actually a number, 0 otherwise: a still-being-filled draft is a normal
+ *  state to aggregate over, not an error. */
 function expenseAmount(data: Record<string, unknown>): number {
   return typeof data.amount === 'number' ? data.amount : 0;
 }
@@ -74,7 +73,7 @@ function expenseAmount(data: Record<string, unknown>): number {
 /** "2026-08" for any parseable date-ish value, or null. Deliberately NOT imported from
  *  invoice-contributions.ts's own identical helper: each contribution file stays self-contained —
  *  one small pure helper per type, the same way each type's own amount arithmetic
- *  (`invoiceTotal`/`expenseAmount`) is not shared machinery either. */
+ *  (`expenseAmount` here) is not shared machinery either. */
 function monthKey(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const parsed = new Date(value);

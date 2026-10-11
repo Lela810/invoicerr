@@ -21,18 +21,22 @@ interface DocumentLanguageSelectProps {
    *  `resolveRecipientLanguage` — the company's own default, then English). */
   onChange: (value: string | null) => void
   "data-cy"?: string
+  id?: string
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
 }
 
 export default function DocumentLanguageSelect({
   value,
   onChange,
   "data-cy": dataCy,
+  ...aria
 }: DocumentLanguageSelectProps) {
   const { t } = useTranslation()
 
   return (
     <Select value={value || AUTOMATIC} onValueChange={(next) => onChange(next === AUTOMATIC ? null : next)}>
-      <SelectTrigger dataCy={dataCy}>
+      <SelectTrigger dataCy={dataCy} {...aria}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -34,6 +34,9 @@ interface SearchSelectProps {
    *  itself before firing `onClick`, same as picking an ordinary option does. */
   footerAction?: { label: string; onClick: () => void; "data-cy"?: string }
   "data-cy"?: string
+  id?: string
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
 }
 
 export default function SearchSelect({
@@ -51,6 +54,9 @@ export default function SearchSelect({
   noResultsComponent,
   footerAction,
   "data-cy": dataCyValue,
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: SearchSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -138,6 +144,9 @@ export default function SearchSelect({
           <Button
             type="button"
             variant="outline"
+            id={id}
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
             disabled={disabled}
             className={cn(
               "w-full min-w-0 justify-between overflow-hidden text-start font-normal h-9 min-h-8 p-3",

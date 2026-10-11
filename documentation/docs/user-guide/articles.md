@@ -49,7 +49,7 @@ You never have to pick anything: if you ignore the list, whatever you typed is k
 
 The lines of a received invoice get the same help: typing in **Designation** and picking a suggestion copies the article's Name, Unit Price and VAT Rate into the line. The line is not linked to the article, so recording a received invoice never changes the article's stock.
 
-A received invoice's lines have the same fields as an invoice line. For a structured invoice (Factur-X, CII or UBL), the lines, **Unit** included, are read from the supplier's XML and cannot be edited: they are what the supplier invoiced. The unit is shown under its name in your language. Lines of a plain PDF stay editable, with the catalog help above.
+A received invoice's lines have the same fields as an invoice line. For a structured invoice (Factur-X, CII or UBL), the lines, **Unit** included, are read from the supplier's XML and cannot be edited: they are what the supplier invoiced. A red lock after the **Lines** heading says so; hover, tap or focus it to read why. The unit is shown under its name in your language. Lines of a plain PDF stay editable, with the catalog help above.
 
 ## First use
 

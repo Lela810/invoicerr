@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { Separator } from "@/components/ui/separator"
@@ -385,18 +386,21 @@ function SystemTemplateCard({
             />
           </div>
           <div className="space-y-2" data-cy={`email-template-body-${template.id}`}>
-            <Label htmlFor={`body-${template.id}`}>{t("settings.emailTemplates.editor.htmlBody")}</Label>
+            <FieldLabel
+              htmlFor={`body-${template.id}`}
+              description={t("settings.emailTemplates.editor.systemHtmlTip")}
+            >
+              {t("settings.emailTemplates.editor.htmlBody")}
+            </FieldLabel>
             <RichTextEditor
               id={`body-${template.id}`}
+              aria-describedby={fieldHelpId(`body-${template.id}`)}
               value={body}
               onChange={setBody}
               readOnly={!canEdit}
               variables={template.variables}
               className="min-h-[280px]"
             />
-            <p className="text-xs text-muted-foreground">
-              {t("settings.emailTemplates.editor.systemHtmlTip")}
-            </p>
           </div>
           <PlaceholderHints variables={template.variables} />
         </div>
@@ -534,9 +538,15 @@ function DocumentTemplateCard({
             />
           </div>
           <div className="space-y-2" data-cy={`email-template-body-${template.typeId}`}>
-            <Label htmlFor={`body-${template.typeId}`}>{t("settings.emailTemplates.editor.body")}</Label>
+            <FieldLabel
+              htmlFor={`body-${template.typeId}`}
+              description={t("settings.emailTemplates.editor.systemHtmlTip")}
+            >
+              {t("settings.emailTemplates.editor.body")}
+            </FieldLabel>
             <RichTextEditor
               id={`body-${template.typeId}`}
+              aria-describedby={fieldHelpId(`body-${template.typeId}`)}
               value={content}
               onChange={setContent}
               readOnly={!canEdit}
@@ -544,9 +554,6 @@ function DocumentTemplateCard({
               variables={template.variables}
               className="min-h-[220px]"
             />
-            <p className="text-xs text-muted-foreground">
-              {t("settings.emailTemplates.editor.systemHtmlTip")}
-            </p>
           </div>
           <PlaceholderHints variables={template.variables} />
         </div>

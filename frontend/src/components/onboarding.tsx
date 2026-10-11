@@ -1,15 +1,7 @@
 "use client"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 import { AlertCircle, Check, Info, Loader2, Search } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -417,7 +409,9 @@ export default function OnBoarding({
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.country.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.country.description")} required>
+                      {t("settings.company.form.country.label")}
+                    </FormLabel>
                     <FormControl>
                       <CountrySelect
                         value={field.value}
@@ -426,7 +420,6 @@ export default function OnBoarding({
                         data-cy="onboarding-company-country-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.country.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -454,7 +447,13 @@ export default function OnBoarding({
                 )}.value`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required={!!legalIdRequirement?.required}>{identifierFieldLabel}</FormLabel>
+                    <FormLabel
+                      description={legalIdHelpText}
+                      helpDataCy="onboarding-legalid-help"
+                      required={!!legalIdRequirement?.required}
+                    >
+                      {identifierFieldLabel}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -462,11 +461,6 @@ export default function OnBoarding({
                         data-cy="onboarding-legalid-input"
                       />
                     </FormControl>
-                    {legalIdHelpText && (
-                      <p className="text-xs text-muted-foreground" data-cy="onboarding-legalid-help">
-                        {legalIdHelpText}
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -532,7 +526,9 @@ export default function OnBoarding({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.company.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.company.description")} required>
+                      {t("settings.company.form.company.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t("settings.company.form.company.placeholder")}
@@ -540,7 +536,6 @@ export default function OnBoarding({
                         data-cy="onboarding-company-name-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.company.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -637,52 +632,48 @@ export default function OnBoarding({
                             name={`identifiers.${formIndex}.value`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel required={req.required}>{req.label}</FormLabel>
-                                <FormControl>
-                                  <div className="flex gap-2">
+                                <FormLabel
+                                  description={helpText}
+                                  helpDataCy={`onboarding-identifier-${req.scheme}-help`}
+                                  required={req.required}
+                                >
+                                  {req.label}
+                                </FormLabel>
+                                <div className="flex gap-2">
+                                  <FormControl>
                                     <Input
                                       {...field}
                                       placeholder={req.label}
                                       data-cy={req.scheme === "VAT" ? "onboarding-vat-input" : undefined}
                                     />
-                                    {canLookupScheme(req.scheme) && (
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="icon"
-                                        disabled={companyLookupLoading || !String(field.value || "").trim()}
-                                        onClick={() =>
-                                          onCompanyLookup(field.value, req.scheme as LookupScheme)
-                                        }
-                                        aria-label={
-                                          lookupIdentifierLabel
-                                            ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                            : t("clients.upsert.actions.lookupCompany")
-                                        }
-                                        tooltip={
-                                          lookupIdentifierLabel
-                                            ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                            : t("clients.upsert.actions.lookupCompany")
-                                        }
-                                        data-cy="onboarding-company-lookup"
-                                      >
-                                        {companyLookupLoading ? (
-                                          <Loader2 className="animate-spin" />
-                                        ) : (
-                                          <Search />
-                                        )}
-                                      </Button>
-                                    )}
-                                  </div>
-                                </FormControl>
-                                {helpText && (
-                                  <p
-                                    className="text-xs text-muted-foreground"
-                                    data-cy={`onboarding-identifier-${req.scheme}-help`}
-                                  >
-                                    {helpText}
-                                  </p>
-                                )}
+                                  </FormControl>
+                                  {canLookupScheme(req.scheme) && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      disabled={companyLookupLoading || !String(field.value || "").trim()}
+                                      onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
+                                      aria-label={
+                                        lookupIdentifierLabel
+                                          ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                          : t("clients.upsert.actions.lookupCompany")
+                                      }
+                                      tooltip={
+                                        lookupIdentifierLabel
+                                          ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                                          : t("clients.upsert.actions.lookupCompany")
+                                      }
+                                      data-cy="onboarding-company-lookup"
+                                    >
+                                      {companyLookupLoading ? (
+                                        <Loader2 className="animate-spin" />
+                                      ) : (
+                                        <Search />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
                                 <FormMessage />
                               </FormItem>
                             )}

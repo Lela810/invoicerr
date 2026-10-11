@@ -8,6 +8,9 @@ interface CountrySelectProps {
   onChange: (value: string | string[]) => void
   onCountryCodeChange?: (code: string) => void
   "data-cy"?: string
+  id?: string
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
 }
 
 export default function CountrySelect({
@@ -15,6 +18,7 @@ export default function CountrySelect({
   onChange,
   onCountryCodeChange,
   "data-cy": dataCyValue,
+  ...aria
 }: CountrySelectProps) {
   const { t, i18n } = useTranslation()
 
@@ -70,6 +74,7 @@ export default function CountrySelect({
       noResultsText={t("component.country-select.noResults")}
       className="w-full"
       data-cy={dataCyValue}
+      {...aria}
     />
   )
 }

@@ -1,4 +1,28 @@
-import { domesticCurrencyFor } from './seed-company';
+import { vi } from 'vitest';
+
+import { toMinor } from '@/utils/financial';
+import { buildInvoiceDescriptor } from '@/modules/documents/descriptors/invoice.descriptor';
+import { ROW_ID_KEY } from '@/modules/documents/row-selection/row-selection';
+import { computeSettlement } from '@/modules/documents/settlement/compute-settlement';
+import { computeDocumentTotals } from '@/modules/documents/totals/compute-totals';
+
+import { createRng } from '../generators/rng';
+import { domesticCurrencyFor, seedCountryCompany } from './seed-company';
+
+vi.mock('@/prisma/prisma.service', () => ({
+  default: {
+    company: { create: vi.fn(async () => ({ id: 'company-1' })) },
+    userCompany: { create: vi.fn() },
+    partyIdentifier: { create: vi.fn() },
+  },
+}));
+vi.mock('./move-to-sent', () => ({
+  moveDraftToSent: vi.fn(async (_companyId: string, _typeId: string, id: string, data: unknown) => ({
+    id,
+    data,
+    status: 'sent',
+  })),
+}));
 
 describe('domesticCurrencyFor', () => {
   it.each([
@@ -14,5 +38,109 @@ describe('domesticCurrencyFor', () => {
 
   it('refuses a country with no currency on file', () => {
     expect(() => domesticCurrencyFor({ countryCode: 'XX' } as never)).toThrow(/XX declares neither/);
+  });
+});
+
+type Lines = Record<string, unknown>[];
+type Doc = { id: string; typeId: string; data: Record<string, unknown> };
+
+/** Stands in for `DocumentsService` with the real totals and settlement arithmetic: a credit note is
+ *  worth the gross of the invoice lines it corrects, a payment what was recorded. */
+function fakeDocumentsService() {
+  const docs = new Map<string, Doc>();
+  const payments: { documentId: string; amount: number; currency: string }[] = [];
+  const credits: { invoiceId: string; correctedLines: string[] }[] = [];
+  const invoiceDescriptor = buildInvoiceDescriptor();
+
+  const grossOf = (data: Record<string, unknown>) => computeDocumentTotals(invoiceDescriptor, data);
+
+  const getSettlement = async (_companyId: string, _typeId: string, id: string) => {
+    const invoice = docs.get(id)!;
+    const totals = grossOf(invoice.data);
+    const currency = totals.currency ?? '';
+    const lines = (invoice.data.lines as Lines) ?? [];
+    return {
+      totals,
+      settlement: computeSettlement(
+        totals.grossMinor,
+        payments
+          .filter((p) => p.documentId === id)
+          .map((p) => ({ amountMinor: toMinor(p.amount, p.currency) })),
+        credits
+          .filter((c) => c.invoiceId === id)
+          .map((c, index) => ({
+            id: `credit-${index}`,
+            amountMinor: grossOf({
+              currency,
+              lines: lines.filter((line) => c.correctedLines.includes(line[ROW_ID_KEY] as string)),
+            }).grossMinor,
+          })),
+      ),
+    };
+  };
+
+  const runAction = async (
+    _companyId: string,
+    typeId: string,
+    actionId: string,
+    payload: { documentId?: string; data?: Record<string, unknown>; params?: Record<string, unknown> },
+  ) => {
+    if (actionId === 'record-payment') {
+      const params = payload.params as { amount: number; currency: string };
+      payments.push({ documentId: payload.documentId!, amount: params.amount, currency: params.currency });
+      return { document: docs.get(payload.documentId!) };
+    }
+    if (payload.documentId) return { document: docs.get(payload.documentId) };
+    const id = `${typeId}-${docs.size + 1}`;
+    const data = { ...(payload.data ?? {}) };
+    if (Array.isArray(data.lines)) {
+      data.lines = (data.lines as Lines).map((line, index) => ({
+        ...line,
+        [ROW_ID_KEY]: `${id}-row-${index}`,
+      }));
+    }
+    if (typeId === 'credit-note' && typeof data.invoice === 'string') {
+      credits.push({ invoiceId: data.invoice, correctedLines: (data.correctedLines as string[]) ?? [] });
+    }
+    const doc = { id, typeId, data };
+    docs.set(id, doc);
+    return { document: doc };
+  };
+
+  return { docs, payments, credits, service: { runAction, getSettlement } };
+}
+
+describe('seedCountryCompany: invoice balances', () => {
+  it('leaves no invoice with an excess: one paid in full, one settled by a partial credit plus a payment', async () => {
+    const fake = fakeDocumentsService();
+    let clientCount = 0;
+
+    await seedCountryCompany(
+      {
+        documentsService: fake.service as never,
+        articlesService: { create: vi.fn() } as never,
+        clientsService: { createClient: vi.fn(async () => ({ id: `client-${++clientCount}` })) } as never,
+      },
+      {
+        userId: 'user-1',
+        userEmail: 'demo@example.test',
+        countryCode: 'DE',
+        rng: createRng('spec'),
+        now: new Date(),
+      },
+    );
+
+    const invoices = [...fake.docs.values()].filter((doc) => doc.typeId === 'invoice');
+    const settlements = await Promise.all(
+      invoices.map(
+        async (doc) => (await fake.service.getSettlement('company-1', 'invoice', doc.id)).settlement,
+      ),
+    );
+
+    expect(settlements.map((s) => s.excessMinor)).toEqual(settlements.map(() => 0));
+    const creditedAndPaid = settlements.find((s) => s.creditedMinor > 0 && s.paidMinor > 0);
+    expect(creditedAndPaid).toMatchObject({ settled: true, outstandingMinor: 0, excessMinor: 0 });
+    const paidInFull = settlements.find((s) => s.creditedMinor === 0 && s.settled);
+    expect(paidInFull).toMatchObject({ paidMinor: paidInFull?.totalGrossMinor, excessMinor: 0 });
   });
 });

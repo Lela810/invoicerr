@@ -79,6 +79,9 @@ export const queryKeys = {
     documents: (lang?: string) => ["legal", "documents", lang ?? null] as const,
     status: () => ["legal", "status"] as const,
   },
+  registration: {
+    status: () => ["registration", "status"] as const,
+  },
   instance: {
     preflight: () => ["instance", "preflight"] as const,
   },

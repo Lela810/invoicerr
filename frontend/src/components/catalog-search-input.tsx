@@ -97,10 +97,11 @@ export function CatalogSearchInput({
       />
       {showLoader && (
         <span
+          aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 end-2 flex items-center text-muted-foreground"
           data-cy={dataCy ? `${dataCy}-loading` : "catalog-search-loading"}
         >
-          <Spinner aria-label={t("component.catalog-search.searching")} />
+          <Spinner />
         </span>
       )}
       {open && noMatch && !showLoader && (

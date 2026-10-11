@@ -151,21 +151,21 @@ function CreateForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("settings.customFields.form.target")}</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
                     <SelectTrigger data-cy="custom-field-target-input" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="DOCUMENT" data-cy="custom-field-target-option-document">
-                        {t("settings.customFields.form.targetDocument")}
-                      </SelectItem>
-                      <SelectItem value="CLIENT" data-cy="custom-field-target-option-client">
-                        {t("settings.customFields.form.targetClient")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="DOCUMENT" data-cy="custom-field-target-option-document">
+                      {t("settings.customFields.form.targetDocument")}
+                    </SelectItem>
+                    <SelectItem value="CLIENT" data-cy="custom-field-target-option-client">
+                      {t("settings.customFields.form.targetClient")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -178,30 +178,30 @@ function CreateForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("settings.customFields.form.documentType")}</FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
                       <SelectTrigger data-cy="custom-field-document-type-input" className="w-full">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        value={ALL_DOCUMENT_TYPES_VALUE}
+                        data-cy="custom-field-document-type-option-all"
+                      >
+                        {t("settings.customFields.form.documentTypeAll")}
+                      </SelectItem>
+                      {(documentTypes ?? []).map((type) => (
                         <SelectItem
-                          value={ALL_DOCUMENT_TYPES_VALUE}
-                          data-cy="custom-field-document-type-option-all"
+                          key={type.id}
+                          value={type.id}
+                          data-cy={`custom-field-document-type-option-${type.id}`}
                         >
-                          {t("settings.customFields.form.documentTypeAll")}
+                          {type.label}
                         </SelectItem>
-                        {(documentTypes ?? []).map((type) => (
-                          <SelectItem
-                            key={type.id}
-                            value={type.id}
-                            data-cy={`custom-field-document-type-option-${type.id}`}
-                          >
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -228,20 +228,20 @@ function CreateForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("settings.customFields.form.kind")}</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
                     <SelectTrigger data-cy="custom-field-kind-input" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {ALLOWED_KINDS.map((k) => (
-                        <SelectItem key={k} value={k} data-cy={`custom-field-kind-option-${k}`}>
-                          {t(`settings.customFields.kinds.${k}`)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent>
+                    {ALLOWED_KINDS.map((k) => (
+                      <SelectItem key={k} value={k} data-cy={`custom-field-kind-option-${k}`}>
+                        {t(`settings.customFields.kinds.${k}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

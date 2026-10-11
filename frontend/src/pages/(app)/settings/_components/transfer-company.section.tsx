@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "@/hooks/use-api-query"
@@ -165,16 +166,21 @@ export default function TransferCompanySection() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
           <div className="grid gap-1.5">
-            <Label htmlFor="transfer-company-email">{t("settings.transferCompany.form.emailLabel")}</Label>
+            <FieldLabel
+              htmlFor="transfer-company-email"
+              description={t("settings.transferCompany.form.emailHint")}
+            >
+              {t("settings.transferCompany.form.emailLabel")}
+            </FieldLabel>
             <Input
               id="transfer-company-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("settings.transferCompany.form.emailPlaceholder")}
+              aria-describedby={fieldHelpId("transfer-company-email")}
               data-cy="transfer-company-email-input"
             />
-            <p className="text-xs text-muted-foreground">{t("settings.transferCompany.form.emailHint")}</p>
           </div>
           <Button
             variant="outline"

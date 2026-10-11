@@ -1,11 +1,5 @@
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FieldLock, fieldLockId } from "@/components/ui/field-help"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { usePatch, usePost } from "@/hooks/use-fetch"
@@ -241,7 +235,9 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
         name="foundedAt"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("clients.upsert.fields.foundedAt.label")}</FormLabel>
+            <FormLabel description={t("clients.upsert.fields.foundedAt.description")}>
+              {t("clients.upsert.fields.foundedAt.label")}
+            </FormLabel>
             <FormControl>
               <DatePicker
                 className="w-full"
@@ -250,7 +246,6 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
                 placeholder={t("clients.upsert.fields.foundedAt.placeholder")}
               />
             </FormControl>
-            <FormDescription>{t("clients.upsert.fields.foundedAt.description")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -262,8 +257,9 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
         render={({ field }) => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 sm:col-span-2">
             <div className="space-y-0.5">
-              <FormLabel>{t("clients.upsert.fields.isSupplier.label")}</FormLabel>
-              <FormDescription>{t("clients.upsert.fields.isSupplier.description")}</FormDescription>
+              <FormLabel description={t("clients.upsert.fields.isSupplier.description")}>
+                {t("clients.upsert.fields.isSupplier.label")}
+              </FormLabel>
             </div>
             <FormControl>
               <Switch
@@ -423,21 +419,21 @@ function FiscalStep({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("clients.upsert.fields.kind.label", "Client kind")}</FormLabel>
-              <FormControl>
-                <Select value={field.value || "BUSINESS"} onValueChange={(value) => field.onChange(value)}>
+              <Select value={field.value || "BUSINESS"} onValueChange={(value) => field.onChange(value)}>
+                <FormControl>
                   <SelectTrigger dataCy="client-kind-select">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BUSINESS" dataCy="client-kind-business">
-                      {t("clients.upsert.fields.kind.business", "Business")}
-                    </SelectItem>
-                    <SelectItem value="GOVERNMENT" dataCy="client-kind-government">
-                      {t("clients.upsert.fields.kind.government", "Government / public body")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="BUSINESS" dataCy="client-kind-business">
+                    {t("clients.upsert.fields.kind.business", "Business")}
+                  </SelectItem>
+                  <SelectItem value="GOVERNMENT" dataCy="client-kind-government">
+                    {t("clients.upsert.fields.kind.government", "Government / public body")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -520,42 +516,40 @@ function FiscalStep({
                 name={`identifiers.${formIndex}.value`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required={req.required}>{req.label}</FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2">
+                    <FormLabel
+                      description={helpText}
+                      helpDataCy={`client-identifier-${req.scheme}-help`}
+                      required={req.required}
+                    >
+                      {req.label}
+                    </FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
                         <Input
                           {...field}
                           placeholder={req.label}
                           data-cy={`client-identifier-${req.scheme}`}
                         />
-                        {canLookupScheme(req.scheme) && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={companyLookupLoading || !String(field.value || "").trim()}
-                            onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
-                            aria-label={t("clients.upsert.actions.lookupCompany")}
-                            title={
-                              lookupIdentifierLabel
-                                ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
-                                : t("clients.upsert.actions.lookupCompany")
-                            }
-                            dataCy="client-company-lookup"
-                          >
-                            {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                          </Button>
-                        )}
-                      </div>
-                    </FormControl>
-                    {helpText && (
-                      <p
-                        className="text-xs text-muted-foreground"
-                        data-cy={`client-identifier-${req.scheme}-help`}
-                      >
-                        {helpText}
-                      </p>
-                    )}
+                      </FormControl>
+                      {canLookupScheme(req.scheme) && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          disabled={companyLookupLoading || !String(field.value || "").trim()}
+                          onClick={() => onCompanyLookup(field.value, req.scheme as LookupScheme)}
+                          aria-label={t("clients.upsert.actions.lookupCompany")}
+                          title={
+                            lookupIdentifierLabel
+                              ? `${t("clients.upsert.actions.lookupCompany")} — ${lookupIdentifierLabel}`
+                              : t("clients.upsert.actions.lookupCompany")
+                          }
+                          dataCy="client-company-lookup"
+                        >
+                          {companyLookupLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                        </Button>
+                      )}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -581,31 +575,32 @@ function FiscalStep({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("clients.upsert.fields.peppolSchemeId.label") || "Peppol scheme"}</FormLabel>
-              <FormControl>
-                <Select value={field.value || "0088"} onValueChange={field.onChange}>
+              <Select value={field.value || "0088"} onValueChange={field.onChange}>
+                <FormControl>
                   <SelectTrigger data-cy="client-peppol-scheme-select">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0088" dataCy="client-peppol-scheme-option-0088">
-                      0088 — GLN
-                    </SelectItem>
-                    <SelectItem value="0192" dataCy="client-peppol-scheme-option-0192">
-                      0192 — NO org.nr
-                    </SelectItem>
-                    <SelectItem value="0009" dataCy="client-peppol-scheme-option-0009">
-                      0009 — FR SIRET
-                    </SelectItem>
-                    <SelectItem value="9925" dataCy="client-peppol-scheme-option-9925">
-                      9925 — EU VAT
-                    </SelectItem>
-                    <SelectItem value="0007" dataCy="client-peppol-scheme-option-0007">
-                      0007 — SE org.nr
-                    </SelectItem>
-                    <SelectItem value="0208" dataCy="client-peppol-scheme-option-0208">
-                      0208 — BE org.nr
-                    </SelectItem>
-                    {/*
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="0088" dataCy="client-peppol-scheme-option-0088">
+                    0088 — GLN
+                  </SelectItem>
+                  <SelectItem value="0192" dataCy="client-peppol-scheme-option-0192">
+                    0192 — NO org.nr
+                  </SelectItem>
+                  <SelectItem value="0009" dataCy="client-peppol-scheme-option-0009">
+                    0009 — FR SIRET
+                  </SelectItem>
+                  <SelectItem value="9925" dataCy="client-peppol-scheme-option-9925">
+                    9925 — EU VAT
+                  </SelectItem>
+                  <SelectItem value="0007" dataCy="client-peppol-scheme-option-0007">
+                    0007 — SE org.nr
+                  </SelectItem>
+                  <SelectItem value="0208" dataCy="client-peppol-scheme-option-0208">
+                    0208 — BE org.nr
+                  </SelectItem>
+                  {/*
                       Was "0106 — DK CVR", WRONG: 0106 is the Dutch
                       KVK ("Vereniging van Kamers van Koophandel en Fabrieken in Nederland", NL,
                       active) in the Peppol v9.7 Participant Identifier Schemes codelist
@@ -614,19 +609,19 @@ function FiscalStep({
                       2026-09-03. The real Danish CVR is 0184 (Peppol scheme name: "The Danish
                       Business Authority - CVR-number (DK:CVR)"), added just below.
                     */}
-                    <SelectItem value="0106" dataCy="client-peppol-scheme-option-0106">
-                      0106 — NL KVK
-                    </SelectItem>
-                    <SelectItem value="0184" dataCy="client-peppol-scheme-option-0184">
-                      0184 — DK CVR
-                    </SelectItem>
-                    <SelectItem value="0151" dataCy="client-peppol-scheme-option-0151">
-                      0151 — AU ABN
-                    </SelectItem>
-                    <SelectItem value="0060" dataCy="client-peppol-scheme-option-0060">
-                      0060 — DUNS
-                    </SelectItem>
-                    {/*
+                  <SelectItem value="0106" dataCy="client-peppol-scheme-option-0106">
+                    0106 — NL KVK
+                  </SelectItem>
+                  <SelectItem value="0184" dataCy="client-peppol-scheme-option-0184">
+                    0184 — DK CVR
+                  </SelectItem>
+                  <SelectItem value="0151" dataCy="client-peppol-scheme-option-0151">
+                    0151 — AU ABN
+                  </SelectItem>
+                  <SelectItem value="0060" dataCy="client-peppol-scheme-option-0060">
+                    0060 — DUNS
+                  </SelectItem>
+                  {/*
                       The seven EAS the 2026-09-02 B2G audit added routing rules for
                       (backend/src/modules/documents/b2g-routing/data/{ee,lt,lv,lu,cy,gr,mt}.json)
                       but this selector never offered — each label below is the scheme name the
@@ -639,30 +634,29 @@ function FiscalStep({
                       their VAT scheme (9928/9933/9943) exists, per those same three files' own
                       notes.
                     */}
-                    <SelectItem value="0191" dataCy="client-peppol-scheme-option-0191">
-                      0191 — EE Company code
-                    </SelectItem>
-                    <SelectItem value="0200" dataCy="client-peppol-scheme-option-0200">
-                      0200 — LT Legal entity code
-                    </SelectItem>
-                    <SelectItem value="0218" dataCy="client-peppol-scheme-option-0218">
-                      0218 — LV Unified registration number
-                    </SelectItem>
-                    <SelectItem value="0240" dataCy="client-peppol-scheme-option-0240">
-                      0240 — LU Register of legal persons
-                    </SelectItem>
-                    <SelectItem value="9928" dataCy="client-peppol-scheme-option-9928">
-                      9928 — CY VAT number
-                    </SelectItem>
-                    <SelectItem value="9933" dataCy="client-peppol-scheme-option-9933">
-                      9933 — GR VAT number
-                    </SelectItem>
-                    <SelectItem value="9943" dataCy="client-peppol-scheme-option-9943">
-                      9943 — MT VAT number
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                  <SelectItem value="0191" dataCy="client-peppol-scheme-option-0191">
+                    0191 — EE Company code
+                  </SelectItem>
+                  <SelectItem value="0200" dataCy="client-peppol-scheme-option-0200">
+                    0200 — LT Legal entity code
+                  </SelectItem>
+                  <SelectItem value="0218" dataCy="client-peppol-scheme-option-0218">
+                    0218 — LV Unified registration number
+                  </SelectItem>
+                  <SelectItem value="0240" dataCy="client-peppol-scheme-option-0240">
+                    0240 — LU Register of legal persons
+                  </SelectItem>
+                  <SelectItem value="9928" dataCy="client-peppol-scheme-option-9928">
+                    9928 — CY VAT number
+                  </SelectItem>
+                  <SelectItem value="9933" dataCy="client-peppol-scheme-option-9933">
+                    9933 — GR VAT number
+                  </SelectItem>
+                  <SelectItem value="9943" dataCy="client-peppol-scheme-option-9943">
+                    9943 — MT VAT number
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -672,7 +666,12 @@ function FiscalStep({
           name="peppolEndpointId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
+              <FormLabel
+                description={
+                  t("clients.upsert.fields.peppolEndpointId.helpText") ||
+                  "Leave blank if this client is not on the Peppol network"
+                }
+              >
                 {t("clients.upsert.fields.peppolEndpointId.label") || "Peppol endpoint ID"}
               </FormLabel>
               <FormControl>
@@ -684,10 +683,6 @@ function FiscalStep({
                   data-cy="client-peppol-endpoint-input"
                 />
               </FormControl>
-              <p className="text-xs text-muted-foreground">
-                {t("clients.upsert.fields.peppolEndpointId.helpText") ||
-                  "Leave blank if this client is not on the Peppol network"}
-              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -854,25 +849,38 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
               data-cy={`client-contact-row-${index}`}
             >
               <div className="flex items-center justify-between gap-2">
-                <label
-                  className={cn(
-                    "flex items-center gap-2 text-sm",
-                    otherRowLocked && "cursor-not-allowed text-muted-foreground opacity-60",
+                <div className="flex items-center gap-1">
+                  <label
+                    className={cn(
+                      "flex items-center gap-2 text-sm",
+                      otherRowLocked && "cursor-not-allowed text-muted-foreground opacity-60",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="client-contact-primary"
+                      checked={isPrimaryRow}
+                      disabled={otherRowLocked}
+                      onChange={() => setPrimary(index)}
+                      aria-describedby={
+                        otherRowLocked ? fieldLockId(`client-contact-primary-${index}`) : undefined
+                      }
+                      data-cy={`client-contact-primary-radio-${index}`}
+                    />
+                    {isPrimaryRow
+                      ? t("clients.upsert.fields.contacts.primaryBadge", "Primary")
+                      : t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
+                  </label>
+                  {otherRowLocked && (
+                    <FieldLock
+                      id={fieldLockId(`client-contact-primary-${index}`)}
+                      label={t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
+                      dataCy={`client-contact-primary-locked-${index}`}
+                    >
+                      {t("clients.upsert.fields.contacts.primaryLockedHint")}
+                    </FieldLock>
                   )}
-                  title={otherRowLocked ? t("clients.upsert.fields.contacts.primaryLockedTitle") : undefined}
-                >
-                  <input
-                    type="radio"
-                    name="client-contact-primary"
-                    checked={isPrimaryRow}
-                    disabled={otherRowLocked}
-                    onChange={() => setPrimary(index)}
-                    data-cy={`client-contact-primary-radio-${index}`}
-                  />
-                  {isPrimaryRow
-                    ? t("clients.upsert.fields.contacts.primaryBadge", "Primary")
-                    : t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
-                </label>
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
@@ -885,23 +893,20 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   {t("clients.upsert.fields.contacts.remove", "Remove")}
                 </Button>
               </div>
-              {otherRowLocked && (
-                // A native `title` tooltip is invisible until hovered, and a disabled radio looks like
-                // an unchecked one: say it on the row itself (#415 second review, point 1).
-                <p
-                  className="text-xs text-muted-foreground"
-                  data-cy={`client-contact-primary-locked-${index}`}
-                >
-                  {t("clients.upsert.fields.contacts.primaryLockedHint")}
-                </p>
-              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name={`contacts.${index}.firstName`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("clients.upsert.fields.contactFirstname.label")}</FormLabel>
+                      <FormLabel
+                        lockReason={
+                          primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
+                        }
+                        lockDataCy={`client-contact-firstName-${index}-lock`}
+                      >
+                        {t("clients.upsert.fields.contactFirstname.label")}
+                      </FormLabel>
                       <FormControl>
                         {primaryLocked ? (
                           <Input
@@ -916,11 +921,6 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                           <Input {...field} data-cy={`client-contact-firstName-${index}`} />
                         )}
                       </FormControl>
-                      {primaryLocked && (
-                        <FormDescription>
-                          {t("clients.upsert.fields.contacts.primaryFromIdentity")}
-                        </FormDescription>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -930,7 +930,14 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   name={`contacts.${index}.lastName`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("clients.upsert.fields.contactLastname.label")}</FormLabel>
+                      <FormLabel
+                        lockReason={
+                          primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
+                        }
+                        lockDataCy={`client-contact-lastName-${index}-lock`}
+                      >
+                        {t("clients.upsert.fields.contactLastname.label")}
+                      </FormLabel>
                       <FormControl>
                         {primaryLocked ? (
                           <Input
@@ -945,11 +952,6 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                           <Input {...field} data-cy={`client-contact-lastName-${index}`} />
                         )}
                       </FormControl>
-                      {primaryLocked && (
-                        <FormDescription>
-                          {t("clients.upsert.fields.contacts.primaryFromIdentity")}
-                        </FormDescription>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1054,7 +1056,9 @@ function ContactStep({
             name="language"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("clients.upsert.fields.language.label")}</FormLabel>
+                <FormLabel description={t("clients.upsert.fields.language.description")}>
+                  {t("clients.upsert.fields.language.label")}
+                </FormLabel>
                 <FormControl>
                   <DocumentLanguageSelect
                     value={field.value}
@@ -1065,9 +1069,12 @@ function ContactStep({
                     data-cy="client-language-select"
                   />
                 </FormControl>
-                <FormDescription>{t("clients.upsert.fields.language.description")}</FormDescription>
                 {languageSuggested && (
-                  <p className="text-xs text-muted-foreground" data-cy="client-language-suggested-hint">
+                  <p
+                    className="text-xs text-muted-foreground"
+                    role="status"
+                    data-cy="client-language-suggested-hint"
+                  >
                     {t("clients.upsert.fields.language.suggested")}
                   </p>
                 )}
