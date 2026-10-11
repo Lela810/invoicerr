@@ -533,6 +533,12 @@ export function buildQuoteDescriptor(): DocumentTypeDescriptor {
         // still in "draft" has no number and nothing worth handing a stranger a link to.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        // Once numbered, a document is corrected (cancel, credit note), never removed.
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

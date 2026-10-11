@@ -829,6 +829,12 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         // hand a stranger a link to yet.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        // Once numbered, a document is corrected (cancel, credit note), never removed.
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

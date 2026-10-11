@@ -1529,7 +1529,8 @@ export class DocumentsService implements OnModuleInit {
     // Re-validating it here can only ever fail on drift since then (an admin archiving the expense
     // category this exact record already carries, a required custom field added after the fact) —
     // never on anything about the data itself, which has not changed.
-    if (!isAdmittedReplay) {
+    // A delete persists nothing, so a draft whose data no longer validates must stay removable.
+    if (!isAdmittedReplay && actionId !== 'delete') {
       // Issue #373 follow-up (review point #4, "option mode is not restricted to quotes") - the line
       // validator right below only ever checks fields the descriptor DECLARES, so it would silently
       // keep an `option` key on a type whose descriptor never declares one. Refused here, loudly,

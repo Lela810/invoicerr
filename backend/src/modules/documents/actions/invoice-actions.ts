@@ -44,7 +44,7 @@ import { runAsyncSendAction } from './async-send';
 import { ActionContext, ActionRegistry, ActionResult } from './action-registry';
 import { attachAtcudToNumberedDocument, runAtcudPreflight } from './atcud-issuance';
 import { assertClientReadyForInvoice } from './client-issuance-readiness';
-import { performSaveDraft } from './generic-actions';
+import { performSaveDraft, registerDeleteAction } from './generic-actions';
 
 export interface InvoiceActionDeps {
   transportRegistry: TransportRegistry;
@@ -841,6 +841,7 @@ async function performInvoiceSend(ctx: ActionContext, deps: InvoiceActionDeps): 
  */
 export function registerInvoiceActions(registry: ActionRegistry, deps: InvoiceActionDeps): void {
   registerInvoiceSaveDraftAction(registry, deps.webhooks);
+  registerDeleteAction(registry, 'invoice', deps.webhooks);
 
   registry.register('invoice', 'send', (ctx) => performInvoiceSend(ctx, deps));
 

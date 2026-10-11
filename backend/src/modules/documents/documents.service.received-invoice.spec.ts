@@ -613,7 +613,12 @@ describe('DocumentsService — "received-invoice", the FIFTH descriptor-only typ
     });
 
     expect(result.changed).toBe(true);
-    expect(persistence.deleteDocument).toHaveBeenCalledWith('company-1', 'received-invoice', 'ri-1');
+    expect(persistence.deleteDocument).toHaveBeenCalledWith(
+      'company-1',
+      'received-invoice',
+      'ri-1',
+      'received',
+    );
   });
 
   // The obligatory country-policy wiring proof: a country with no rule for this

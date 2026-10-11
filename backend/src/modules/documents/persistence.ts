@@ -663,14 +663,55 @@ export async function findOwnedDocumentsByIds(
   return prisma.documentInstance.findMany({ where: { companyId, id: { in: [...new Set(ids)] } } });
 }
 
+/** Refuses (409) to remove a document something else still points at: a recurrence replaying it,
+ *  or another document whose `data` names its id anywhere (a credit note's source invoice, an
+ *  invoice's origin quote). Matched on an exact JSON string value, so every reference field is
+ *  covered without listing them. */
+async function assertNothingDependsOn(companyId: string, id: string): Promise<void> {
+  if ((await prisma.documentSchedule.count({ where: { companyId, sourceDocumentId: id } })) > 0) {
+    throw new ConflictException(
+      'A recurrence uses this document as its template. Delete the recurrence first.',
+    );
+  }
+
+  const [referencing] = await prisma.$queryRaw<{ typeId: string; displayNumber: string | null }[]>`
+    SELECT "typeId", "displayNumber" FROM "DocumentInstance"
+    WHERE "companyId" = ${companyId} AND id <> ${id}
+      AND jsonb_path_exists(data, '$.** ? (@ == $target)', jsonb_build_object('target', ${id}::text))
+    LIMIT 1`;
+  if (referencing) {
+    throw new ConflictException(
+      `A ${referencing.typeId} (${referencing.displayNumber ?? 'draft'}) refers to this document. ` +
+        'Delete it or remove the link first.',
+    );
+  }
+}
+
 /** Permanently removes an owned instance — used by the generic "delete" action
  *  (actions/generic-actions.ts's registerDeleteAction). 404s via findOwnedDocument the same way every
- *  other single-document operation here does, before ever issuing the delete. */
+ *  other single-document operation here does. A numbered record is never removed: the sequence must
+ *  not lose a number it has handed out. `fromStatus` makes the removal a compare-and-swap against the
+ *  status the caller's own availability check read, so a send landing in between wins. */
 export async function deleteDocument(
   companyId: string,
   typeId: string,
   id: string,
+  fromStatus?: string,
 ): Promise<DocumentInstanceResult> {
-  await findOwnedDocument(companyId, typeId, id);
-  return prisma.documentInstance.delete({ where: { id } });
+  const document = await findOwnedDocument(companyId, typeId, id);
+  if (document.number != null) {
+    throw new ConflictException(
+      `"${document.displayNumber ?? document.number}" already has a number and can no longer be deleted.`,
+    );
+  }
+
+  await assertNothingDependsOn(companyId, id);
+
+  const { count } = await prisma.documentInstance.deleteMany({
+    where: { id, companyId, typeId, number: null, ...(fromStatus ? { status: fromStatus } : {}) },
+  });
+  if (count === 0) {
+    throw new ConflictException('This document changed while it was being deleted. Reload it and try again.');
+  }
+  return document;
 }

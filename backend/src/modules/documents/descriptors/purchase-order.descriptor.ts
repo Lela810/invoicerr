@@ -264,6 +264,12 @@ export function buildPurchaseOrderDescriptor(): DocumentTypeDescriptor {
         // No params — a plain, irreversible status flip, exactly like the invoice's own "cancel"
         // (invoice-actions.ts) — see this file's own header for why the id itself is NOT "cancel".
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        // Once numbered, a document is corrected (cancel, credit note), never removed.
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

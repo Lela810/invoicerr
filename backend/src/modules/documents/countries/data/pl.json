@@ -96,6 +96,15 @@
         }
       },
       {
+        "typeId": "quote",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
+        }
+      },
+      {
         "typeId": "invoice",
         "actionId": "save-draft",
         "allowed": true,
@@ -173,6 +182,15 @@
         }
       },
       {
+        "typeId": "invoice",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
+      },
+      {
         "typeId": "credit-note",
         "actionId": "save-draft",
         "allowed": false,
@@ -213,6 +231,15 @@
           "sourceCheckedAt": "2026-09-26"
         },
         "notes": "Issue #472. Same citation, same read and same date as this file's own credit-note rules and `numbering` fact (art. 106j ust. 2 pkt 2 ustawy o VAT, reused). NOTHING IS NEEDED IN POLAND BEYOND THE EXISTING KOR: the Polish correction is a faktura korygująca, built by formats/national/fa3-provider.ts as RodzajFaktury KOR on an INVOICE carrying correctsInvoiceId, numbered in the invoice series - and FA(3) has no credit-note document type to map this one to. A credit-note document (only a legacy one can exist for a Polish seller, the type is refused at save) therefore gets no electronic file: the credit note's own download-xml does not even offer fa3, and fa3-provider.ts refuses a credit note outright."
+      },
+      {
+        "typeId": "credit-note",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain. A Polish seller can no longer create or send a credit note (see credit-note.save-draft and credit-note.send above); deleting a leftover draft only removes something that can no longer be issued."
+        }
       },
       {
         "typeId": "expense",
@@ -305,6 +332,15 @@
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Cancelling a purchase order sent to a supplier is a purely commercial act (the company gives up its own order), never the correction of an already-transmitted tax document — this is NOT a correction route within the meaning of correction-routes/ (CANCEL_AND_REPLACE and the other routes of that module only concern a tax document ALREADY ISSUED to a third party whose correction the law governs, which a purchase order is not — see purchase-order-actions.ts's own header). The contractual consequences of such a cancellation towards the supplier fall under ordinary contract law, outside the scope of this rule (which only says whether THIS TOOL may record the entry, never whether the cancellation is enforceable against the supplier). No dedicated research conducted for this type/action (2026-09-15) — to revisit if a real need requires it."
+        }
+      },
+      {
+        "typeId": "purchase-order",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
         }
       },
       {

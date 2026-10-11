@@ -98,12 +98,9 @@ export function registerSaveDraftAction(
 /**
  * "delete": permanently removes an instance — generic for the exact same reason "save-draft" is:
  * nothing here reads a single field of `data`, so one function covers every document type that opts
- * in. Deliberately NOT wired for the quote/invoice/credit-note today: once a legal document exists,
- * whether it may ever be deleted (as opposed to corrected, e.g. by a credit note) is plausibly a
- * question with its own jurisdiction-specific answer — exactly the kind of rule this branch is
- * careful not to invent by default (see invoice.descriptor.ts's own "deliberately NOT added"
- * section). "expense" (expense-actions.ts) and "received-invoice" (received-invoice-actions.ts) are
- * its two uses today.
+ * in. The quote, invoice, credit note and purchase order offer it on drafts only: once a document is
+ * numbered it is corrected (cancel, credit note), never removed, and `deleteDocument` refuses a
+ * numbered record, or one another document or a recurrence still depends on, whatever its status.
  *
  * `webhooks` — same optional posture as `registerSaveDraftAction` above.
  * `deleteDocument` (persistence.ts) returns the row AS IT WAS the instant before removal — the only
@@ -115,7 +112,7 @@ export function registerDeleteAction(
   typeId: string,
   webhooks?: DocumentWebhookEmitter,
 ): void {
-  registry.register(typeId, 'delete', async ({ companyId, documentId }) => {
+  registry.register(typeId, 'delete', async ({ companyId, documentId, currentStatus }) => {
     if (!documentId) {
       // Unreachable in practice — the descriptor's own `availableWhen` already refuses this before
       // the handler runs (a never-saved record has no status to match) — but a handler never trusts
@@ -123,7 +120,7 @@ export function registerDeleteAction(
       throw new Error(`Cannot delete a "${typeId}" document that has not been saved yet.`);
     }
 
-    const document = await deleteDocument(companyId, typeId, documentId);
+    const document = await deleteDocument(companyId, typeId, documentId, currentStatus);
     if (webhooks) {
       try {
         await webhooks.dispatch(

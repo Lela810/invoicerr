@@ -96,6 +96,15 @@
         }
       },
       {
+        "typeId": "quote",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
+        }
+      },
+      {
         "typeId": "invoice",
         "actionId": "save-draft",
         "allowed": true,
@@ -173,6 +182,15 @@
         }
       },
       {
+        "typeId": "invoice",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
+      },
+      {
         "typeId": "credit-note",
         "actionId": "save-draft",
         "allowed": true,
@@ -210,6 +228,15 @@
           "sourceCheckedAt": "2026-09-27"
         },
         "notes": "Issue #472. CIVA art. 36.º n.º 6, re-read on info.portaldasfinancas.gov.pt (civa_rep/Pages/iva36.aspx) on 2026-09-27, the text this file's own credit-note `numbering` fact already quotes. The EN 16931 export carries what it asks of a correcting document: its own date and number (BT-2, BT-1) and « a referência à fatura a que respeitam » (BG-3). Same scope as invoice.download-xml above: a voluntary EN 16931 export, not the format Portuguese law establishes. WHAT PORTUGAL NEEDS BEYOND THE EN 16931 EXPORT (issue #497): (1) in SAF-T (PT) a credit note is its own document type, `InvoiceType` NC: Portaria n.º 302/2016, field 4.1.4.8, « \"NC\" – Nota de crédito », now read first-hand on the AT's own copy of the Portaria (info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/diplomas_legislativos/Documents/Portaria_302_2016.pdf, 2026-09-28), replacing the GitHub mirror of SAFTPT1.04_01.xsd this note first cited; the AT's e-Fatura webservice manual (field 1.6.4, same portal) lists the same value. Invoicerr generates no SAF-T (PT) file, so NC is used where the product does need it: the series type an ATCUD is registered under (numbering/atcud.ts#SAFT_PT_DOCUMENT_TYPE_BY_TYPE_ID). (2) the ATCUD, now attached to a Portuguese credit note: see this file's `atcud-required` numbering fact for \"credit-note\"."
+      },
+      {
+        "typeId": "credit-note",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
       },
       {
         "typeId": "expense",
@@ -302,6 +329,15 @@
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Cancelling a purchase order sent to a supplier is a purely commercial act (the company gives up its own order), never the correction of a tax document already transmitted — this is NOT a correction route within the meaning of correction-routes/ (CANCEL_AND_REPLACE and the other routes of that module only concern a tax document ALREADY ISSUED to a third party whose correction the law governs, which a purchase order is not — see purchase-order-actions.ts's own header). The contractual consequences of such a cancellation towards the supplier fall under general contract law, outside the scope of this rule (which only says whether THIS TOOL can record the entry, never whether the cancellation is enforceable against the supplier). No dedicated research conducted for this type/action (2026-09-15) — to revisit if a real need requires it."
+        }
+      },
+      {
+        "typeId": "purchase-order",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
         }
       },
       {

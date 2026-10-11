@@ -30,6 +30,7 @@ The **Invoices** page is where you bill your clients. You can create invoices fr
 - **Mark as paid** — record payment manually, or use [Bank Reconciliation](bank-reconciliation.md)
   to confirm one from an imported bank statement
 - **Edit** — available only while the invoice is still a **Draft**; once sent, a mistake is fixed with a correction, not a re-edit
+- **Delete** - available only on a **Draft**, after a confirmation; see [Deleting a draft](#deleting-a-draft)
 - **Correct** (scale icon, appears once an invoice is **Validated**, **Sent** or **Send failed**): opens the correction routes for this invoice; see below. This is also where **cancelling** an invoice lives: an invoice that reached "Sent" is never removed, only cancelled, and only where this country's law allows it
 - **Issue credit note** - start a [credit note](credit-notes.md) correcting this invoice's own lines
 - **Create receipt** (receipt icon) — generate a [receipt](receipts.md) from this invoice
@@ -61,6 +62,26 @@ Once a quote is **Signed**, click **Create invoice** on the quote. All client in
 There is no "recurring" choice at creation time. Once an invoice exists, its row menu offers a
 **duplicate/recurrence** action that schedules a fresh copy on a cadence you set (with an optional
 "then send" step) — see the row's own action menu on an existing invoice.
+
+## Deleting a draft
+
+A draft invoice has no number yet, so you can delete it: choose **Delete** in the row's menu or on the
+invoice's own page, then confirm. The draft is removed permanently.
+
+The delete is refused, with a message saying why, while something still depends on the draft:
+
+- a credit note names it as the invoice it corrects: delete that credit note first;
+- a recurrence uses it as its template: delete the recurrence first;
+- another invoice names it as its origin: delete that invoice first.
+
+Time entries that were billed into the draft become unbilled again, ready for another invoice.
+
+:::info[Why a numbered invoice cannot be deleted]
+Validating or sending an invoice gives it a number from your continuous sequence, and an issued number
+must never disappear from it. From then on **Delete** is no longer offered, and the server refuses it
+even when asked directly through the API. Correct the invoice with a [credit note](credit-notes.md)
+or, where your country allows it, cancel it; see [Correcting an invoice](#correcting-an-invoice).
+:::
 
 ## Correcting an invoice
 

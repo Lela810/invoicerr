@@ -96,6 +96,15 @@
         }
       },
       {
+        "typeId": "quote",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
+        }
+      },
+      {
         "typeId": "invoice",
         "actionId": "save-draft",
         "allowed": true,
@@ -173,6 +182,15 @@
         }
       },
       {
+        "typeId": "invoice",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
+      },
+      {
         "typeId": "credit-note",
         "actionId": "save-draft",
         "allowed": true,
@@ -210,6 +228,15 @@
           "resolutionNote": "Issue #472. The FORMAT fact is read first-hand, not the statute: the Agenzia delle Entrate FatturaPA schema this repository vendors and validates every FatturaPA file against (formats/vendored/it/Schema_VFPR12.xsd, version 1.2) enumerates `TipoDocumento` value TD04 with the documentation « Nota di credito », and declares `DatiFattureCollegate` (type DatiDocumentiCorrelatiType: IdDocumento, Data) as the slot for the invoices a document relates to - read 2026-09-27. The provider builds TD04 with that block naming the corrected invoice, and the file passes the XSD (formats/credit-note-formats.spec.ts). The statutory basis of the nota di credito is art. 26, comma 2, DPR 633/72, already cited by this file's own credit-note.send rule (reused, not re-read here). What would make this `legal`: the Provvedimento del Direttore dell'Agenzia delle Entrate n. 89757 del 30 aprile 2018, Allegato A (Specifiche tecniche), read first-hand for TD04 and for whether DatiFattureCollegate is mandatory on a TD04 - not read in this session."
         },
         "notes": "FatturaPA's `Numero` is at most 20 characters (String20Type). The old shared credit-note default \"CREDIT-NOTE-2026-0001\" was 21, so a TD04 could not be produced with default settings. Since issue #496 the Italian credit-note format comes from this file's own `numberFormats` (\"CN-{year}-{number:4}\", checked against it-fatturapa-numero-string20 at load time), and the XSD gate still refuses a longer number rather than truncate it (formats/credit-note-formats.spec.ts)."
+      },
+      {
+        "typeId": "credit-note",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
       },
       {
         "typeId": "expense",
@@ -302,6 +329,15 @@
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Canceling a purchase order sent to a supplier is a purely commercial act (the company renounces its own order), never the correction of a tax document already transmitted — it is NOT a correction route within the meaning of correction-routes/ (CANCEL_AND_REPLACE and the other routes of that module only concern a tax document ALREADY ISSUED to a third party whose correction is governed by law, which a purchase order is not — see purchase-order-actions.ts's own header). The contractual consequences of such a cancellation toward the supplier fall under ordinary contract law, outside the scope of this rule (which only states whether THIS TOOL can record the entry, never whether the cancellation is enforceable against the supplier). No dedicated research conducted for this type/action (2026-09-15) — to be revisited should a real need require it."
+        }
+      },
+      {
+        "typeId": "purchase-order",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
         }
       },
       {

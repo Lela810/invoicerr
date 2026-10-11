@@ -95,6 +95,8 @@ interface UseDocumentActionRunnerOptions {
     number: number | null | undefined,
     displayNumber: string | null | undefined,
   ) => void
+  /** Fired once "delete" has removed this record, so a screen showing it can leave. */
+  onDeleted?: () => void
 }
 
 /**
@@ -115,6 +117,7 @@ export function useDocumentActionRunner({
   validate,
   onActionSuccess,
   onDocumentUpdate,
+  onDeleted,
 }: UseDocumentActionRunnerOptions) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -125,6 +128,7 @@ export function useDocumentActionRunner({
   // declares `params` still gets both, in order (lock confirmation, then the params dialog), never
   // the two conflated into one step.
   const [pendingLockConfirm, setPendingLockConfirm] = useState<DocumentActionDescriptor | undefined>()
+  const [pendingDeleteConfirm, setPendingDeleteConfirm] = useState<DocumentActionDescriptor | undefined>()
 
   const runAction = useRunDocumentAction()
   const resolveDefaults = useResolveActionParamsDefaults()
@@ -154,6 +158,9 @@ export function useDocumentActionRunner({
       setPendingAction(undefined)
       if (result.changed && result.document) {
         onActionSuccess?.(result.document, actionId)
+      }
+      if (result.changed && actionId === "delete") {
+        onDeleted?.()
       }
     } catch (error) {
       // #566 review: the backend's own message for this one code carries a raw legal quote, a
@@ -237,6 +244,12 @@ export function useDocumentActionRunner({
   }
 
   const handleAction = async (action: DocumentActionDescriptor) => {
+    // Before validation: a draft is often deleted precisely because its form is not valid.
+    if (action.id === "delete") {
+      setPendingDeleteConfirm(action)
+      return
+    }
+
     const valid = validate ? await validate() : true
     if (!valid) {
       toast.error(t("documents.form.messages.invalid"))
@@ -262,15 +275,25 @@ export function useDocumentActionRunner({
     await runOrCollectParams(action)
   }
 
+  const confirmPendingDelete = async () => {
+    const action = pendingDeleteConfirm
+    if (!action) return
+    await executeAction(action.id, {})
+    setPendingDeleteConfirm(undefined)
+  }
+
   return {
     pendingAction,
     pendingDefaults,
     pendingLockConfirm,
+    pendingDeleteConfirm,
     isRunning: runAction.isPending,
     handleAction,
     executeAction,
     confirmPendingLock,
+    confirmPendingDelete,
     cancelPendingAction: () => setPendingAction(undefined),
     cancelPendingLockConfirm: () => setPendingLockConfirm(undefined),
+    cancelPendingDeleteConfirm: () => setPendingDeleteConfirm(undefined),
   }
 }

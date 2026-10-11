@@ -96,6 +96,15 @@
         }
       },
       {
+        "typeId": "quote",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
+        }
+      },
+      {
         "typeId": "invoice",
         "actionId": "save-draft",
         "allowed": true,
@@ -173,6 +182,15 @@
         }
       },
       {
+        "typeId": "invoice",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
+      },
+      {
         "typeId": "credit-note",
         "actionId": "save-draft",
         "allowed": true,
@@ -211,6 +229,15 @@
           "sourceCheckedAt": "2026-09-27"
         },
         "notes": "Issue #472. § 31 Abs. 5 UStDV, read verbatim on gesetze-im-internet.de (ustdv_1980/__31.html) on 2026-09-27. Read with § 14 Abs. 1 Satz 3 UStG, read on the same page set the same day: « Eine elektronische Rechnung ist eine Rechnung, die in einem strukturierten elektronischen Format ausgestellt, übermittelt und empfangen wird und eine elektronische Verarbeitung ermöglicht. » A correcting document takes the same FORM as the invoice it corrects, so where the invoice is a structured e-invoice the correction is one too. NO DISTINCT GERMAN DOCUMENT TYPE IS NEEDED BEYOND EN 16931's own: the KoSIT XRechnung delta this repository vendors (formats/vendored/de/XRechnung-UBL-validation-preprocessed.sch, itplr-kosit/xrechnung-schematron v2.5.0) lists the credit note among the codes BT-3 may carry, rule BR-DE-17: « 326 (Partial invoice), 380 (Commercial invoice), 384 (Corrected invoice), 389 (Self-billed invoice) und 381 (Credit note) [...] », and the credit-note export passes that delta with 0 error (formats/credit-note-formats.spec.ts). TERMINOLOGY TRAP, same page: the German « Gutschrift » of § 14 Abs. 2 Satz 5 UStG is a document issued by the RECIPIENT of the supply (self-billing, UNTDID 389), not a seller's credit note; this action never emits 389, and nothing in this product should translate this document type as « Gutschrift » in a tax sense. Whether a German credit note needs a number of its own stays the open question this file's own credit-note `numbering` fact records - unchanged by this rule."
+      },
+      {
+        "typeId": "credit-note",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
       },
       {
         "typeId": "expense",
@@ -303,6 +330,15 @@
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Canceling a purchase order sent to a supplier is a purely commercial act (the company withdraws its own order), never the correction of a tax document already transmitted — this is NOT a correction route within the meaning of correction-routes/ (CANCEL_AND_REPLACE and the other routes of that module concern only a tax document ALREADY ISSUED to a third party whose correction the law governs, which a purchase order is not — see purchase-order-actions.ts's own header). The contractual consequences of such a cancellation toward the supplier fall under general contract law, outside the scope of this rule (which only says whether THIS TOOL can record the entry, never whether the cancellation is enforceable against the supplier). No dedicated research conducted for this type/action (2026-09-15) — to be revisited if a real need requires it."
+        }
+      },
+      {
+        "typeId": "purchase-order",
+        "actionId": "delete",
+        "allowed": true,
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
         }
       },
       {

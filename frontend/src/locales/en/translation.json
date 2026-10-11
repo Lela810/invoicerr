@@ -5030,6 +5030,12 @@
         "confirm": "Confirm",
         "cancel": "Cancel"
       },
+      "deleteConfirmation": {
+        "title": "Delete this document?",
+        "description": "It will be removed permanently. This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
       "messages": {
         "invalid": "Please fix the highlighted fields before continuing.",
         "actionSuccess": "Done.",

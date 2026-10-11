@@ -48,7 +48,7 @@ describe('PT — country-policy/data/pt.json', () => {
     }
   });
 
-  it('declares exactly the same 34 typeId::actionId pairs as the FR reference file, no duplicates', () => {
+  it('declares exactly the same 38 typeId::actionId pairs as the FR reference file, no duplicates', () => {
     const declared = pt.rules.map((r) => `${r.typeId}::${r.actionId}`).sort();
     expect(declared).toEqual(
       [
@@ -69,6 +69,7 @@ describe('PT — country-policy/data/pt.json', () => {
         // product/audit-convenience posture as 'quote::duplicate' above, see this rule's own
         // resolutionNote in pt.json.
         'quote::accept-manually',
+        'quote::delete',
         'invoice::save-draft',
         'invoice::send',
         // Issue #581 - numbers and locks a draft invoice without sending it; see this rule's own
@@ -79,11 +80,13 @@ describe('PT — country-policy/data/pt.json', () => {
         'invoice::download-xml',
         'invoice::export-accounting',
         'invoice::share-link',
+        'invoice::delete',
         'credit-note::save-draft',
         'credit-note::send',
         // Issue #472 - see this rule's own notes in pt.json (CIVA art. 36.º n.º 6).
         'credit-note::download-xml',
         'credit-note::share-link',
+        'credit-note::delete',
         'expense::save-draft',
         'expense::delete',
         'received-invoice::receive',
@@ -95,6 +98,7 @@ describe('PT — country-policy/data/pt.json', () => {
         'purchase-order::save-draft',
         'purchase-order::send',
         'purchase-order::cancel-order',
+        'purchase-order::delete',
         // Purchase orders & goods receipts, second pass (three-way match) —
         // see goods-receipt.descriptor.ts's own header.
         'goods-receipt::save-draft',
@@ -102,10 +106,10 @@ describe('PT — country-policy/data/pt.json', () => {
         'goods-receipt::delete',
       ].sort(),
     );
-    expect(new Set(declared).size).toBe(34);
+    expect(new Set(declared).size).toBe(38);
   });
 
-  it('allows every one of its 34 rules - PT never itself needs an unblock', () => {
+  it('allows every one of its 38 rules - PT never itself needs an unblock', () => {
     expect(pt.rules.filter((r) => !r.allowed)).toEqual([]);
   });
 

@@ -441,6 +441,12 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         // more", the same status set as before.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        // Once numbered, a document is corrected (cancel, credit note), never removed.
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

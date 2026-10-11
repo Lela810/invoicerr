@@ -33,6 +33,7 @@ interface ConfirmationDialogProps {
   cancelLabel: string
   onConfirm: () => void
   loading?: boolean
+  destructive?: boolean
   /** `data-cy` root every hook below is derived from (`${dataCy}-cancel` / `${dataCy}-confirm`) — this
    *  ONE dialog now stands between the user and several irreversible actions across the app (sending a
    *  document, signing one…), so a shared, hard-coded hook would collide the moment two screens using
@@ -46,8 +47,7 @@ interface ConfirmationDialogProps {
  * needs reimplementing here. Deliberately style-neutral (no destructive red by default): most of what
  * this gates is a normal, wanted action a person is simply about to make irreversible (sending a
  * document, signing one) rather than a dangerous one — a caller that DOES want the destructive look
- * passes `variant="destructive"` styling through its own `confirmLabel`/button wrapper if it ever
- * needs to, rather than this component guessing tone from context.
+ * says so with `destructive`, rather than this component guessing tone from context.
  */
 export function ConfirmationDialog({
   open,
@@ -61,6 +61,7 @@ export function ConfirmationDialog({
   cancelLabel,
   onConfirm,
   loading = false,
+  destructive = false,
   dataCy,
 }: ConfirmationDialogProps) {
   return (
@@ -89,6 +90,7 @@ export function ConfirmationDialog({
           </Button>
           <Button
             className="w-full"
+            variant={destructive ? "destructive" : "default"}
             onClick={onConfirm}
             disabled={loading}
             loading={loading}

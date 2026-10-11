@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { ActionParamsDialog } from "@/components/documents/action-params-dialog"
 import { actionAssignsNumber, transitionHint } from "@/components/documents/action-presentation"
 import { ConfirmationDialog } from "@/components/confirmation-dialog"
+import { DocumentDeleteConfirmDialog } from "@/components/documents/document-delete-confirm-dialog"
 import { DocumentField } from "@/components/documents/document-field"
 import { DocumentFormReadOnlyProvider } from "@/components/documents/document-form-readonly"
 import type { DocumentActionDescriptor, DocumentTypeDescriptor } from "@/components/documents/types"
@@ -228,6 +229,20 @@ export function DocumentActionLockConfirmHost({ state }: { state: DocumentFormSt
       onConfirm={runner.confirmPendingLock}
       loading={runner.isRunning}
       dataCy="document-detail-lock-confirm"
+    />
+  )
+}
+
+/** The delete confirmation the action runner opens, mounted once per screen like the lock host above. */
+export function DocumentActionDeleteConfirmHost({ state }: { state: DocumentFormState }) {
+  const { runner } = state
+  if (!runner.pendingDeleteConfirm) return null
+  return (
+    <DocumentDeleteConfirmDialog
+      onCancel={runner.cancelPendingDeleteConfirm}
+      onConfirm={runner.confirmPendingDelete}
+      loading={runner.isRunning}
+      dataCy="document-detail-delete-confirm"
     />
   )
 }
