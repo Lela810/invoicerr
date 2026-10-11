@@ -28,6 +28,64 @@ describe('Demo mode (issue #533)', () => {
         cy.get('[data-cy="demo-credentials-notice"]').should('contain.text', 'demo@invoicerr.app');
     });
 
+    it('hides the sign-up link, since the server says sign-up is closed', () => {
+        // A conditional 304 carries no body to assert on: always ask for a fresh answer.
+        cy.intercept('GET', '**/api/invitations/can-register*', (req) => {
+            delete req.headers['if-none-match'];
+        }).as('canRegister');
+        cy.visit('/auth/sign-in');
+        cy.wait('@canRegister').its('response.body').should('include', { allowed: false, requiresCode: false });
+        cy.get('[data-cy="auth-signup-link"]').should('not.exist');
+    });
+
+    it('shows a pending invoice at the same VAT-inclusive amount on the dashboard and in the list', () => {
+        signInAsDemo();
+        cy.request<Array<{ id: string; items?: Array<{ id: string; amount?: { value: number } }> }>>(
+            `${api}/api/documents/dashboard`,
+        ).then(({ body: widgets }) => {
+            const pending = widgets.find((widget) => widget.id === 'invoice:pending');
+            const item = pending?.items?.[0];
+            expect(item?.amount, 'a seeded pending invoice with an amount').to.exist;
+            const amount = item!.amount!.value.toFixed(2);
+
+            cy.get('[data-cy="widget-invoice:pending"]', { timeout: 20000 }).should('contain.text', 'incl. VAT');
+            cy.get(`[data-cy="widget-item-${item!.id}"]`).should('contain.text', amount);
+
+            cy.visit('/documents/invoice');
+            cy.get(`[data-cy="document-row-amount-${item!.id}"]`, { timeout: 20000 })
+                .should('contain.text', amount)
+                .and('contain.text', 'incl. VAT');
+        });
+    });
+
+    it('settles the credited invoice without an excess: one line credited, the balance paid', () => {
+        signInAsDemo();
+        cy.request<{ items: Array<{ id: string }> }>(`${api}/api/documents?typeId=invoice&page=1&pageSize=50`)
+            .its('body.items')
+            .then((invoices: Array<{ id: string }>) => {
+                const credited: string[] = [];
+                cy.wrap(invoices)
+                    .each((invoice: { id: string }) => {
+                        cy.request<{
+                            credits: unknown[];
+                            settlement: { excessMinor: number; creditedMinor: number; settled: boolean };
+                        }>(`${api}/api/documents/${invoice.id}/settlement?typeId=invoice`).then(({ body }) => {
+                            expect(body.settlement.excessMinor, `excess on ${invoice.id}`).to.eq(0);
+                            if (body.credits.length > 0) {
+                                expect(body.settlement.settled).to.eq(true);
+                                credited.push(invoice.id);
+                            }
+                        });
+                    })
+                    .then(() => {
+                        expect(credited, 'the seeded invoice a credit note corrects').to.have.length(1);
+                        cy.visit(`/documents/invoice/${credited[0]}`);
+                        cy.get('[data-cy="document-settlement-credited"]', { timeout: 20000 }).should('exist');
+                        cy.get('[data-cy="document-settlement-excess"]').should('not.exist');
+                    });
+            });
+    });
+
     it('signs in with the demo account and shows the demo banner on every authenticated page', () => {
         signInAsDemo();
         cy.get('[data-cy="demo-banner"]', { timeout: 10000 }).should('be.visible');
