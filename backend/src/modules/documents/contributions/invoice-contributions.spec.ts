@@ -3,7 +3,8 @@ import { vi, type Mock } from 'vitest';
 import {
   buildInvoiceDashboardWidgets,
   buildInvoiceStatisticsWidgets,
-  invoiceTotal,
+  invoiceGrossTotal,
+  invoiceNetTotal,
   monthsSpanning,
 } from './invoice-contributions';
 import * as persistence from '../persistence';
@@ -77,20 +78,22 @@ function invoice(
   };
 }
 
-describe('invoiceTotal', () => {
-  it('sums quantity * unitPrice across the lines, arithmetic only', () => {
-    const total = invoiceTotal({
+describe('invoiceNetTotal / invoiceGrossTotal', () => {
+  it('nets quantity * unitPrice across the lines, and adds VAT for the gross', () => {
+    const data = {
+      currency: 'EUR',
       lines: [
-        { description: 'A', quantity: 2, unitPrice: 10 },
-        { description: 'B', quantity: 1, unitPrice: 5.5 },
+        { description: 'A', quantity: 2, unitPrice: 10, vatRate: '20' },
+        { description: 'B', quantity: 1, unitPrice: 5.5, vatRate: '20' },
       ],
-    });
-    expect(total).toBeCloseTo(25.5);
+    };
+    expect(invoiceNetTotal(data)).toBeCloseTo(25.5);
+    expect(invoiceGrossTotal(data)).toBeCloseTo(30.6);
   });
 
-  it('treats a missing quantity/unitPrice as 0 rather than throwing — a draft-in-progress is normal', () => {
-    expect(invoiceTotal({ lines: [{ description: 'A' }] })).toBe(0);
-    expect(invoiceTotal({})).toBe(0);
+  it('treats a missing unitPrice as 0 rather than throwing: a draft in progress is normal', () => {
+    expect(invoiceNetTotal({ lines: [{ description: 'A' }] })).toBe(0);
+    expect(invoiceGrossTotal({})).toBe(0);
   });
 });
 
@@ -141,6 +144,40 @@ describe('buildInvoiceDashboardWidgets', () => {
       status: 'sent',
       dueDate: '2026-09-05',
       amount: { value: 30, currency: 'USD' },
+    });
+  });
+
+  it('amounts owed are VAT-inclusive, as on the invoice list, and every amount says which basis it uses', async () => {
+    seedDocuments([
+      invoice({
+        id: 'sent-vat',
+        status: 'sent',
+        displayNumber: 'INVOICE-2026-0002',
+        data: {
+          currency: 'EUR',
+          issueDate: '2026-08-10',
+          dueDate: '2026-08-20',
+          lines: [{ quantity: 1, unitPrice: 2131.15, vatRate: '19' }],
+        },
+      }),
+    ]);
+
+    const widgets = await buildInvoiceDashboardWidgets({ companyId: 'c1' });
+    const pending = widgets.find((w) => w.id === 'invoice:pending') as ShortListWidget;
+
+    expect(pending.items[0].amount).toEqual({ value: 2536.07, currency: 'EUR' });
+    expect(pending.label).toBe('Pending invoices (incl. VAT)');
+    expect(widgets.find((w) => w.id === 'invoice:pending-total:EUR')).toMatchObject({
+      value: 2536.07,
+      label: 'Pending invoices total (EUR, incl. VAT)',
+    });
+    expect(widgets.find((w) => w.id === 'invoice:overdue-total:EUR')).toMatchObject({
+      value: 2536.07,
+      label: 'Overdue invoices total (EUR, incl. VAT)',
+    });
+    expect(widgets.find((w) => w.id === 'invoice:issued-this-month:EUR')).toMatchObject({
+      value: 2131.15,
+      label: 'Invoiced this month (EUR, excl. VAT)',
     });
   });
 
@@ -568,7 +605,7 @@ describe('buildInvoiceDashboardWidgets with a period set', () => {
       kind: 'metric',
       unit: 'EUR',
       value: 300,
-      label: 'Invoiced in period (EUR)',
+      label: 'Invoiced in period (EUR, excl. VAT)',
     });
     expect(issued).not.toHaveProperty('previousValue');
   });

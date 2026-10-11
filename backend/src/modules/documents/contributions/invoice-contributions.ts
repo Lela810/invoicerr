@@ -3,6 +3,7 @@ import { fromMinor, toMinor } from '@/utils/financial';
 import { DocumentInstanceResult } from '../actions/action-registry';
 import { buildInvoiceDescriptor } from '../descriptors/invoice.descriptor';
 import { DashboardPeriod } from '../dto/dashboard-query.dto';
+import { computeDocumentTotals } from '../totals/compute-totals';
 import { resolveDateFieldKey } from '../list-filters';
 import {
   countDocuments,
@@ -43,9 +44,8 @@ import {
 
 /** The invoice's own base descriptor — see actions/invoice-actions.ts's identical constant for why a
  *  direct import is fine here: this file is already 100% invoice-specific (registered only for
- *  `'invoice'` at the bottom), unlike a generic contribution would be. Used only to feed
- *  `computeDocumentTotals` the field shape it needs for the "pending" filter below — `invoiceTotal`
- *  itself (this file's own arithmetic) stays independent of it, unchanged. */
+ *  `'invoice'` at the bottom), unlike a generic contribution would be. Feeds `computeDocumentTotals`
+ *  the field shape it needs, for the "pending" filter and for every amount below. */
 const INVOICE_DESCRIPTOR = buildInvoiceDescriptor();
 
 /** The invoice's own issuance-date field - `'issueDate'` (`list-filters.ts#resolveDateFieldKey`),
@@ -68,22 +68,22 @@ const CURVE_MONTHS = 6;
  *  set instead — a sum or a count read off a capped page is simply a wrong number. */
 const STATISTICS_TABLE_ROW_LIMIT = 500;
 
-interface InvoiceLineLike {
-  quantity?: unknown;
-  unitPrice?: unknown;
+/** Net and gross through the same `computeDocumentTotals` the invoice list and the settlement use,
+ *  so a dashboard figure can never disagree with the row it links to. */
+function invoiceTotals(data: Record<string, unknown>): { net: number; gross: number } {
+  const totals = computeDocumentTotals(INVOICE_DESCRIPTOR, data);
+  const currency = totals.currency ?? '';
+  return { net: fromMinor(totals.netMinor, currency), gross: fromMinor(totals.grossMinor, currency) };
 }
 
-/** `quantity * unitPrice`, summed over the invoice's own `lines` — arithmetic on the document's OWN
- *  stored numbers, nothing else: no VAT, no discount, no rounding rule invented on top. A line
- *  missing either number contributes 0 rather than throwing — a still-being-filled draft is a normal
- *  state to aggregate over, not an error. */
-function invoiceTotal(data: Record<string, unknown>): number {
-  const lines = Array.isArray(data.lines) ? (data.lines as InvoiceLineLike[]) : [];
-  return lines.reduce((sum, line) => {
-    const quantity = typeof line.quantity === 'number' ? line.quantity : 0;
-    const unitPrice = typeof line.unitPrice === 'number' ? line.unitPrice : 0;
-    return sum + quantity * unitPrice;
-  }, 0);
+/** What the client owes: the VAT-inclusive total. */
+function invoiceGrossTotal(data: Record<string, unknown>): number {
+  return invoiceTotals(data).gross;
+}
+
+/** What was invoiced as revenue: the VAT-exclusive total. */
+function invoiceNetTotal(data: Record<string, unknown>): number {
+  return invoiceTotals(data).net;
 }
 
 /** "2026-08" for any parseable date-ish value, or null — used to bucket invoices by ISSUE month. */
@@ -228,7 +228,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
       const data = (invoice.data ?? {}) as Record<string, unknown>;
       const currency = typeof data.currency === 'string' ? data.currency : '';
       const dueDate = typeof data.dueDate === 'string' ? data.dueDate : undefined;
-      const total = invoiceTotal(data);
+      const total = invoiceGrossTotal(data);
       return {
         id: invoice.id,
         // The invoice's own number when it has one (a "sent" invoice normally does — numbering
@@ -249,7 +249,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
   const pendingWidget: ShortListWidget = {
     id: 'invoice:pending',
     kind: 'shortList',
-    label: 'Pending invoices',
+    label: 'Pending invoices (incl. VAT)',
     documentTypeId: 'invoice',
     items: pendingItems,
   };
@@ -283,7 +283,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     const overdue = isOverdueInvoice(invoice, todayIso);
     overdueTotalsByCurrency.set(
       currency,
-      (overdueTotalsByCurrency.get(currency) ?? 0) + (overdue ? invoiceTotal(data) : 0),
+      (overdueTotalsByCurrency.get(currency) ?? 0) + (overdue ? invoiceGrossTotal(data) : 0),
     );
   }
   const overdueTotalWidgets: MetricWidget[] =
@@ -292,7 +292,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
           {
             id: 'invoice:overdue-total',
             kind: 'metric',
-            label: 'Overdue invoices total',
+            label: 'Overdue invoices total (incl. VAT)',
             value: 0,
             link: overdueLink,
           },
@@ -302,7 +302,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
           .map(([currency, total]) => ({
             id: `invoice:overdue-total:${currency}`,
             kind: 'metric',
-            label: `Overdue invoices total (${currency})`,
+            label: `Overdue invoices total (${currency}, incl. VAT)`,
             unit: currency,
             value: Number(total.toFixed(2)),
             link: overdueLink,
@@ -323,14 +323,17 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
   for (const invoice of pendingInvoices) {
     const data = (invoice.data ?? {}) as Record<string, unknown>;
     const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
-    pendingTotalsByCurrency.set(currency, (pendingTotalsByCurrency.get(currency) ?? 0) + invoiceTotal(data));
+    pendingTotalsByCurrency.set(
+      currency,
+      (pendingTotalsByCurrency.get(currency) ?? 0) + invoiceGrossTotal(data),
+    );
   }
   const pendingTotalWidgets: MetricWidget[] = [...pendingTotalsByCurrency.entries()]
     .sort(([currencyA], [currencyB]) => currencyA.localeCompare(currencyB))
     .map(([currency, total]) => ({
       id: `invoice:pending-total:${currency}`,
       kind: 'metric',
-      label: `Pending invoices total (${currency})`,
+      label: `Pending invoices total (${currency}, incl. VAT)`,
       unit: currency,
       value: Number(total.toFixed(2)),
       link: pendingLink,
@@ -388,8 +391,8 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
       if (key !== thisMonthKey && key !== lastMonthKey) continue;
       const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
       const bucket = issuedByCurrency.get(currency) ?? { thisMonth: 0, lastMonth: 0 };
-      if (key === thisMonthKey) bucket.thisMonth += invoiceTotal(data);
-      else bucket.lastMonth += invoiceTotal(data);
+      if (key === thisMonthKey) bucket.thisMonth += invoiceNetTotal(data);
+      else bucket.lastMonth += invoiceNetTotal(data);
       issuedByCurrency.set(currency, bucket);
     }
     // Same month boundaries the figure itself buckets by (`monthKey`/`monthRange`), so the tile's own
@@ -405,7 +408,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             {
               id: 'invoice:issued-this-month',
               kind: 'metric',
-              label: 'Invoiced this month',
+              label: 'Invoiced this month (excl. VAT)',
               value: 0,
               link: issuedLink,
             },
@@ -415,7 +418,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             .map(([currency, { thisMonth, lastMonth }]) => ({
               id: `invoice:issued-this-month:${currency}`,
               kind: 'metric',
-              label: `Invoiced this month (${currency})`,
+              label: `Invoiced this month (${currency}, excl. VAT)`,
               unit: currency,
               value: Number(thisMonth.toFixed(2)),
               previousValue: Number(lastMonth.toFixed(2)),
@@ -434,7 +437,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
     for (const invoice of sentInPeriod) {
       const data = (invoice.data ?? {}) as Record<string, unknown>;
       const currency = typeof data.currency === 'string' && data.currency ? data.currency : 'UNKNOWN';
-      issuedByCurrency.set(currency, (issuedByCurrency.get(currency) ?? 0) + invoiceTotal(data));
+      issuedByCurrency.set(currency, (issuedByCurrency.get(currency) ?? 0) + invoiceNetTotal(data));
     }
     const issuedLink: MetricWidgetLink = { typeId: 'invoice', status: ['sent', 'imported'], ...period };
     issuedWidgets =
@@ -443,7 +446,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             {
               id: 'invoice:issued-in-period',
               kind: 'metric',
-              label: 'Invoiced in period',
+              label: 'Invoiced in period (excl. VAT)',
               value: 0,
               link: issuedLink,
             },
@@ -453,7 +456,7 @@ export const buildInvoiceDashboardWidgets: ContributionHandler = async ({ compan
             .map(([currency, total]) => ({
               id: `invoice:issued-in-period:${currency}`,
               kind: 'metric',
-              label: `Invoiced in period (${currency})`,
+              label: `Invoiced in period (${currency}, excl. VAT)`,
               unit: currency,
               value: Number(total.toFixed(2)),
               link: issuedLink,
@@ -627,7 +630,7 @@ export const buildInvoiceDashboardWidgetsWithConsolidation: ContributionHandler 
       extraWidgets.push({
         id: 'invoice:pending-total:consolidated',
         kind: 'metric',
-        label: 'Pending invoices total (consolidated, converted)',
+        label: 'Pending invoices total (incl. VAT, consolidated, converted)',
         unit: `${consolidated.currency} (converted)`,
         approx: true,
         value: Number(fromMinor(consolidated.totalMinor, consolidated.currency).toFixed(2)),
@@ -675,7 +678,7 @@ export const buildInvoiceDashboardWidgetsWithConsolidation: ContributionHandler 
 /**
  * STATISTICS: "everything, in exhaustive detail" — one row per invoice, every field arithmetic can honestly
  * derive from what is already stored (no client name resolution, no cross-module join: this stays a
- * pure aggregation over the invoice's OWN data, the same boundary invoiceTotal draws).
+ * pure aggregation over the invoice's OWN data, the same boundary `invoiceTotals` draws).
  */
 export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ companyId }) => {
   // TWO reads, deliberately: the table is a capped DISPLAY list, the count metric beside it is a
@@ -694,7 +697,7 @@ export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ compa
       dueDate: typeof data.dueDate === 'string' ? data.dueDate : '',
       status: invoice.status,
       currency: typeof data.currency === 'string' ? data.currency : '',
-      total: Number(invoiceTotal(data).toFixed(2)),
+      total: Number(invoiceGrossTotal(data).toFixed(2)),
     };
   });
 
@@ -716,7 +719,7 @@ export const buildInvoiceStatisticsWidgets: ContributionHandler = async ({ compa
       { key: 'dueDate', label: 'Due date' },
       { key: 'status', label: 'Status' },
       { key: 'currency', label: 'Currency' },
-      { key: 'total', label: 'Total' },
+      { key: 'total', label: 'Total (incl. VAT)' },
     ],
     rows,
   };
@@ -739,4 +742,4 @@ export function registerInvoiceContributions(registry: ContributionRegistry): vo
 // Re-exported for tests that want to prove the arithmetic directly, the same way
 // actions/email-template.ts exports its own pure pieces for email-template.spec.ts.
 export type { Widget };
-export { invoiceTotal, monthKey, monthRange, monthsSpanning, recentMonths };
+export { invoiceGrossTotal, invoiceNetTotal, monthKey, monthRange, monthsSpanning, recentMonths };

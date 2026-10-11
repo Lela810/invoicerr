@@ -4517,13 +4517,13 @@
         },
         "widgets": {
           "invoice:pending": {
-            "label": "Pending invoices"
+            "label": "Pending invoices (incl. VAT)"
           },
           "invoice:issued-per-month": {
             "label": "Invoices issued"
           },
           "invoice:pending-total:consolidated": {
-            "label": "Pending invoices total (consolidated, converted)"
+            "label": "Pending invoices total (incl. VAT, consolidated, converted)"
           },
           "invoice:all": {
             "label": "All invoices"
@@ -5116,6 +5116,7 @@
       "downloadXmlError": "The normalized XML export could not be generated.",
       "shareLink": "Share link",
       "processing": "Processing…",
+      "amountInclVat": "incl. VAT",
       "lastActionError": "Last error: {{message}}",
       "rowMenu": "More actions",
       "sort": {

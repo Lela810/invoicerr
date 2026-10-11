@@ -15,6 +15,16 @@ The **Dashboard** is the first page you see after signing in. It gives you a sna
 - **Summary cards** — total quotes, invoices, and clients with counts
 - **Recent activity** — the 5 most recent quotes and invoices
 
+## Which amount each figure shows
+
+- **Pending invoices**, **Pending invoices total** and **Overdue invoices total** show what your
+  clients owe, **including VAT**: the same figure as the invoice list.
+- **Invoiced this month** (or **Invoiced in period**) shows your revenue **excluding VAT**.
+- **Collected this month** (or **Collected in period**) is the cash actually received, as recorded
+  in each payment.
+
+Every amount tile says which basis it uses in its title, for example "(EUR, incl. VAT)".
+
 ## Usage
 
 Each summary card and recent item is clickable — click a quote to open it, or click a count to go to the full list.

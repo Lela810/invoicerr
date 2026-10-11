@@ -640,6 +640,14 @@ function DocumentListRow({ descriptor, instance, amount, onOpen, onActionSuccess
               data-cy={amount ? `document-row-amount-${instance.id}` : undefined}
             >
               {amount && <LtrValue>{formatTotal(amount.minor, amount.currency)}</LtrValue>}
+              {amount && !amount.fieldKey && (
+                <span
+                  className="block text-xs font-normal text-muted-foreground"
+                  data-cy={`document-row-amount-basis-${instance.id}`}
+                >
+                  {t("documents.list.amountInclVat")}
+                </span>
+              )}
             </div>
             <div
               className={cn("order-4 flex justify-end sm:order-3", !primary && "hidden sm:flex")}

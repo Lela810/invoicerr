@@ -84,7 +84,7 @@ describe('buildInvoiceDashboardWidgetsWithConsolidation', () => {
     })) as MetricWidget[];
 
     expect(widgets.find((w) => w.id === 'invoice:pending-total:EUR')).toMatchObject({
-      label: 'Pending invoices total (EUR)',
+      label: 'Pending invoices total (EUR, incl. VAT)',
       unit: 'EUR',
       value: 100,
     });
@@ -122,7 +122,7 @@ describe('buildInvoiceDashboardWidgetsWithConsolidation', () => {
 
     // 100 EUR untouched + 50 USD * 0.92 = 46 EUR converted -> 146 EUR consolidated.
     expect(widgets.find((w) => w.id === 'invoice:pending-total:consolidated')).toMatchObject({
-      label: 'Pending invoices total (consolidated, converted)',
+      label: 'Pending invoices total (incl. VAT, consolidated, converted)',
       unit: 'EUR (converted)',
       approx: true,
       value: 146,
