@@ -131,7 +131,7 @@ export function secondaryActions(
 
 /** Actions a create dialog never submits (see `use-document-form.ts`'s own `availableActions`
  *  filter: none of them is a create-time POST through `runAction`). */
-const NON_CREATE_ACTION_IDS = new Set(["cancel", "download-xml", "share-link", "accept-manually"])
+const NON_CREATE_ACTION_IDS = new Set(["cancel", "download-xml", "share-link", "accept-manually", "delete"])
 
 /** The actions a brand-new record of this type could run from its create dialog: the same set
  *  `use-document-form.ts` offers there (`availableActions`, read at `initialStatus`). */
