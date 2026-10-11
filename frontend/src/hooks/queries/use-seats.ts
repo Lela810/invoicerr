@@ -1,4 +1,6 @@
-import { useApiMutation, useApiQuery } from "@/hooks/use-api-query"
+import { useQuery } from "@tanstack/react-query"
+
+import { ApiError, apiFetch, useApiMutation } from "@/hooks/use-api-query"
 import { queryKeys } from "@/lib/query-keys"
 import type { CompanyRole } from "@/types"
 
@@ -24,14 +26,19 @@ export interface SeatsView {
 }
 
 /**
- * `GET /api/billing/seats` — the company's own generative office plan. Open to every company member,
- * not just OWNER/ADMIN: everyone can see who sits where, and a WAITING member needs this to even
- * render the waiting screen (`(app)/_layout.tsx`). `retry: false` for the same reason
- * `useBillingStatus` sets it — this route doesn't exist at all on a self-hosted instance (billing
- * disabled), so a 404 should surface immediately rather than retry a request that can never succeed.
+ * `GET /api/billing/seats`. Open to every company member: a WAITING member needs it to render the
+ * waiting screen (`(app)/_layout.tsx`). Billing disabled answers 404, kept as `null`: a query that
+ * holds no data goes back to `pending` on every focus refetch, which the shell's seat gate would read
+ * as a first load and unmount the whole page.
  */
 export function useSeats(enabled = true) {
-  return useApiQuery<SeatsView>(queryKeys.billing.seats(), "/api/billing/seats", {
+  return useQuery<SeatsView | null>({
+    queryKey: queryKeys.billing.seats(),
+    queryFn: () =>
+      apiFetch<SeatsView>("/api/billing/seats").catch((error: unknown) => {
+        if (error instanceof ApiError && error.status === 404) return null
+        throw error
+      }),
     enabled,
     retry: false,
     staleTime: 15_000,
