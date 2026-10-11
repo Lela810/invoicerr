@@ -38,6 +38,30 @@ from `htmlFor`, so point the input at `fieldHelpId(id)`:
 <Input id="pattern" aria-describedby={fieldHelpId("pattern")} />
 ```
 
+### Locked fields
+
+A field disabled by a business rule, such as a credit note's currency once it follows the linked
+invoice, shows a red lock after its label. Hovering, tapping or keyboard-focusing the lock opens the
+reason, with the same behaviour as the `?`: a short close delay so the pointer can reach the text,
+Escape and a tap elsewhere close it. The lock carries only the reason; the `?` keeps the field's
+ordinary description. Screen readers name the lock button after the field, as in "Why is Currency locked?".
+
+Pass the reason to `FormLabel` with `lockReason`, and disable the control yourself. `FormControl`
+adds the reason to the input's `aria-describedby`, after the description:
+
+```tsx
+<FormLabel lockReason={isLocked ? t("documents.form.select.lockedFromReference") : undefined}>
+  {field.label}
+</FormLabel>
+<FormControl>
+  <SearchSelect disabled={isLocked} {...props} />
+</FormControl>
+```
+
+Outside a form, `FieldLabel` takes the same `lockReason` and derives the id from `htmlFor`; point the
+input at `fieldLockId(id)`. A control without a field label, such as a radio inside a row, can place
+`FieldLock` next to its own label and point the control at the same id.
+
 ### Custom controls
 
 `FormControl` passes `id`, `aria-describedby` and `aria-invalid` to its direct child. A custom control
@@ -52,5 +76,7 @@ and described by the help.
 rendered under a field again: the removed `FormDescription` component, or muted helper text
 (`text-muted-foreground`) placed right after a control, a label, or anywhere in a `FormItem` outside
 its `FormControl`. The only muted lines allowed next to a control report live state, carry
-`role="status"`, and are named by their `data-cy` in the guard's allow-list.
+`role="status"`, and are named by their `data-cy` in the guard's allow-list. A lock reason printed
+next to a control is flagged in any colour: a text element whose key, variable or `data-cy` names a
+lock belongs behind the label's lock instead.
 :::

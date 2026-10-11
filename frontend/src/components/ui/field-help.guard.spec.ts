@@ -160,6 +160,42 @@ describe("field descriptions guard", () => {
     expect(findDescriptionsUnderFields(source)).toEqual([])
   })
 
+  it.each([
+    [
+      "a lock reason under a disabled select, whatever its colour",
+      `<FormItem>
+        <FormLabel>{currency_label}</FormLabel>
+        <FormControl><SearchSelect disabled={isLocked} /></FormControl>
+        {isLocked && <p className="text-xs text-amber-600">{t("documents.form.select.lockedFromReference")}</p>}
+      </FormItem>`,
+    ],
+    [
+      "a lock reason right after a disabled input",
+      `<Input id="country" disabled={countryLocked} />
+      {countryLocked && <span className="text-xs">{countryLockReason}</span>}`,
+    ],
+    [
+      "a lock reason under a row holding a disabled radio",
+      `<div className="flex items-center justify-between gap-2">
+        <label><input type="radio" disabled={otherRowLocked} />{primary_label}</label>
+        <Button disabled={primaryLocked}>{remove_label}</Button>
+      </div>
+      {otherRowLocked && (
+        // explained on the row itself
+        <p className="text-xs text-muted-foreground" data-cy="contact-primary-locked">{primary_hint}</p>
+      )}`,
+    ],
+  ])("flags %s", (_case, source) => {
+    expect(findDescriptionsUnderFields(source)).toHaveLength(1)
+  })
+
+  it("leaves a lock confirmation outside any field alone", () => {
+    const source = `
+      <DocumentForm state={state} />
+      <p className="text-sm">{t("documents.form.lockConfirmation.description")}</p>`
+    expect(findDescriptionsUnderFields(source)).toEqual([])
+  })
+
   it("finds no description rendered under a field anywhere in the app", () => {
     const offenders = sourceFiles(SRC)
       .filter((path) => !path.endsWith("field-help.guard.ts"))
@@ -170,7 +206,7 @@ describe("field descriptions guard", () => {
       )
     expect(
       offenders,
-      "Field descriptions go in the label's help popover: <FormLabel description={...}> or <FieldLabel>.",
+      "Field descriptions go in the label's help popover (<FormLabel description>), lock reasons behind its lock (<FormLabel lockReason>).",
     ).toEqual([])
   })
 })

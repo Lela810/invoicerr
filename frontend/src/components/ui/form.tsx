@@ -58,6 +58,7 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formLabelId: `${id}-form-item-label`,
     formDescriptionId: `${id}-form-item-description`,
+    formLockId: `${id}-form-item-lock`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
   }
@@ -87,13 +88,17 @@ function FormLabel({
   required,
   description,
   helpDataCy,
+  lockReason,
+  lockDataCy,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root> & {
   required?: boolean
   description?: React.ReactNode
   helpDataCy?: string
+  lockReason?: React.ReactNode
+  lockDataCy?: string
 }) {
-  const { error, formItemId, formLabelId, formDescriptionId } = useFormField()
+  const { error, formItemId, formLabelId, formDescriptionId, formLockId } = useFormField()
 
   return (
     <FieldLabel
@@ -106,22 +111,28 @@ function FormLabel({
       description={description}
       descriptionId={formDescriptionId}
       helpDataCy={helpDataCy}
+      lockReason={lockReason}
+      lockReasonId={formLockId}
+      lockDataCy={lockDataCy}
       {...props}
     />
   )
 }
 
+// The help and lock ids are always listed; a reference to a node that is not rendered is ignored.
+const describedBy = (...ids: (string | false | undefined)[]) => ids.filter(Boolean).join(" ")
+
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, formItemId, formDescriptionId, formLockId, formMessageId } = useFormField()
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={describedBy(formDescriptionId, formLockId, error && formMessageId)}
       aria-invalid={!!error}
       {...props}
     />
@@ -131,7 +142,7 @@ FormControl.displayName = "FormControl"
 
 // For a control made of several inputs: the label cannot point at a group, so the group names itself.
 const FormGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
-  const { error, formItemId, formLabelId, formDescriptionId, formMessageId } = useFormField()
+  const { error, formItemId, formLabelId, formDescriptionId, formLockId, formMessageId } = useFormField()
 
   return (
     <div
@@ -139,7 +150,7 @@ const FormGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
       role="group"
       id={formItemId}
       aria-labelledby={formLabelId}
-      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={describedBy(formDescriptionId, formLockId, error && formMessageId)}
       aria-invalid={!!error}
       {...props}
     />

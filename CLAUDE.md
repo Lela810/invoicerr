@@ -239,7 +239,9 @@ other locales are Weblate-managed, `npm run i18n:check` gates PRs.
 with `aria-describedby={fieldHelpId(id)}` on the input outside one (`components/ui/field-help.tsx`).
 A custom control inside `FormControl` forwards `id`, `aria-describedby` and `aria-invalid` to its
 focusable element; a Radix `Select` takes `FormControl` around its trigger; a multi-input field uses
-`FormGroup`. Only validation errors (`FormMessage`) render under a field.
+`FormGroup`. Only validation errors (`FormMessage`) render under a field. A field disabled by a
+business rule carries its reason behind a red lock on the label, never as text under it:
+`<FormLabel lockReason={…}>` (`FieldLabel lockReason` with `fieldLockId(id)` outside a form).
 `components/ui/field-help.guard.spec.ts` fails CI otherwise. See
 `documentation/docs/developer-guide/ui-conventions.md`.
 
