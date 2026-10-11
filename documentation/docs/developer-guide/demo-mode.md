@@ -54,9 +54,9 @@ While `DEMO_MODE` is on:
   all refuse outright).
 - The account cannot be deleted.
 - The company cannot be deleted.
-- Sign-up is closed outright, not merely hidden, refused server-side
+- Sign-up is closed outright, refused server-side
   (`backend/src/lib/registration-policy.ts#decideRegistration`), even with a valid invitation code and
-  even for the very first user.
+  even for the very first user. The sign-in page also hides its "Sign up" link.
 - API keys cannot be created or revoked.
 - SSO cannot be configured, and no domain can be claimed for it.
 
@@ -79,8 +79,10 @@ visitor never has to look for them elsewhere.
 - For each company, at least two documents of **every document type that country's own policy
   offers** (`defaultCountryPolicyCatalog.typesFor(countryCode)`, also discovered at runtime): quotes
   (one with named options, one manually accepted/"signed"), invoices in several states (draft, sent,
-  overdue, partly paid, paid), a credit note linked to a paid invoice where the country's own law
-  allows a standalone one, expenses, received invoices, a purchase order and a goods receipt.
+  overdue, partly paid, settled), a credit note crediting one line of the settled invoice where the
+  country's own law allows a standalone one, expenses, received invoices, a purchase order and a goods
+  receipt. Every payment amount is read from the invoice's own settlement (VAT included), so no seeded
+  invoice ends with an excess: the settled one is credited for one line, then its balance is paid.
 - Company, client and article names, amounts, quantities and dates vary between resets: the generator
   takes a seed (`backend/src/modules/demo/generators/rng.ts`, a seedable PRNG), a fresh one drawn on
   every real reset, a fixed one in every test that exercises it.
