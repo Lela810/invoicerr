@@ -210,7 +210,7 @@ describe('Authentication E2E', () => {
             cy.get('[data-cy="auth-invitation-code-input"]', { timeout: 10000 })
                 .should('be.visible')
                 .and('have.attr', 'required');
-            cy.get('[data-cy="auth-invitation-required-hint"]').should('be.visible');
+            cy.get('[data-cy="auth-invitation-required-hint"]').should('exist');
             cy.get('[data-cy="auth-signup-closed-banner"]').should('be.visible');
         });
     });

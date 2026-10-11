@@ -3,14 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useSelectableRows } from "@/hooks/queries"
 
 import { useConditionallyRequired } from "./primitive-fields"
@@ -76,7 +69,13 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
 
         return (
           <FormItem data-cy={`document-field-${field.key}`}>
-            <FormLabel required={required}>{field.label}</FormLabel>
+            <FormLabel
+              required={required}
+              description={field.helpText}
+              helpDataCy={`document-field-${field.key}-help`}
+            >
+              {field.label}
+            </FormLabel>
             <FormControl>
               <div className="space-y-2 rounded-md border p-3">
                 {!sourceId && (
@@ -135,7 +134,6 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
                 ))}
               </div>
             </FormControl>
-            {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
             <FormMessage />
           </FormItem>
         )

@@ -6,14 +6,7 @@ import { useDocumentFormReadOnly } from "@/components/documents/document-form-re
 import { getReferenceCreateComponent } from "@/components/documents/reference-create-registry"
 import { isMultiTargetReference, type MultiTargetReferenceValue } from "@/components/documents/types"
 import SearchSelect from "@/components/search-input"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import {
   useDocumentTypesList,
   useMultiEntityReferenceSearch,
@@ -132,7 +125,13 @@ export function ReferenceField({ field, name }: FieldRendererProps) {
       name={name}
       render={({ field: rhfField }) => (
         <FormItem data-cy={`document-field-${field.key}`}>
-          <FormLabel required={field.required}>{field.label}</FormLabel>
+          <FormLabel
+            required={field.required}
+            description={field.helpText}
+            helpDataCy={`document-field-${field.key}-help`}
+          >
+            {field.label}
+          </FormLabel>
           <FormControl>
             <SearchSelect
               options={options}
@@ -166,7 +165,6 @@ export function ReferenceField({ field, name }: FieldRendererProps) {
               }
             />
           </FormControl>
-          {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
           <FormMessage />
 
           {QuickCreateComponent && (

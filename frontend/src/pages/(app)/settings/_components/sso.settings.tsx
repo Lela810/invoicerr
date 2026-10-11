@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
+import { FieldLabel } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { authenticatedFetch, useDelete, useGet, usePost, usePut } from "@/hooks/use-fetch"
 import { useDemoMode } from "@/hooks/queries"
@@ -627,7 +628,13 @@ export default function SsoSettings() {
           <div className="grid gap-4 sm:grid-cols-2">
             {FIELDS.map((field) => (
               <div className="space-y-1.5" key={field.key}>
-                <Label htmlFor={`sso-${field.key}`}>{t(field.labelKey, field.labelDefault)}</Label>
+                <FieldLabel
+                  htmlFor={`sso-${field.key}`}
+                  description={field.hintKey ? t(field.hintKey, field.hintDefault ?? "") : undefined}
+                  descriptionId={`sso-${field.key}-help`}
+                >
+                  {t(field.labelKey, field.labelDefault)}
+                </FieldLabel>
                 <Input
                   id={`sso-${field.key}`}
                   data-cy={`sso-${field.key.toLowerCase()}-input`}
@@ -635,10 +642,8 @@ export default function SsoSettings() {
                   placeholder={field.placeholder}
                   value={form[field.key] ?? ""}
                   onChange={(e) => setForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                  aria-describedby={field.hintKey ? `sso-${field.key}-help` : undefined}
                 />
-                {field.hintKey && (
-                  <p className="text-xs text-muted-foreground">{t(field.hintKey, field.hintDefault ?? "")}</p>
-                )}
               </div>
             ))}
           </div>

@@ -1,11 +1,4 @@
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { usePatch, usePost } from "@/hooks/use-fetch"
@@ -241,7 +234,9 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
         name="foundedAt"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("clients.upsert.fields.foundedAt.label")}</FormLabel>
+            <FormLabel description={t("clients.upsert.fields.foundedAt.description")}>
+              {t("clients.upsert.fields.foundedAt.label")}
+            </FormLabel>
             <FormControl>
               <DatePicker
                 className="w-full"
@@ -250,7 +245,6 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
                 placeholder={t("clients.upsert.fields.foundedAt.placeholder")}
               />
             </FormControl>
-            <FormDescription>{t("clients.upsert.fields.foundedAt.description")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -262,8 +256,9 @@ function IdentityStep({ form, clientType }: { form: UseFormReturn<FieldValues>; 
         render={({ field }) => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 sm:col-span-2">
             <div className="space-y-0.5">
-              <FormLabel>{t("clients.upsert.fields.isSupplier.label")}</FormLabel>
-              <FormDescription>{t("clients.upsert.fields.isSupplier.description")}</FormDescription>
+              <FormLabel description={t("clients.upsert.fields.isSupplier.description")}>
+                {t("clients.upsert.fields.isSupplier.label")}
+              </FormLabel>
             </div>
             <FormControl>
               <Switch
@@ -520,7 +515,13 @@ function FiscalStep({
                 name={`identifiers.${formIndex}.value`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required={req.required}>{req.label}</FormLabel>
+                    <FormLabel
+                      description={helpText}
+                      helpDataCy={`client-identifier-${req.scheme}-help`}
+                      required={req.required}
+                    >
+                      {req.label}
+                    </FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <Input
@@ -548,14 +549,6 @@ function FiscalStep({
                         )}
                       </div>
                     </FormControl>
-                    {helpText && (
-                      <p
-                        className="text-xs text-muted-foreground"
-                        data-cy={`client-identifier-${req.scheme}-help`}
-                      >
-                        {helpText}
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -672,7 +665,12 @@ function FiscalStep({
           name="peppolEndpointId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
+              <FormLabel
+                description={
+                  t("clients.upsert.fields.peppolEndpointId.helpText") ||
+                  "Leave blank if this client is not on the Peppol network"
+                }
+              >
                 {t("clients.upsert.fields.peppolEndpointId.label") || "Peppol endpoint ID"}
               </FormLabel>
               <FormControl>
@@ -684,10 +682,6 @@ function FiscalStep({
                   data-cy="client-peppol-endpoint-input"
                 />
               </FormControl>
-              <p className="text-xs text-muted-foreground">
-                {t("clients.upsert.fields.peppolEndpointId.helpText") ||
-                  "Leave blank if this client is not on the Peppol network"}
-              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -901,7 +895,13 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   name={`contacts.${index}.firstName`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("clients.upsert.fields.contactFirstname.label")}</FormLabel>
+                      <FormLabel
+                        description={
+                          primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
+                        }
+                      >
+                        {t("clients.upsert.fields.contactFirstname.label")}
+                      </FormLabel>
                       <FormControl>
                         {primaryLocked ? (
                           <Input
@@ -916,11 +916,6 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                           <Input {...field} data-cy={`client-contact-firstName-${index}`} />
                         )}
                       </FormControl>
-                      {primaryLocked && (
-                        <FormDescription>
-                          {t("clients.upsert.fields.contacts.primaryFromIdentity")}
-                        </FormDescription>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -930,7 +925,13 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   name={`contacts.${index}.lastName`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("clients.upsert.fields.contactLastname.label")}</FormLabel>
+                      <FormLabel
+                        description={
+                          primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
+                        }
+                      >
+                        {t("clients.upsert.fields.contactLastname.label")}
+                      </FormLabel>
                       <FormControl>
                         {primaryLocked ? (
                           <Input
@@ -945,11 +946,6 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                           <Input {...field} data-cy={`client-contact-lastName-${index}`} />
                         )}
                       </FormControl>
-                      {primaryLocked && (
-                        <FormDescription>
-                          {t("clients.upsert.fields.contacts.primaryFromIdentity")}
-                        </FormDescription>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1054,7 +1050,9 @@ function ContactStep({
             name="language"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("clients.upsert.fields.language.label")}</FormLabel>
+                <FormLabel description={t("clients.upsert.fields.language.description")}>
+                  {t("clients.upsert.fields.language.label")}
+                </FormLabel>
                 <FormControl>
                   <DocumentLanguageSelect
                     value={field.value}
@@ -1065,9 +1063,12 @@ function ContactStep({
                     data-cy="client-language-select"
                   />
                 </FormControl>
-                <FormDescription>{t("clients.upsert.fields.language.description")}</FormDescription>
                 {languageSuggested && (
-                  <p className="text-xs text-muted-foreground" data-cy="client-language-suggested-hint">
+                  <p
+                    className="text-xs text-muted-foreground"
+                    role="status"
+                    data-cy="client-language-suggested-hint"
+                  >
                     {t("clients.upsert.fields.language.suggested")}
                   </p>
                 )}

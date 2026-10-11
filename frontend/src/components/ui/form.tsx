@@ -13,7 +13,7 @@ import {
 } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
-import { Label } from "@/components/ui/label"
+import { FieldLabel } from "@/components/ui/field-help"
 
 const Form = FormProvider
 
@@ -84,23 +84,28 @@ FormItem.displayName = "FormItem"
 function FormLabel({
   className,
   required,
+  description,
+  helpDataCy,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root> & { required?: boolean }) {
-  const { error, formItemId } = useFormField()
+}: React.ComponentProps<typeof LabelPrimitive.Root> & {
+  required?: boolean
+  description?: React.ReactNode
+  helpDataCy?: string
+}) {
+  const { error, formItemId, formDescriptionId } = useFormField()
 
   return (
-    <Label
+    <FieldLabel
       data-slot="form-label"
       data-error={!!error}
-      className={cn("data-[error=true]:text-destructive relative inline-block", className)}
+      className={cn("data-[error=true]:text-destructive", className)}
       htmlFor={formItemId}
+      required={required}
+      description={description}
+      descriptionId={formDescriptionId}
+      helpDataCy={helpDataCy}
       {...props}
-    >
-      {props.children}
-      {required && (
-        <span className="text-destructive ms-1 text-sm font-medium absolute -top-1 -end-2">*</span>
-      )}
-    </Label>
+    />
   )
 }
 
@@ -121,22 +126,6 @@ const FormControl = React.forwardRef<
   )
 })
 FormControl.displayName = "FormControl"
-
-const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => {
-    const { formDescriptionId } = useFormField()
-
-    return (
-      <p
-        ref={ref}
-        id={formDescriptionId}
-        className={cn("text-sm text-muted-foreground", className)}
-        {...props}
-      />
-    )
-  },
-)
-FormDescription.displayName = "FormDescription"
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
@@ -161,4 +150,4 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 )
 FormMessage.displayName = "FormMessage"
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField }
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormMessage, FormField }

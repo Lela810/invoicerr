@@ -11,15 +11,7 @@ import { BetterInput } from "@/components/better-input"
 import SearchSelect from "@/components/search-input"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useClientSearch, useCompany, useCreateProject, useUpdateProject } from "@/hooks/queries"
@@ -171,7 +163,9 @@ export function ProjectUpsert({ project, defaultClientId, open, onOpenChange }: 
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("timeTracking.projects.fields.hourlyRate.label")}</FormLabel>
+                  <FormLabel description={t("timeTracking.projects.fields.hourlyRate.helpText")}>
+                    {t("timeTracking.projects.fields.hourlyRate.label")}
+                  </FormLabel>
                   <FormControl>
                     <BetterInput
                       name={field.name}
@@ -187,7 +181,6 @@ export function ProjectUpsert({ project, defaultClientId, open, onOpenChange }: 
                       data-cy="project-hourly-rate-input"
                     />
                   </FormControl>
-                  <FormDescription>{t("timeTracking.projects.fields.hourlyRate.helpText")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

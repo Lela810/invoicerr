@@ -8,7 +8,7 @@ import { formatTotal } from "@/components/documents/document-totals"
 import { toMinor } from "@/components/documents/totals-calculator"
 import type { DocumentFieldDescriptor } from "@/components/documents/types"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { FieldLabel } from "@/components/ui/field-help"
 import { fetchPrefillFields } from "@/hooks/queries"
 
 import { type TextFieldCatalog, TextField } from "./primitive-fields"
@@ -208,7 +208,7 @@ function LineRowCard({
  * — the same DocumentField every top-level field goes through, which is what makes "a table of
  * sub-fields" a structural feature of the core rather than a per-document-type special case.
  *
- * Uses plain <Label>, not <FormLabel>: the array as a whole isn't bound to one react-hook-form
+ * Uses plain <FieldLabel>, not <FormLabel>: the array as a whole isn't bound to one react-hook-form
  * Controller (each ROW's sub-fields are, individually), so there is no single field name for
  * <FormLabel>'s error-aware styling to attach to here.
  */
@@ -236,11 +236,15 @@ export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) 
       {/* Bumped past the plain field-label size — this is the one array field a document form
           reliably has (lines), and at 390px it reads as the form's own "section", not just another
           field, now that each row is its own card rather than a dense inline grid. */}
-      <Label className="text-base font-semibold">
+      <FieldLabel
+        className="text-base font-semibold"
+        required={field.required}
+        description={field.helpText}
+        descriptionId={`${name}-help`}
+        helpDataCy={`document-field-${field.key}-help`}
+      >
         {field.label}
-        {field.required && <span className="text-destructive">*</span>}
-      </Label>
-      {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+      </FieldLabel>
 
       <div className="space-y-4 sm:space-y-3">
         {rows.map((row, index) => (

@@ -6,14 +6,7 @@ import { FileText, Paperclip, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { ApiError } from "@/hooks/use-api-query"
 import { buildFileUploadForm, downloadAttachment, useUploadAttachment } from "@/hooks/queries"
 
@@ -184,7 +177,13 @@ export function FileField({ field, name }: FieldRendererProps) {
       name={name}
       render={() => (
         <FormItem data-cy={`document-field-${field.key}`}>
-          <FormLabel required={field.required}>{field.label}</FormLabel>
+          <FormLabel
+            required={field.required}
+            description={field.helpText}
+            helpDataCy={`document-field-${field.key}-help`}
+          >
+            {field.label}
+          </FormLabel>
           <FormControl>
             <div className="flex flex-col gap-2">
               {hasValue ? (
@@ -263,7 +262,6 @@ export function FileField({ field, name }: FieldRendererProps) {
               />
             </div>
           </FormControl>
-          {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
           <FormMessage />
         </FormItem>
       )}

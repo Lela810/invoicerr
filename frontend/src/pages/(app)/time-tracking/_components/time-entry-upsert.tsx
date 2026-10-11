@@ -9,14 +9,7 @@ import { z } from "zod"
 
 import { BetterInput } from "@/components/better-input"
 import { DatePicker } from "@/components/date-picker"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { type SteppedDialogStep, SteppedDialog } from "@/components/ui/stepped-dialog"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
@@ -181,7 +174,9 @@ function BillingStep({
         control={control}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("timeTracking.entries.fields.hourlyRate.label")}</FormLabel>
+            <FormLabel description={t("timeTracking.entries.fields.hourlyRate.helpText")}>
+              {t("timeTracking.entries.fields.hourlyRate.label")}
+            </FormLabel>
             <FormControl>
               <BetterInput
                 name={field.name}
@@ -196,7 +191,6 @@ function BillingStep({
                 placeholder={t("timeTracking.entries.fields.hourlyRate.placeholder")}
               />
             </FormControl>
-            <FormDescription>{t("timeTracking.entries.fields.hourlyRate.helpText")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}

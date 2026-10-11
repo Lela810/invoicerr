@@ -3828,6 +3828,9 @@
     }
   },
   "common": {
+    "fieldHelp": {
+      "trigger": "Show help"
+    },
     "loading": "Loading...",
     "finish": "Finish",
     "valueWithCurrency": "{{amount}} {{currency}}",

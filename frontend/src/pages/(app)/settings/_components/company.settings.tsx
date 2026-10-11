@@ -19,15 +19,7 @@ import { DatePicker } from "@/components/date-picker"
 import { fromCalendarDate, toCalendarDateInstant } from "@/lib/calendar-date"
 import { applyAddressSuggestion } from "@/lib/apply-address-suggestion"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -566,7 +558,9 @@ export default function CompanySettings() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.company.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.company.description")} required>
+                      {t("settings.company.form.company.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t("settings.company.form.company.placeholder")}
@@ -574,7 +568,6 @@ export default function CompanySettings() {
                         data-cy="company-name-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.company.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -585,7 +578,9 @@ export default function CompanySettings() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("settings.company.form.description.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.description.description")}>
+                      {t("settings.company.form.description.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t("settings.company.form.description.placeholder")}
@@ -593,7 +588,6 @@ export default function CompanySettings() {
                         data-cy="company-description-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.description.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -604,7 +598,9 @@ export default function CompanySettings() {
                 name="foundedAt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.foundedAt.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.foundedAt.description")} required>
+                      {t("settings.company.form.foundedAt.label")}
+                    </FormLabel>
                     <FormControl>
                       <DatePicker
                         className="w-full bg-opacity-100"
@@ -614,7 +610,6 @@ export default function CompanySettings() {
                         data-cy="company-foundedat-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.foundedAt.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -627,7 +622,9 @@ export default function CompanySettings() {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.country.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.country.description")} required>
+                      {t("settings.company.form.country.label")}
+                    </FormLabel>
                     <FormControl>
                       <CountrySelect
                         value={field.value}
@@ -640,7 +637,6 @@ export default function CompanySettings() {
                         data-cy="company-country-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.country.description")}</FormDescription>
                     <FormMessage />
                     <CountryReadinessAlert countryCode={countryCodeValue} countryName={field.value} />
                   </FormItem>
@@ -652,7 +648,9 @@ export default function CompanySettings() {
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.currency.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.currency.description")} required>
+                      {t("settings.company.form.currency.label")}
+                    </FormLabel>
                     <FormControl>
                       <CurrencySelect
                         value={field.value}
@@ -660,7 +658,6 @@ export default function CompanySettings() {
                         data-cy="company-currency-select"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.currency.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -685,7 +682,13 @@ export default function CompanySettings() {
                         name={`identifiers.${formIndex}.value`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel required={req.required}>{req.label}</FormLabel>
+                            <FormLabel
+                              description={helpText}
+                              helpDataCy={`company-identifier-${req.scheme}-help`}
+                              required={req.required}
+                            >
+                              {req.label}
+                            </FormLabel>
                             <FormControl>
                               <div className="flex gap-2">
                                 <Input
@@ -724,14 +727,6 @@ export default function CompanySettings() {
                                 )}
                               </div>
                             </FormControl>
-                            {helpText && (
-                              <p
-                                className="text-xs text-muted-foreground"
-                                data-cy={`company-identifier-${req.scheme}-help`}
-                              >
-                                {helpText}
-                              </p>
-                            )}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -882,7 +877,12 @@ export default function CompanySettings() {
                   name="peppolEndpointId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel
+                        description={
+                          t("settings.company.form.peppolEndpointId.helpText") ||
+                          "Leave blank if your company is not registered on the Peppol network"
+                        }
+                      >
                         {t("settings.company.form.peppolEndpointId.label") || "Peppol endpoint ID"}
                       </FormLabel>
                       <FormControl>
@@ -894,10 +894,6 @@ export default function CompanySettings() {
                           data-cy="company-peppol-endpoint-input"
                         />
                       </FormControl>
-                      <p className="text-xs text-muted-foreground">
-                        {t("settings.company.form.peppolEndpointId.helpText") ||
-                          "Leave blank if your company is not registered on the Peppol network"}
-                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -916,7 +912,9 @@ export default function CompanySettings() {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.address.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.address.description")} required>
+                    {t("settings.company.form.address.label")}
+                  </FormLabel>
                   <FormControl>
                     <AddressAutocompleteInput
                       placeholder={t("settings.company.form.address.placeholder")}
@@ -927,7 +925,6 @@ export default function CompanySettings() {
                       }
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.address.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -938,7 +935,9 @@ export default function CompanySettings() {
               name="addressLine2"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.addressLine2.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.addressLine2.description")}>
+                    {t("settings.company.form.addressLine2.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t("settings.company.form.addressLine2.placeholder")}
@@ -946,7 +945,6 @@ export default function CompanySettings() {
                       data-cy="company-address-line2-input"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.addressLine2.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1020,7 +1018,9 @@ export default function CompanySettings() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.phone.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.phone.description")} required>
+                      {t("settings.company.form.phone.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
@@ -1029,7 +1029,6 @@ export default function CompanySettings() {
                         data-cy="company-phone-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.phone.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1040,7 +1039,9 @@ export default function CompanySettings() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>{t("settings.company.form.email.label")}</FormLabel>
+                    <FormLabel description={t("settings.company.form.email.description")} required>
+                      {t("settings.company.form.email.label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -1049,7 +1050,6 @@ export default function CompanySettings() {
                         data-cy="company-email-input"
                       />
                     </FormControl>
-                    <FormDescription>{t("settings.company.form.email.description")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1061,7 +1061,9 @@ export default function CompanySettings() {
               name="iban"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.iban.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.iban.description")}>
+                    {t("settings.company.form.iban.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       dir="ltr"
@@ -1070,7 +1072,6 @@ export default function CompanySettings() {
                       data-cy="company-iban-input"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.iban.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1087,7 +1088,9 @@ export default function CompanySettings() {
               name="invoicePDFFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.invoicePDFFormat.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.invoicePDFFormat.description")} required>
+                    {t("settings.company.form.invoicePDFFormat.label")}
+                  </FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="w-full" data-cy="company-pdfformat-select">
@@ -1115,7 +1118,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.invoicePDFFormat.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1126,7 +1128,9 @@ export default function CompanySettings() {
               name="invoiceTransportId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.invoiceTransportId.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.invoiceTransportId.description")}>
+                    {t("settings.company.form.invoiceTransportId.label")}
+                  </FormLabel>
                   <FormControl>
                     <Select
                       // NOT `field.onChange` directly — found empirically (a real "no transport
@@ -1166,9 +1170,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.invoiceTransportId.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1179,7 +1180,9 @@ export default function CompanySettings() {
               name="dateFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel required>{t("settings.company.form.dateFormat.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.dateFormat.description")} required>
+                    {t("settings.company.form.dateFormat.label")}
+                  </FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="w-full" data-cy="company-dateformat-select">
@@ -1198,7 +1201,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.dateFormat.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1209,7 +1211,9 @@ export default function CompanySettings() {
               name="language"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.language.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.language.description")}>
+                    {t("settings.company.form.language.label")}
+                  </FormLabel>
                   <FormControl>
                     <DocumentLanguageSelect
                       value={field.value}
@@ -1217,7 +1221,6 @@ export default function CompanySettings() {
                       data-cy="company-language-select"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.language.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1228,7 +1231,9 @@ export default function CompanySettings() {
               name="exemptVat"
               render={({ field }) => (
                 <FormItem className="flex flex-col space-y-3">
-                  <FormLabel>{t("settings.company.form.exemptVat.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.exemptVat.description")}>
+                    {t("settings.company.form.exemptVat.label")}
+                  </FormLabel>
                   <FormControl>
                     <Switch
                       checked={!!field.value}
@@ -1236,7 +1241,6 @@ export default function CompanySettings() {
                       data-cy="company-exemptvat-switch"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.exemptVat.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1247,7 +1251,9 @@ export default function CompanySettings() {
               name="distanceSalesRegime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.distanceSalesRegime.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.distanceSalesRegime.description")}>
+                    {t("settings.company.form.distanceSalesRegime.label")}
+                  </FormLabel>
                   <FormControl>
                     {/* "" is a real, selectable state — "not declared yet" — not a placeholder: the
                         backend refuses a cross-border B2C sale of goods inside the EU until one of the
@@ -1282,9 +1288,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.distanceSalesRegime.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1301,7 +1304,9 @@ export default function CompanySettings() {
               name="approvalThreshold"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.approvalThreshold.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.approvalThreshold.description")}>
+                    {t("settings.company.form.approvalThreshold.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1316,9 +1321,6 @@ export default function CompanySettings() {
                       data-cy="company-approval-threshold-input"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.approvalThreshold.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1335,7 +1337,11 @@ export default function CompanySettings() {
               name="reconciliationTolerancePercent"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.reconciliationTolerancePercent.label")}</FormLabel>
+                  <FormLabel
+                    description={t("settings.company.form.reconciliationTolerancePercent.description")}
+                  >
+                    {t("settings.company.form.reconciliationTolerancePercent.label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1347,9 +1353,6 @@ export default function CompanySettings() {
                       data-cy="company-reconciliation-tolerance-input"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t("settings.company.form.reconciliationTolerancePercent.description")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1366,7 +1369,9 @@ export default function CompanySettings() {
               name="remindersEnabled"
               render={({ field }) => (
                 <FormItem className="flex flex-col space-y-3">
-                  <FormLabel>{t("settings.company.form.remindersEnabled.label")}</FormLabel>
+                  <FormLabel description={t("settings.company.form.remindersEnabled.description")}>
+                    {t("settings.company.form.remindersEnabled.label")}
+                  </FormLabel>
                   <FormControl>
                     <Switch
                       checked={!!field.value}
@@ -1374,7 +1379,6 @@ export default function CompanySettings() {
                       data-cy="company-reminders-enabled"
                     />
                   </FormControl>
-                  <FormDescription>{t("settings.company.form.remindersEnabled.description")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1394,7 +1398,12 @@ export default function CompanySettings() {
               name="referenceCurrency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel
+                    description={t(
+                      "settings.company.form.referenceCurrency.description",
+                      "Requires an exchange rate (below) for every OTHER currency you actually use before a consolidated total appears.",
+                    )}
+                  >
                     {t("settings.company.form.referenceCurrency.label", "Reference currency")}
                   </FormLabel>
                   <FormControl>
@@ -1404,12 +1413,6 @@ export default function CompanySettings() {
                       data-cy="company-reference-currency-select"
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t(
-                      "settings.company.form.referenceCurrency.description",
-                      "Requires an exchange rate (below) for every OTHER currency you actually use before a consolidated total appears.",
-                    )}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1429,7 +1432,19 @@ export default function CompanySettings() {
               name="revenueBasis"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("settings.company.form.revenueBasis.label", "Revenue basis")}</FormLabel>
+                  <FormLabel
+                    description={
+                      !field.value?.trim() && resolvedRevenueSettings
+                        ? resolvedRevenueSettings.basisDefaultReason
+                        : t(
+                            "settings.company.form.revenueBasis.description",
+                            '"Invoiced" counts revenue when a document is issued (this product\'s own dashboard totals); "cashed" counts it when a payment actually arrives.',
+                          )
+                    }
+                    helpDataCy="company-revenue-basis-reason"
+                  >
+                    {t("settings.company.form.revenueBasis.label", "Revenue basis")}
+                  </FormLabel>
                   <FormControl>
                     <Select
                       value={field.value?.trim() ? field.value : USE_DEFAULT_REVENUE_BASIS}
@@ -1466,14 +1481,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription data-cy="company-revenue-basis-reason">
-                    {!field.value?.trim() && resolvedRevenueSettings
-                      ? resolvedRevenueSettings.basisDefaultReason
-                      : t(
-                          "settings.company.form.revenueBasis.description",
-                          '"Invoiced" counts revenue when a document is issued (this product\'s own dashboard totals); "cashed" counts it when a payment actually arrives.',
-                        )}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1484,7 +1491,12 @@ export default function CompanySettings() {
               name="revenuePeriod"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel
+                    description={t(
+                      "settings.company.form.revenuePeriod.description",
+                      "Used by the cashed-revenue view (Cashed revenue tab) to bucket what was received.",
+                    )}
+                  >
                     {t("settings.company.form.revenuePeriod.label", "Declaration period")}
                   </FormLabel>
                   <FormControl>
@@ -1516,12 +1528,6 @@ export default function CompanySettings() {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>
-                    {t(
-                      "settings.company.form.revenuePeriod.description",
-                      "Used by the cashed-revenue view (Cashed revenue tab) to bucket what was received.",
-                    )}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

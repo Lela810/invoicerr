@@ -9,14 +9,7 @@ import { z } from "zod"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { BetterInput } from "@/components/better-input"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -232,7 +225,9 @@ function StockStep({ control }: { control: Control<ArticleForm> }) {
         control={control}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("articles.fields.quantity.label")}</FormLabel>
+            <FormLabel description={t("articles.fields.quantity.helpText")}>
+              {t("articles.fields.quantity.label")}
+            </FormLabel>
             <FormControl>
               <BetterInput
                 name={field.name}
@@ -248,7 +243,6 @@ function StockStep({ control }: { control: Control<ArticleForm> }) {
                 placeholder={t("articles.fields.quantity.placeholder") as string}
               />
             </FormControl>
-            <FormDescription>{t("articles.fields.quantity.helpText")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -259,7 +253,9 @@ function StockStep({ control }: { control: Control<ArticleForm> }) {
         control={control}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("articles.fields.lowStockThreshold.label")}</FormLabel>
+            <FormLabel description={t("articles.fields.lowStockThreshold.helpText")}>
+              {t("articles.fields.lowStockThreshold.label")}
+            </FormLabel>
             <FormControl>
               <BetterInput
                 name={field.name}
@@ -273,7 +269,6 @@ function StockStep({ control }: { control: Control<ArticleForm> }) {
                 placeholder={t("articles.fields.lowStockThreshold.placeholder") as string}
               />
             </FormControl>
-            <FormDescription>{t("articles.fields.lowStockThreshold.helpText")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
