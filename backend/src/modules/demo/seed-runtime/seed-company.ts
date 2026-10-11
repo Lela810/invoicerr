@@ -19,6 +19,7 @@ import { DocumentsService } from '@/modules/documents/documents.service';
 import { ArticlesService } from '@/modules/articles/articles.service';
 import { ClientsService } from '@/modules/clients/clients.service';
 import prisma from '@/prisma/prisma.service';
+import { fromMinor } from '@/utils/financial';
 import { CompanyRole } from '../../../../prisma/generated/prisma/client';
 import { defaultCountryPolicyCatalog } from '@/modules/documents/country-policy/registry';
 import { resolveVatCurrencyRule } from '@/modules/documents/vat-currency/registry';
@@ -193,7 +194,11 @@ export async function seedCountryCompany(
   const typeIds = new Set(defaultCountryPolicyCatalog.typesFor(countryCode));
 
   // ── quote ────────────────────────────────────────────────────────────────────────────────────
-  let paidInvoiceForCreditNote: { id: string; data: unknown } | undefined;
+  let invoiceToSettle: { id: string; data: unknown } | undefined;
+  const outstandingOf = async (invoiceId: string): Promise<number> => {
+    const { totals, settlement } = await deps.documentsService.getSettlement(companyId, 'invoice', invoiceId);
+    return fromMinor(settlement.outstandingMinor, totals.currency ?? domesticCurrency);
+  };
   if (typeIds.has('quote')) {
     // #1: draft, WITH options (two distinct named options on its own lines).
     await run('quote', 'save-draft', {
@@ -285,32 +290,34 @@ export async function seedCountryCompany(
 
     // Sent, partly paid.
     const partlyPaid = await createSentInvoice(15);
-    const partlyPaidTotal = computeLineTotal(partlyPaid);
+    const partlyPaidOutstanding = await outstandingOf(partlyPaid.id);
     await run('invoice', 'record-payment', {
       documentId: partlyPaid.id,
       data: partlyPaid.data as Record<string, unknown>,
       params: {
-        amount: Math.round(partlyPaidTotal * 0.4 * 100) / 100,
+        amount: Math.round(partlyPaidOutstanding * 0.4 * 100) / 100,
         currency: domesticCurrency,
         paidAt: isoDate(now),
         method: 'bank_transfer',
       },
     });
 
-    // Sent, fully paid: also the one a credit note corrects below.
+    // Sent, paid in full.
     const paid = await createSentInvoice(10);
-    const paidTotal = computeLineTotal(paid);
     await run('invoice', 'record-payment', {
       documentId: paid.id,
       data: paid.data as Record<string, unknown>,
       params: {
-        amount: paidTotal,
+        amount: await outstandingOf(paid.id),
         currency: domesticCurrency,
         paidAt: isoDate(now),
         method: 'bank_transfer',
       },
     });
-    paidInvoiceForCreditNote = { id: paid.id, data: paid.data };
+
+    // Sent, then settled below: one line credited, the balance paid.
+    const toSettle = await createSentInvoice(5);
+    invoiceToSettle = { id: toSettle.id, data: toSettle.data };
   }
 
   // ── credit-note ──────────────────────────────────────────────────────────────────────────────
@@ -335,25 +342,25 @@ export async function seedCountryCompany(
       });
       bump('credit-note');
 
-      // #2: linked to the fully-paid invoice above, when one exists. `correctedLines` (kind
-      // 'rowSelection') stores the corrected invoice's OWN line ids (`$rowId`, see
+      // #2: linked to the invoice settled below, crediting its first line only. `correctedLines`
+      // (kind 'rowSelection') stores the corrected invoice's OWN line ids (`$rowId`, see
       // row-selection.ts#ROW_ID_KEY), stamped onto every 'array' row the moment it is saved through
       // an action a 'rowSelection' field points at, which the invoice's own earlier "save-draft" call
-      // already was. Selecting every one of the invoice's lines: a full-amount credit note, the
-      // simplest unambiguous case.
-      if (paidInvoiceForCreditNote) {
+      // already was. Crediting the whole invoice and then also paying it would leave an excess.
+      if (invoiceToSettle) {
         const invoiceLines =
-          (paidInvoiceForCreditNote.data as { lines?: Record<string, unknown>[] } | null)?.lines ?? [];
+          (invoiceToSettle.data as { lines?: Record<string, unknown>[] } | null)?.lines ?? [];
         const correctedLines = invoiceLines
           .map((line) => line.$rowId)
-          .filter((id): id is string => typeof id === 'string');
+          .filter((id): id is string => typeof id === 'string')
+          .slice(0, 1);
         const created = await run('credit-note', 'save-draft', {
           data: {
-            invoice: paidInvoiceForCreditNote.id,
+            invoice: invoiceToSettle.id,
             correctedLines,
             issueDate: isoDate(now),
             currency: domesticCurrency,
-            reason: 'Partial refund agreed with the client.',
+            reason: 'One line credited after a dispute with the client.',
           },
         });
         const doc = (created as { document: { id: string; data: unknown } }).document;
@@ -372,6 +379,20 @@ export async function seedCountryCompany(
         }${detail ? `, detail: ${JSON.stringify(detail)}` : ''}`,
       );
     }
+  }
+
+  // Whatever the credit note left (all of it where a country has no credit note): paid in full.
+  if (invoiceToSettle) {
+    await run('invoice', 'record-payment', {
+      documentId: invoiceToSettle.id,
+      data: invoiceToSettle.data as Record<string, unknown>,
+      params: {
+        amount: await outstandingOf(invoiceToSettle.id),
+        currency: domesticCurrency,
+        paidAt: isoDate(now),
+        method: 'bank_transfer',
+      },
+    });
   }
 
   // ── expense ──────────────────────────────────────────────────────────────────────────────────
@@ -496,10 +517,4 @@ export async function seedCountryCompany(
   }
 
   return { companyId, companyName, countryCode, documentsCreated };
-}
-
-function computeLineTotal(document: { data: unknown }): number {
-  const data = document.data as { lines?: { quantity: number; unitPrice: number }[] } | null;
-  const lines = data?.lines ?? [];
-  return Math.round(lines.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0) * 100) / 100;
 }

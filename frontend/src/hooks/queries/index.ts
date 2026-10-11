@@ -52,6 +52,7 @@ export {
   type LegalDocumentsView,
   type LegalStatusView,
 } from "./use-legal"
+export { useRegistrationStatus, type RegistrationStatusView } from "./use-registration"
 export {
   useInstancePreflight,
   useRequestInstanceResetOtp,

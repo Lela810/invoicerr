@@ -264,11 +264,11 @@ describe("Dashboard period filter (#418)", () => {
 		cy.get('[data-cy="dashboard-period-range"]').should("contain.text", "Showing all time");
 		cy.screenshot("418-default");
 
-		// P1 + P2 = 2,000: both unpaid, whatever their date. P3 is settled, P4 is a draft. The tile sums
-		// NET line amounts (quantity * unitPrice, 1,000 each), not the 1,200 gross the list shows.
+		// P1 + P2 = 2,400: both unpaid, whatever their date. P3 is settled, P4 is a draft. The tile sums
+		// what is owed, VAT included (1,200 each), the same figure the list shows.
 		cy.get('[data-cy="widget-invoice:pending-total:EUR"]', { timeout: 20000 }).should(
 			"contain.text",
-			"2,000",
+			"2,400",
 		);
 	});
 
@@ -300,11 +300,11 @@ describe("Dashboard period filter (#418)", () => {
 		cy.get('[data-cy="dashboard-period-range"]').should("contain.text", "Showing").and("contain.text", "2026");
 		cy.screenshot("418-custom-range");
 
-		// Only P2 (1,000 net) is issued 2026-08-01 and unpaid: P1 is June, P3 is August but settled, P4
-		// is a draft (never "sent").
+		// Only P2 (1,200 incl. VAT) is issued 2026-08-01 and unpaid: P1 is June, P3 is August but settled,
+		// P4 is a draft (never "sent").
 		cy.get('[data-cy="widget-invoice:pending-total:EUR"]', { timeout: 20000 }).should(
 			"contain.text",
-			"1,000",
+			"1,200",
 		);
 		cy.screenshot("418-period-applied");
 
@@ -385,7 +385,7 @@ describe("Dashboard period filter (#418)", () => {
 		if (currentYear === 2026) {
 			cy.get('[data-cy="widget-invoice:pending-total:EUR"]', { timeout: 20000 }).should(
 				"contain.text",
-				"2,000",
+				"2,400",
 			);
 		} else {
 			cy.get('[data-cy="widget-invoice:pending-total:EUR"]', { timeout: 20000 }).should(

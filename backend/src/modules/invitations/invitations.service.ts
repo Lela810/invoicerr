@@ -20,7 +20,7 @@ export class InvitationsService {
   // is the front end's pre-flight check, called before the actual `authClient.signUp.email`
   // call so a bad/expired/used code (or a closed instance) surfaces as a form error instead
   // of a generic "something went wrong" from better-auth. `requiresCode` tells the caller
-  // whether the only remaining path forward is a valid invitation code.
+  // whether a valid invitation code is still a way forward; false on a closed demo instance.
   async canRegister(
     invitationCode?: string,
   ): Promise<{ allowed: boolean; requiresCode: boolean; message?: string }> {
@@ -40,7 +40,11 @@ export class InvitationsService {
     const decision = decideRegistration({ invitationCode, invitation, isFirstUser });
 
     if (!decision.allowed) {
-      return { allowed: false, requiresCode: true, message: registrationDenialMessage(decision.reason) };
+      return {
+        allowed: false,
+        requiresCode: decision.reason !== 'demo_mode',
+        message: registrationDenialMessage(decision.reason),
+      };
     }
 
     return { allowed: true, requiresCode: false };

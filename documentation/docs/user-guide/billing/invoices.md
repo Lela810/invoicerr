@@ -6,6 +6,9 @@ sidebar_position: 4
 
 The **Invoices** page is where you bill your clients. You can create invoices from scratch or convert a signed [quote](quotes.md).
 
+Each row shows the invoice's total **including VAT**, labelled "incl. VAT" under the figure,
+before any payment or credit note. What is still owed on it is in its settlement panel.
+
 ## Actions
 
 - **Add New** — create an invoice

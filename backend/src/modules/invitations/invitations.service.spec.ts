@@ -322,6 +322,23 @@ describe('InvitationsService', () => {
       expect(result.message).toMatch(/disabled/i);
     });
 
+    it('tells an invitation-only instance from a closed one: a code helps only on the former', async () => {
+      prisma.user.count.mockResolvedValue(5);
+
+      process.env.DISABLE_AUTH = '1';
+      expect(await service.canRegister()).toMatchObject({ allowed: false, requiresCode: true });
+
+      delete process.env.DISABLE_AUTH;
+      const originalDemoMode = process.env.DEMO_MODE;
+      process.env.DEMO_MODE = 'true';
+      try {
+        expect(await service.canRegister()).toMatchObject({ allowed: false, requiresCode: false });
+      } finally {
+        if (originalDemoMode === undefined) delete process.env.DEMO_MODE;
+        else process.env.DEMO_MODE = originalDemoMode;
+      }
+    });
+
     it('rejects an unknown code without ever calling it "disabled"', async () => {
       delete process.env.DISABLE_AUTH;
       prisma.user.count.mockResolvedValue(5);
