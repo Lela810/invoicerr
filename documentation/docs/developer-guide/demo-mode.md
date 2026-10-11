@@ -79,10 +79,11 @@ visitor never has to look for them elsewhere.
 - For each company, at least two documents of **every document type that country's own policy
   offers** (`defaultCountryPolicyCatalog.typesFor(countryCode)`, also discovered at runtime): quotes
   (one with named options, one manually accepted/"signed"), invoices in several states (draft, sent,
-  overdue, partly paid, settled), a credit note crediting one line of the settled invoice where the
-  country's own law allows a standalone one, expenses, received invoices, a purchase order and a goods
-  receipt. Every payment amount is read from the invoice's own settlement (VAT included), so no seeded
-  invoice ends with an excess: the settled one is credited for one line, then its balance is paid.
+  overdue, partly paid, paid in full, and one credited for one line then paid for the balance), a
+  credit note on that last invoice where the country's own law allows a standalone one, expenses,
+  received invoices, a purchase order and a goods receipt. Every payment amount is read from the
+  invoice's own settlement (VAT included), so no seeded invoice ends with an excess. Where the country
+  has no credit note, the last invoice is simply paid in full too.
 - Company, client and article names, amounts, quantities and dates vary between resets: the generator
   takes a seed (`backend/src/modules/demo/generators/rng.ts`, a seedable PRNG), a fresh one drawn on
   every real reset, a fixed one in every test that exercises it.

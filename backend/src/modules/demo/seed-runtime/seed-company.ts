@@ -302,8 +302,21 @@ export async function seedCountryCompany(
       },
     });
 
+    // Sent, paid in full.
+    const paid = await createSentInvoice(10);
+    await run('invoice', 'record-payment', {
+      documentId: paid.id,
+      data: paid.data as Record<string, unknown>,
+      params: {
+        amount: await outstandingOf(paid.id),
+        currency: domesticCurrency,
+        paidAt: isoDate(now),
+        method: 'bank_transfer',
+      },
+    });
+
     // Sent, then settled below: one line credited, the balance paid.
-    const toSettle = await createSentInvoice(10);
+    const toSettle = await createSentInvoice(5);
     invoiceToSettle = { id: toSettle.id, data: toSettle.data };
   }
 

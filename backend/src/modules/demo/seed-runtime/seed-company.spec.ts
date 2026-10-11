@@ -111,7 +111,7 @@ function fakeDocumentsService() {
 }
 
 describe('seedCountryCompany: invoice balances', () => {
-  it('leaves no invoice with an excess, and settles one invoice by a partial credit plus a payment', async () => {
+  it('leaves no invoice with an excess: one paid in full, one settled by a partial credit plus a payment', async () => {
     const fake = fakeDocumentsService();
     let clientCount = 0;
 
@@ -140,5 +140,7 @@ describe('seedCountryCompany: invoice balances', () => {
     expect(settlements.map((s) => s.excessMinor)).toEqual(settlements.map(() => 0));
     const creditedAndPaid = settlements.find((s) => s.creditedMinor > 0 && s.paidMinor > 0);
     expect(creditedAndPaid).toMatchObject({ settled: true, outstandingMinor: 0, excessMinor: 0 });
+    const paidInFull = settlements.find((s) => s.creditedMinor === 0 && s.settled);
+    expect(paidInFull).toMatchObject({ paidMinor: paidInFull?.totalGrossMinor, excessMinor: 0 });
   });
 });
