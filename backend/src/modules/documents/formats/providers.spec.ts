@@ -406,3 +406,35 @@ describe('issue #145 — a line `date` never leaks into a generated EN 16931 pay
     }, 30_000);
   });
 });
+
+describe('line unit: a picked code is exported as is, free text as C62', () => {
+  const DOCUMENT_WITH_UNITS = {
+    ...DOCUMENT,
+    data: {
+      ...DOCUMENT_DATA,
+      lines: [
+        { ...DOCUMENT_DATA.lines[0], unit: 'H87' },
+        { ...DOCUMENT_DATA.lines[1], unit: 'sprint' },
+      ],
+    },
+  };
+
+  it.each([
+    ['CII', ciiFormatProvider, 'BilledQuantity'] as const,
+    ['UBL', ublFormatProvider, 'InvoicedQuantity'] as const,
+  ])(
+    '%s',
+    async (_label, provider, element) => {
+      const result = await provider.build(descriptor, DOCUMENT_WITH_UNITS, SELLER, BUYER);
+      const xml = Buffer.from(result.bytes).toString('utf-8');
+      const units = [...xml.matchAll(new RegExp(`<[\\w:]*${element} unitCode="([^"]+)"`, 'g'))].map(
+        (m) => m[1],
+      );
+
+      expect(units).toEqual(['H87', 'C62']);
+      expect(xml).not.toContain('sprint');
+      expect(result.validation.errors).toEqual([]);
+    },
+    30_000,
+  );
+});

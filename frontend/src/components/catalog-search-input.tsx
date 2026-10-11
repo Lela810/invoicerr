@@ -2,8 +2,12 @@ import * as React from "react"
 import { useTranslation } from "react-i18next"
 
 import { BetterInput } from "@/components/better-input"
+import { Spinner } from "@/components/ui/spinner"
 import { useCatalogSearch } from "@/hooks/use-catalog-search"
+import { useDelayedFlag } from "@/hooks/use-delayed-flag"
 import { cn } from "@/lib/utils"
+
+const LOADER_DELAY_MS = 150
 
 export interface CatalogSearchInputProps extends React.ComponentProps<"input"> {
   "data-cy"?: string
@@ -14,6 +18,7 @@ export interface CatalogSearchInputProps extends React.ComponentProps<"input"> {
 /**
  * A free-text input with an additive catalog dropdown: typing never depends on the list, which only
  * appears once the search returns matches and never replaces what the user typed until one is picked.
+ * A spinner shows while a search takes longer than LOADER_DELAY_MS, and an empty answer says so.
  */
 export function CatalogSearchInput({
   entity,
@@ -33,7 +38,8 @@ export function CatalogSearchInput({
   const [activeIndex, setActiveIndex] = React.useState(-1)
 
   const query = typeof value === "string" ? value : ""
-  const { options } = useCatalogSearch(entity, query, open && !disabled)
+  const { options, loading, noMatch } = useCatalogSearch(entity, query, open && !disabled)
+  const showLoader = useDelayedFlag(open && loading, LOADER_DELAY_MS)
   const expanded = open && options.length > 0
 
   const close = () => {
@@ -75,7 +81,8 @@ export function CatalogSearchInput({
         aria-expanded={expanded}
         aria-controls={expanded ? listId : undefined}
         aria-activedescendant={expanded && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
-        className={className}
+        aria-busy={showLoader || undefined}
+        className={cn(showLoader && "pe-8", className)}
         data-cy={dataCy}
         onChange={(event) => {
           setOpen(true)
@@ -88,6 +95,23 @@ export function CatalogSearchInput({
         }}
         onKeyDown={handleKeyDown}
       />
+      {showLoader && (
+        <span
+          className="pointer-events-none absolute inset-y-0 end-2 flex items-center text-muted-foreground"
+          data-cy={dataCy ? `${dataCy}-loading` : "catalog-search-loading"}
+        >
+          <Spinner aria-label={t("component.catalog-search.searching")} />
+        </span>
+      )}
+      {open && noMatch && !showLoader && (
+        <div
+          role="status"
+          className="absolute z-50 mt-1 w-full rounded-md border bg-popover px-3 py-2 text-sm text-muted-foreground shadow-md"
+          data-cy={dataCy ? `${dataCy}-no-match` : "catalog-search-no-match"}
+        >
+          {t("component.catalog-search.noMatch")}
+        </div>
+      )}
       {expanded && (
         <div
           id={listId}

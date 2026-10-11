@@ -11,11 +11,7 @@ import {
   normalizeRevenuePeriod,
   resolveRevenueSettings,
 } from '@/modules/company/revenue-basis/resolve-revenue-basis';
-import {
-  normalizeDueDays,
-  normalizeDueMode,
-  resolvePaymentTerms,
-} from '@/modules/company/payment-terms/resolve-payment-terms';
+import { normalizeDueDays, normalizeDueMode } from '@/modules/company/payment-terms/resolve-payment-terms';
 import { MailTemplateType, Prisma, WebhookEvent } from '../../../prisma/generated/prisma/client';
 
 import { WebhookDispatcherService } from '../webhooks/webhook-dispatcher.service';
@@ -55,6 +51,7 @@ import { withSeatReservation } from '@/modules/billing/seat-sync';
 import { syncCompanyMemberOnMembershipChange } from '@/modules/billing/member-sync';
 import { syncPolarCustomerOnCompanyChange } from '@/modules/billing/customer-sync';
 import prisma from '@/prisma/prisma.service';
+import { loadPaymentTerms } from '@/modules/company/payment-terms/load-payment-terms';
 
 /**
  * One SYSTEM email template, as this module's settings routes hand it over — the signature request and
@@ -270,22 +267,7 @@ export class CompanyService {
   }
 
   async getPaymentTerms(companyId: string) {
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      select: {
-        quoteDueDays: true,
-        quoteDueMode: true,
-        invoiceDueDays: true,
-        invoiceDueMode: true,
-        countryCode: true,
-        country: true,
-      },
-    });
-    if (!company) {
-      throw new NotFoundException(`Company "${companyId}" not found.`);
-    }
-    const countryCode = company.countryCode || guessCountryCode(company.country ?? undefined) || '';
-    return resolvePaymentTerms({ ...company, countryCode });
+    return loadPaymentTerms(companyId);
   }
 
   private async upsertPartyIdentifiers(

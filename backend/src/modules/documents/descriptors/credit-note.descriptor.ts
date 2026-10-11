@@ -1,6 +1,7 @@
 import { Currency } from '../../../../prisma/generated/prisma/client';
 import { transitionsAvailableWhen } from './lifecycle';
 import { DocumentActionTransition, DocumentTypeDescriptor } from './types';
+import { DOCUMENT_LINE_PREFILL, documentLineFields } from './document-lines';
 
 /** Same reused, un-invented list as the quote's and the invoice's — see quote.descriptor.ts. */
 const CURRENCY_OPTIONS = Object.values(Currency).map((code) => ({ value: code, label: code }));
@@ -333,48 +334,13 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         kind: 'array',
         label: 'Lines',
         required: false,
-        // See this file's own header, "Two shapes, one type", for why this deliberately carries no
-        // `min` here despite a FREE credit note needing at least one row — that floor is enforced by
-        // `credit-note-actions.ts#assertCreditNoteAmountSourceIsUnambiguous`, not this descriptor.
+        // No `min`: a FREE credit note needs at least one row, enforced by
+        // credit-note-actions.ts#assertCreditNoteAmountSourceIsUnambiguous instead.
         helpText:
-          'Free-amount lines for a credit note that corrects no particular invoice — quantity × unit ' +
-          'price × VAT rate, exactly like an invoice\'s own lines. Leave empty once "Invoice" is set; ' +
-          'use "Corrected lines" instead.',
-        fields: [
-          {
-            key: 'description',
-            kind: 'text',
-            label: 'Designation',
-            required: true,
-          },
-          {
-            key: 'quantity',
-            kind: 'number',
-            label: 'Quantity',
-            required: true,
-            min: 0,
-          },
-          {
-            key: 'unitPrice',
-            kind: 'money',
-            label: 'Unit price',
-            required: true,
-            min: 0,
-            currencyField: 'currency',
-          },
-          {
-            // See invoice.descriptor.ts's own `lines.vatRate` comment — same catalog, same convention,
-            // filled per company by descriptors/company-view.ts, never here.
-            key: 'vatRate',
-            kind: 'select',
-            label: 'VAT rate',
-            required: true,
-            options: [],
-            allowCustomValue: true,
-            usesVatRateCatalog: true,
-            helpText: 'The VAT rate that applies to this line.',
-          },
-        ],
+          'Free-amount lines for a credit note that corrects no particular invoice. Leave empty once ' +
+          '"Invoice" is set; use "Corrected lines" instead.',
+        prefillFrom: DOCUMENT_LINE_PREFILL,
+        fields: documentLineFields({ required: true, vatRateRequired: true, vatRateCatalog: true }),
       },
     ],
     actions: [

@@ -138,6 +138,7 @@ const FR: PdfChromeStrings = {
   no: 'Non',
   suggestedValueLabels: unitLabels([
     'Pièce',
+    'Unité',
     'Heure',
     'Jour',
     'Semaine',
@@ -176,6 +177,7 @@ const IT: PdfChromeStrings = {
   no: 'No',
   suggestedValueLabels: unitLabels([
     'Pezzo',
+    'Unità',
     'Ora',
     'Giorno',
     'Settimana',
@@ -214,6 +216,7 @@ const PL: PdfChromeStrings = {
   no: 'Nie',
   suggestedValueLabels: unitLabels([
     'Sztuka',
+    'Jednostka',
     'Godzina',
     'Dzień',
     'Tydzień',
@@ -252,6 +255,7 @@ const DE: PdfChromeStrings = {
   no: 'Nein',
   suggestedValueLabels: unitLabels([
     'Stück',
+    'Einheit',
     'Stunde',
     'Tag',
     'Woche',
@@ -290,6 +294,7 @@ const PT: PdfChromeStrings = {
   no: 'Não',
   suggestedValueLabels: unitLabels([
     'Peça',
+    'Unidade',
     'Hora',
     'Dia',
     'Semana',

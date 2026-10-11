@@ -1006,6 +1006,84 @@
             }
           }
         ]
+      },
+      {
+        "typeId": "quote",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services — used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "credit-note",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services — used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "received-invoice",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services — used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
       }
     ],
     "notes": "France's FIRST real field-overlay file — see this directory's own `data/all.ts` header for why it shipped empty until now. Adds `supplyType` as an OPTIONAL 'select' subfield of `invoice.lines`, consumed by `formats/semantic/business-process.ts#resolveFrenchBusinessProcessCode` (via `formats/shared-build.ts#extractLines`) to derive BT-23's own goods/services/mixed category (CGI ann. II art. 242 nonies A, I, 8° bis — see `content-requirements/data/fr.json` for the sourced, dated citation and the date this becomes binding). A LINE subfield, not a document-level field: BT-23's own category genuinely depends on what each line actually contains (a mixed invoice derives 'mixte' automatically the moment both values appear across its lines), which a single document-wide toggle could not express without asking the user to pre-summarize their own invoice. Deliberately OPTIONAL — a French invoice with no line declaring this still builds (M1, the value that asserts nothing false about the content, per `business-process.ts`'s own documented default); this field only lets a seller be MORE precise (B1/S1) when they choose to say so, never forces a new required field onto an existing workflow. Labels are plain data (see `descriptors/types.ts`'s own comment on `DocumentTypeDescriptor.label`: the frontend renders `field.label`/`option.label` directly, never through `t()`), so this needed no i18n locale entry — consistent with every other field label already in `invoice.descriptor.ts`."
@@ -1064,6 +1142,15 @@
       "kind": "legal",
       "sourceText": "Code de commerce, art. L. 441-10, I: \"Le délai convenu entre les parties pour régler les sommes dues ne peut dépasser soixante jours après la date d'émission de la facture. Par dérogation, un délai maximal de quarante-cinq jours fin de mois après la date d'émission de la facture peut être convenu entre les parties, sous réserve que ce délai soit expressément stipulé par contrat et qu'il ne constitue pas un abus manifeste à l'égard du créancier.\"",
       "sourceCheckedAt": "2026-10-05"
+    },
+    "defaultTerm": {
+      "days": 30,
+      "provenance": {
+        "kind": "legal",
+        "sourceText": "Code de commerce, art. L. 441-10, I, first paragraph: \"Sauf dispositions contraires figurant aux conditions de vente ou convenues entre les parties, le délai de règlement des sommes dues ne peut dépasser trente jours après la date de réception des marchandises ou d'exécution de la prestation demandée.\"",
+        "sourceCheckedAt": "2026-10-11"
+      },
+      "notes": "Read at codes.droit.org (Code de commerce PDF). The law counts from receipt of the goods or performance of the service; the invoice date is used as the closest date the invoice itself carries."
     },
     "notes": "Read directly at codes.droit.org (Code de commerce PDF, https://codes.droit.org/PDF/Code%20de%20commerce.pdf). Absent a contrary agreement the term cannot exceed thirty days after receipt of the goods or performance of the service (first paragraph of the same article). A periodic invoice (CGI art. 289, I, 3) is capped at forty-five days net, which this fact does not model."
   }

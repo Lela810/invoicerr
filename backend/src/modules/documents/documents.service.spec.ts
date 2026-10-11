@@ -21,6 +21,10 @@ import * as renderInstancePdf from './rendering/render-instance-pdf';
 import { TransportRegistry } from './transports/transport-registry';
 
 vi.mock('./persistence');
+// The new invoice's default due date reads the company row, which these unit tests do not create.
+vi.mock('@/modules/company/payment-terms/load-payment-terms', () => ({
+  defaultInvoiceDueDate: vi.fn(async () => undefined),
+}));
 // The quote's "send" now renders a PDF and attaches it (actions/send-document-email.ts) — mocked at
 // its own entry point for the exact same reason `./numbering/take-number` right below already is:
 // this file is about the generic action machinery, not PDF rendering or Puppeteer (see

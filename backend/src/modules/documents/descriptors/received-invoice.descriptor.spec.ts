@@ -1,3 +1,4 @@
+import { buildInvoiceDescriptor } from './invoice.descriptor';
 import { DocumentTypeRegistry } from './type-registry';
 import { buildReceivedInvoiceDescriptor } from './received-invoice.descriptor';
 
@@ -73,15 +74,15 @@ describe('received-invoice.descriptor — passes validateLifecycle and has the d
     expect(supplierClient?.required).toBe(false);
   });
 
-  it('"lines" reuses the array field kind, four subfields, no min — an enrichment, never a new requirement', () => {
+  it('"lines" has the same subfields as an invoice line, none required, no min', () => {
     const descriptor = buildReceivedInvoiceDescriptor();
     const lines = descriptor.fields.find((f) => f.key === 'lines');
+    const invoiceLines = buildInvoiceDescriptor().fields.find((f) => f.key === 'lines');
     expect(lines?.kind).toBe('array');
     expect(lines?.required).toBe(false);
     expect(lines?.min).toBeUndefined();
-    expect(lines?.fields?.map((f) => f.key).sort()).toEqual(
-      ['description', 'quantity', 'unitPrice', 'vatRate'].sort(),
-    );
+    expect(lines?.fields?.map((f) => f.key)).toEqual(invoiceLines?.fields?.map((f) => f.key));
+    expect(lines?.fields?.some((f) => f.required)).toBe(false);
   });
 
   it('"lines[].vatRate" never uses this company\'s own VAT-rate catalog — the supplier\'s rate may be foreign', () => {
@@ -158,6 +159,5 @@ describe('received-invoice.descriptor: catalog assist on lines', () => {
 
   it('never maps articleId, so a received invoice line cannot be attributed to stock', () => {
     expect(Object.keys(lines()?.prefillFrom?.map ?? {})).not.toContain('articleId');
-    expect(lines()?.fields?.map((f) => f.key)).not.toContain('articleId');
   });
 });

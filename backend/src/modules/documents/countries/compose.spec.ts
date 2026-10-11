@@ -56,6 +56,7 @@ describe('countries/compose: section coverage per country (pinned on purpose, se
         'countryFields',
         'b2gRouting',
         'companyLookup',
+        'paymentTerms',
       ],
       DZ: [
         'policy',
@@ -98,6 +99,7 @@ describe('countries/compose: section coverage per country (pinned on purpose, se
         'countryFields',
         'b2gRouting',
         'companyLookup',
+        'paymentTerms',
       ],
       PL: [
         'policy',
@@ -112,6 +114,7 @@ describe('countries/compose: section coverage per country (pinned on purpose, se
         'countryFields',
         'b2gRouting',
         'companyLookup',
+        'paymentTerms',
       ],
       PT: [
         'policy',
@@ -128,6 +131,7 @@ describe('countries/compose: section coverage per country (pinned on purpose, se
         'countryFields',
         'b2gRouting',
         'companyLookup',
+        'paymentTerms',
       ],
     });
   });

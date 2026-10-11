@@ -41,13 +41,15 @@ invoice's own send - never at the quote's.
 
 ## Using an article in a line
 
-Each line has a **Designation** field. Start typing in it and the catalog articles whose name matches are listed under the field. Pick one with the mouse, or with the Up and Down arrow keys followed by Enter, and the line is filled with the article's Name, Unit Price and VAT Rate. Escape closes the list. Quantity and every other field stay yours to adjust, and the catalog article itself is left untouched.
+Each line has a **Designation** field. Start typing in it and the catalog articles whose name matches are listed under the field. While the search runs a small spinner shows at the right of the field, and when no article matches the list says so. Pick one with the mouse, or with the Up and Down arrow keys followed by Enter, and the line is filled with the article's Name, Unit Price and VAT Rate. Escape closes the list. Quantity and every other field stay yours to adjust, and the catalog article itself is left untouched.
 
 You never have to pick anything: if you ignore the list, whatever you typed is kept as a free-text line.
 
 ### Received invoices
 
 The lines of a received invoice get the same help: typing in **Designation** and picking a suggestion copies the article's Name, Unit Price and VAT Rate into the line. The line is not linked to the article, so recording a received invoice never changes the article's stock.
+
+A received invoice's lines have the same fields as an invoice line. For a structured invoice (Factur-X, CII or UBL), the **Unit** of each line is read from the supplier's XML as its UN/ECE code and shown under its name in your language.
 
 ## First use
 

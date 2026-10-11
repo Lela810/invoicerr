@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
-import { paymentTermsCapFor } from '@/modules/documents/payment-terms/registry';
+import { defaultPaymentTermFor, paymentTermsCapFor } from '@/modules/documents/payment-terms/registry';
 
 export type DueDateMode = 'net' | 'endOfMonth';
 
@@ -19,6 +19,8 @@ export interface ResolvedPaymentTerms {
   invoice: DueDateTerm | null;
   /** `null` for a country with no known cap. */
   cap: PaymentTermCap | null;
+  /** The country's term for an invoice when the company set none, from the country's own file. */
+  countryInvoiceDefault: DueDateTerm | null;
   /** Per document type: the configured term is longer than the country's cap. Never blocks a save. */
   exceedsCap: { quote: boolean; invoice: boolean };
 }
@@ -56,7 +58,34 @@ export function resolvePaymentTerms(company: {
   const cap: PaymentTermCap | null = capFact
     ? { maxNetDays: capFact.maxNetDays, maxEndOfMonthDays: capFact.maxEndOfMonthDays }
     : null;
-  return { quote, invoice, cap, exceedsCap: { quote: exceeds(quote, cap), invoice: exceeds(invoice, cap) } };
+  const countryDefault = defaultPaymentTermFor(company.countryCode ?? '');
+  const countryInvoiceDefault: DueDateTerm | null = countryDefault
+    ? { days: countryDefault.days, mode: 'net' }
+    : null;
+  return {
+    quote,
+    invoice,
+    cap,
+    countryInvoiceDefault,
+    exceedsCap: { quote: exceeds(quote, cap), invoice: exceeds(invoice, cap) },
+  };
+}
+
+/** The term a new invoice's due date is computed from: the company's own, else its country's. */
+export function effectiveInvoiceTerm(terms: ResolvedPaymentTerms): DueDateTerm | null {
+  return terms.invoice ?? terms.countryInvoiceDefault;
+}
+
+/** The due date `term` gives for a calendar `issueDate` ("YYYY-MM-DD", a longer ISO string is cut to
+ *  its day), counted in UTC calendar days. `undefined` when the issue date is not a real day. */
+export function computeDueDate(issueDate: string, term: DueDateTerm): string | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(issueDate);
+  if (!match) return undefined;
+  const due = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + term.days));
+  if (Number.isNaN(due.getTime())) return undefined;
+  const result =
+    term.mode === 'endOfMonth' ? new Date(Date.UTC(due.getUTCFullYear(), due.getUTCMonth() + 1, 0)) : due;
+  return result.toISOString().slice(0, 10);
 }
 
 /** `undefined` leaves the column untouched, `null`/`''` clears it, anything else must be a whole

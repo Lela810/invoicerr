@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -28,6 +29,10 @@ function sourceIdFrom(value: unknown): string | undefined {
   return undefined
 }
 
+function hasSelection(value: unknown): boolean {
+  return Array.isArray(value) && value.length > 0
+}
+
 /** A generic, descriptor-agnostic preview of one source row — this renderer never fetches the source
  *  TYPE's own descriptor (that would couple it to knowing what an "invoice line" looks like), so it
  *  just lists the row's own values in the order the source stored them. */
@@ -50,7 +55,7 @@ function previewRow(data: Record<string, unknown>): string {
  */
 export function RowSelectionField({ field, name, documentTypeId }: FieldRendererProps) {
   const { t } = useTranslation()
-  const { control, watch } = useFormContext()
+  const { control, watch, getValues, setValue } = useFormContext()
   const sourceValue = field.sourceField ? watch(field.sourceField) : undefined
   const sourceId = sourceIdFrom(sourceValue)
   // A credit note's own `correctedLines` is `requiredIfPresent: 'invoice'` (required once THIS same
@@ -61,6 +66,23 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
 
   const { data, isLoading } = useSelectableRows(documentTypeId, field.key, sourceId)
   const rows = data?.rows ?? []
+
+  // Every row of a newly picked source starts checked; a selection that came with the form is kept.
+  const lastSourceId = useRef(sourceId)
+  const selectAllFor = useRef(sourceId && !hasSelection(getValues(name)) ? sourceId : undefined)
+  useEffect(() => {
+    if (sourceId !== lastSourceId.current) {
+      lastSourceId.current = sourceId
+      selectAllFor.current = sourceId
+    }
+    if (!sourceId || selectAllFor.current !== sourceId || !data) return
+    selectAllFor.current = undefined
+    setValue(
+      name,
+      data.rows.map((row) => row.id),
+      { shouldDirty: true, shouldValidate: true },
+    )
+  }, [sourceId, data, name, setValue])
 
   return (
     <FormField

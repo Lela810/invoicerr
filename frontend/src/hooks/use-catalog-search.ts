@@ -12,7 +12,12 @@ export function useCatalogSearch(entity: string, query: string, enabled: boolean
   const trimmed = query.trim()
   const debounced = useDebouncedValue(trimmed, DEBOUNCE_MS)
   const shouldSearch = enabled && debounced !== ""
-  const { data } = useReferenceSearch(shouldSearch ? entity : undefined, debounced)
+  const { data, isFetching } = useReferenceSearch(shouldSearch ? entity : undefined, debounced)
+  const current = shouldSearch && debounced === trimmed
 
-  return { options: shouldSearch && debounced === trimmed ? (data ?? []) : [] }
+  return {
+    options: current ? (data ?? []) : [],
+    loading: current && isFetching,
+    noMatch: current && !isFetching && data !== undefined && data.length === 0,
+  }
 }

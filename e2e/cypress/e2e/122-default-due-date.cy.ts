@@ -2,7 +2,8 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
 
 /**
  * The company's default due date for new quotes and invoices: filled from the issue date, kept when
- * the user edits it by hand, blank when no default is configured. Documents are created through the
+ * the user edits it by hand. With no default configured, an invoice falls back to the country's
+ * default term and a quote stays blank. Documents are created through the
  * create wizard; what was PERSISTED is read back through the API.
  */
 const api = Cypress.env("apiUrl");
@@ -46,8 +47,7 @@ function fillOneLineAndReachRecap(typeId: "quote" | "invoice") {
 	typeInLine("quantity", "1");
 	typeInLine("unitPrice", "100");
 	if (typeId === "invoice") {
-		// Only the invoice requires a unit and a VAT rate on its lines.
-		typeInLine("unit", "unit");
+		// Only the invoice requires a VAT rate on its lines.
 		cy.get('[data-cy="document-field-lines-row-0"] [data-cy="document-field-vatRate-input"] button')
 			.first()
 			.scrollIntoView()
@@ -148,11 +148,26 @@ describe("Default due date", () => {
 		});
 	});
 
-	it("leaves the due date blank when no default is configured", () => {
+	it("falls back to the country's default term for an invoice when no default is configured", () => {
 		configureTerms({});
 		openCreateWizard("invoice");
 		cy.pickDate('[data-cy="document-field-issueDate-input"]', "2026-10-01");
-		cy.get('[data-cy="document-field-dueDate-input"]').invoke("text").should("not.match", /\d/);
+		pickCurrencyAndContinue();
+		fillOneLineAndReachRecap("invoice");
+		saveAndReadBack("invoice").then((data) => {
+			expect(data.dueDate, "30 days, Code de commerce art. L. 441-10").to.eq("2026-10-31");
+		});
+	});
+
+	it("leaves a quote due date blank when no default is configured", () => {
+		configureTerms({});
+		openCreateWizard("quote");
+		cy.pickDate('[data-cy="document-field-issueDate-input"]', "2026-10-01");
+		pickCurrencyAndContinue();
+		fillOneLineAndReachRecap("quote");
+		saveAndReadBack("quote").then((data) => {
+			expect(data.dueDate).to.be.undefined;
+		});
 	});
 
 	it("saves the terms from Settings and warns, without blocking, above the legal cap", () => {

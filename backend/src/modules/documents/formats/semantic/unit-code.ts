@@ -1,65 +1,12 @@
 /**
- * Maps the invoice line's `unit` (`invoice.descriptor.ts`'s own field: a free-text input that
- * suggests UN/ECE Rec20 codes, never a closed list; see that file's header) to a UN/ECE Recommendation N°20 unit-of-measure code.
- *
- * ## A real pitfall, found empirically, not assumed
- *
- * The vendored EN 16931 Schematron itself does NOT constrain `unitCode`'s vocabulary (checked before
- * writing this file — only presence is required, BR-23). But `@e-invoice-eu/core`'s OWN internal
- * ajv schema DOES: it rejects any `cbc:InvoicedQuantity/@unitCode` that is not a member of its
- * embedded UN/ECE Rec20 code list, with `must be equal to one of the allowed values` and several
- * hundred candidates — discovered by actually calling `generate()` with the descriptor's own
- * example unit strings ("hour", "day") before writing this file, not assumed from reading the old
- * code. `invoice.descriptor.ts`'s own header explicitly reserves the freedom to add "a closed
- * `options` list (or a dedicated field kind)" once a real consumer needs one — this IS that
- * consumer, and this file is the adapter, not a change to the descriptor's own field.
- *
- * This is a BEST-EFFORT mapping for the descriptor's own suggested examples ("hour", "day", "kg",
- * "unit" — see that field's `helpText`) plus a few more common ones, matched case-insensitively.
- * Anything unrecognized falls back to 'C62' ("one" / piece — UN/ECE Rec20's own generic "unit"
- * code), the same fallback the old, removed engine used for anything it did not have a dedicated
- * code for (`invoice-rendering.service.ts`'s own line-building code, git tag
- * `avant-refonte-documents`) — a defensible default, never a fabricated precision the user's own
- * free text did not actually express.
+ * A document line stores its unit as a UN/ECE Recommendation N°20 code when one was picked, or as
+ * the free text typed. EN 16931 requires a code on every line (BT-130) and `@e-invoice-eu/core`
+ * rejects any value outside the Rec20 list, so free text is exported as C62 ("one").
  */
-const UNIT_CODES: Readonly<Record<string, string>> = {
-  hour: 'HUR',
-  hours: 'HUR',
-  day: 'DAY',
-  days: 'DAY',
-  week: 'WEE',
-  weeks: 'WEE',
-  month: 'MON',
-  months: 'MON',
-  year: 'ANN',
-  years: 'ANN',
-  unit: 'C62',
-  units: 'C62',
-  piece: 'C62',
-  pieces: 'C62',
-  kg: 'KGM',
-  kilogram: 'KGM',
-  kilograms: 'KGM',
-  g: 'GRM',
-  gram: 'GRM',
-  grams: 'GRM',
-  l: 'LTR',
-  litre: 'LTR',
-  litres: 'LTR',
-  liter: 'LTR',
-  liters: 'LTR',
-  m: 'MTR',
-  meter: 'MTR',
-  meters: 'MTR',
-  metre: 'MTR',
-  metres: 'MTR',
-  km: 'KMT',
-  set: 'SET',
-  box: 'BX',
-};
 
-/** The Rec20 codes the line's unit input suggests, in display order. */
+/** The Rec20 codes the line's unit field offers, in display order. */
 export const SUGGESTED_UNIT_CODES = [
+  'H87',
   'C62',
   'HUR',
   'DAY',
@@ -75,11 +22,12 @@ export const SUGGESTED_UNIT_CODES = [
   'BX',
 ] as const;
 
-const KNOWN_REC20_CODES: ReadonlySet<string> = new Set(Object.values(UNIT_CODES));
+export type SuggestedUnitCode = (typeof SUGGESTED_UNIT_CODES)[number];
 
 /** English labels, the fallback for a locale with no translation of its own. */
-export const SUGGESTED_UNIT_LABELS: Readonly<Record<(typeof SUGGESTED_UNIT_CODES)[number], string>> = {
-  C62: 'Piece',
+export const SUGGESTED_UNIT_LABELS: Readonly<Record<SuggestedUnitCode, string>> = {
+  H87: 'Piece',
+  C62: 'Unit',
   HUR: 'Hour',
   DAY: 'Day',
   WEE: 'Week',
@@ -94,7 +42,128 @@ export const SUGGESTED_UNIT_LABELS: Readonly<Record<(typeof SUGGESTED_UNIT_CODES
   BX: 'Box',
 };
 
-export function unitCodeFor(unit: string): string {
+/**
+ * Free text that names exactly one unit, in the languages the product ships in, matched trimmed and
+ * case-insensitively. A word that could mean two units ("m": metre or minute, "t": tonne or day,
+ * "lot") is deliberately absent and stays free text.
+ */
+export const UNAMBIGUOUS_UNIT_WORDS: Readonly<Record<SuggestedUnitCode, readonly string[]>> = {
+  H87: [
+    'piece',
+    'pieces',
+    'pcs',
+    'pc',
+    'pièce',
+    'pièces',
+    'stück',
+    'stk',
+    'pezzo',
+    'pezzi',
+    'sztuka',
+    'sztuki',
+    'szt',
+    'szt.',
+    'peça',
+    'peças',
+  ],
+  C62: [
+    'unit',
+    'units',
+    'unité',
+    'unités',
+    'einheit',
+    'einheiten',
+    'unità',
+    'jednostka',
+    'unidade',
+    'unidades',
+  ],
+  HUR: [
+    'h',
+    'hr',
+    'hrs',
+    'hour',
+    'hours',
+    'heure',
+    'heures',
+    'stunde',
+    'stunden',
+    'std',
+    'std.',
+    'ora',
+    'ore',
+    'godzina',
+    'godziny',
+    'godzin',
+    'godz.',
+    'hora',
+    'horas',
+  ],
+  DAY: ['day', 'days', 'jour', 'jours', 'tag', 'tage', 'giorno', 'giorni', 'dzień', 'dni', 'dia', 'dias'],
+  WEE: [
+    'week',
+    'weeks',
+    'semaine',
+    'semaines',
+    'woche',
+    'wochen',
+    'settimana',
+    'settimane',
+    'tydzień',
+    'tygodnie',
+    'semana',
+    'semanas',
+  ],
+  MON: ['month', 'months', 'mois', 'monat', 'monate', 'mese', 'mesi', 'miesiąc', 'miesiące', 'mês', 'meses'],
+  ANN: ['year', 'years', 'année', 'années', 'jahr', 'jahre', 'anno', 'anni', 'rok', 'lata', 'ano', 'anos'],
+  KGM: [
+    'kg',
+    'kilogram',
+    'kilograms',
+    'kilogramme',
+    'kilogrammes',
+    'kilogramm',
+    'chilogrammo',
+    'chilogrammi',
+    'kilogramy',
+    'quilograma',
+    'quilogramas',
+  ],
+  GRM: ['g', 'gram', 'grams', 'gramme', 'grammes', 'gramm', 'grammo', 'grammi', 'gramy', 'grama', 'gramas'],
+  LTR: ['l', 'litre', 'litres', 'liter', 'liters', 'litro', 'litri', 'litr', 'litry', 'litros'],
+  MTR: ['metre', 'metres', 'meter', 'meters', 'mètre', 'mètres', 'metro', 'metri', 'metr', 'metry', 'metros'],
+  KMT: [
+    'km',
+    'kilometre',
+    'kilometres',
+    'kilometer',
+    'kilometers',
+    'kilomètre',
+    'kilomètres',
+    'chilometro',
+    'chilometri',
+    'kilometr',
+    'kilometry',
+    'quilómetro',
+    'quilómetros',
+  ],
+  SET: ['set', 'sets', 'satz', 'zestaw', 'zestawy', 'conjunto', 'conjuntos'],
+  BX: ['box', 'boxes', 'boîte', 'boîtes', 'scatola', 'scatole', 'pudełko', 'pudełka', 'caixa', 'caixas'],
+};
+
+const SUGGESTED: ReadonlySet<string> = new Set(SUGGESTED_UNIT_CODES);
+
+const CODE_BY_WORD: ReadonlyMap<string, SuggestedUnitCode> = new Map(
+  SUGGESTED_UNIT_CODES.flatMap((code) => UNAMBIGUOUS_UNIT_WORDS[code].map((word) => [word, code] as const)),
+);
+
+/** The Rec20 code a stored unit stands for, or undefined when it is free text naming no single unit. */
+export function knownUnitCode(unit: string): SuggestedUnitCode | undefined {
   const trimmed = unit.trim();
-  return UNIT_CODES[trimmed.toLowerCase()] ?? (KNOWN_REC20_CODES.has(trimmed) ? trimmed : 'C62');
+  if (SUGGESTED.has(trimmed)) return trimmed as SuggestedUnitCode;
+  return CODE_BY_WORD.get(trimmed.toLowerCase());
+}
+
+export function unitCodeFor(unit: string): string {
+  return knownUnitCode(unit) ?? 'C62';
 }

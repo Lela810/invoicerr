@@ -1,11 +1,18 @@
 import { defaultComposedCountryCatalog } from '@/modules/documents/countries/registry';
 import { assertValidPaymentTerms } from '@/modules/documents/payment-terms/schema';
 
-import { normalizeDueDays, normalizeDueMode, resolvePaymentTerms } from './resolve-payment-terms';
+import {
+  computeDueDate,
+  effectiveInvoiceTerm,
+  normalizeDueDays,
+  normalizeDueMode,
+  resolvePaymentTerms,
+} from './resolve-payment-terms';
 
 const countries = defaultComposedCountryCatalog.countries();
-const CAPPED = countries.find((cc) => defaultComposedCountryCatalog.get(cc)?.paymentTerms) as string;
-const UNCAPPED = countries.filter((cc) => !defaultComposedCountryCatalog.get(cc)?.paymentTerms);
+const hasCap = (cc: string) => defaultComposedCountryCatalog.get(cc)?.paymentTerms?.maxNetDays !== undefined;
+const CAPPED = countries.find(hasCap) as string;
+const UNCAPPED = countries.filter((cc) => !hasCap(cc));
 
 describe('resolvePaymentTerms', () => {
   it('resolves nothing for a company that never configured it', () => {
@@ -69,6 +76,39 @@ describe('resolvePaymentTerms cap, read from the country data', () => {
   });
 });
 
+describe('country default invoice term', () => {
+  it.each(['DE', 'FR', 'IT', 'PL', 'PT'])('%s: 30 days net when the company set none', (countryCode) => {
+    const resolved = resolvePaymentTerms({ countryCode });
+    expect(resolved.invoice).toBeNull();
+    expect(resolved.countryInvoiceDefault).toEqual({ days: 30, mode: 'net' });
+    expect(effectiveInvoiceTerm(resolved)).toEqual({ days: 30, mode: 'net' });
+  });
+
+  it("prefers the company's own term", () => {
+    const resolved = resolvePaymentTerms({ countryCode: 'FR', invoiceDueDays: 45 });
+    expect(effectiveInvoiceTerm(resolved)).toEqual({ days: 45, mode: 'net' });
+  });
+
+  it('has no default for a country whose file declares none', () => {
+    expect(effectiveInvoiceTerm(resolvePaymentTerms({ countryCode: 'XX' }))).toBeNull();
+  });
+});
+
+describe('computeDueDate', () => {
+  it.each([
+    ['2026-10-01', { days: 30, mode: 'net' as const }, '2026-10-31'],
+    ['2026-12-20', { days: 30, mode: 'net' as const }, '2027-01-19'],
+    ['2026-10-15', { days: 30, mode: 'endOfMonth' as const }, '2026-11-30'],
+    ['2026-10-11T23:30:00.000Z', { days: 45, mode: 'net' as const }, '2026-11-25'],
+  ])('%s + %o = %s', (issueDate, term, expected) => {
+    expect(computeDueDate(issueDate, term)).toBe(expected);
+  });
+
+  it('gives nothing for a date that is not a day', () => {
+    expect(computeDueDate('soon', { days: 30, mode: 'net' })).toBeUndefined();
+  });
+});
+
 describe('assertValidPaymentTerms', () => {
   const provenance = { kind: 'legal' as const, sourceText: 'text', sourceCheckedAt: '2026-01-01' };
 
@@ -76,6 +116,22 @@ describe('assertValidPaymentTerms', () => {
     expect(() =>
       assertValidPaymentTerms({ countryCode: 'ZZ', maxNetDays: 60, maxEndOfMonthDays: 45, provenance }, 'x'),
     ).not.toThrow();
+  });
+
+  it('accepts a sourced default term without a cap, and refuses an unsourced one or an empty section', () => {
+    expect(() =>
+      assertValidPaymentTerms({ countryCode: 'ZZ', defaultTerm: { days: 30, provenance } }, 'x'),
+    ).not.toThrow();
+    expect(() =>
+      assertValidPaymentTerms(
+        { countryCode: 'ZZ', defaultTerm: { days: 30, provenance: undefined as never } },
+        'x',
+      ),
+    ).toThrow(/provenance/);
+    expect(() =>
+      assertValidPaymentTerms({ countryCode: 'ZZ', defaultTerm: { days: 0, provenance } }, 'x'),
+    ).toThrow(/defaultTerm.days/);
+    expect(() => assertValidPaymentTerms({ countryCode: 'ZZ' }, 'x')).toThrow(/neither/);
   });
 
   it('refuses a non-positive cap and a missing source', () => {

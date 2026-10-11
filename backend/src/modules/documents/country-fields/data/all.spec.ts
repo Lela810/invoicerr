@@ -44,6 +44,19 @@ function supplyTypeFieldOf(countryCode: string) {
   return applied.find((f) => f.key === 'lines')!.fields!.find((f) => f.key === 'supplyType');
 }
 
+const LINE_DOCUMENT_TYPES = ['invoice', 'quote', 'credit-note', 'received-invoice'];
+
+/** Every non-invoice overlay adds exactly the invoice's own line operations, so a line keeps its fields
+ *  from one document to the next. */
+function expectSameLineOverlays(file: (typeof ALL_COUNTRY_FIELD_OVERLAY_FILES)[number]) {
+  const invoiceLineOps = file.overlays
+    .find((o) => o.typeId === 'invoice')!
+    .operations.filter((op) => op.path === 'lines');
+  for (const overlay of file.overlays.filter((o) => o.typeId !== 'invoice')) {
+    expect(overlay.operations, overlay.typeId).toEqual(invoiceLineOps);
+  }
+}
+
 describe('country-fields/data — five countries ship a real overlay', () => {
   it('ships exactly the five wired countries today', () => {
     expect(ALL_COUNTRY_FIELD_OVERLAY_FILES.map((f) => f.countryCode).sort()).toEqual([
@@ -85,9 +98,19 @@ describe('country-fields/data — five countries ship a real overlay', () => {
     expect(new Set(shapes).size).toBe(1);
   });
 
-  it('France does not touch any other document type', () => {
+  it('every country gives quotes, credit notes and received invoices the same line overlay as its invoices', () => {
+    for (const file of ALL_COUNTRY_FIELD_OVERLAY_FILES.filter((f) => f.overlays.length > 0)) {
+      expect(file.overlays.map((o) => o.typeId).sort(), file.countryCode).toEqual(
+        [...LINE_DOCUMENT_TYPES].sort(),
+      );
+      expectSameLineOverlays(file);
+    }
+  });
+
+  it('France gives every document with lines the same line fields, and touches nothing else', () => {
     const fr = ALL_COUNTRY_FIELD_OVERLAY_FILES.find((f) => f.countryCode === 'FR')!;
-    expect(fr.overlays.map((o) => o.typeId)).toEqual(['invoice']);
+    expect(fr.overlays.map((o) => o.typeId)).toEqual(LINE_DOCUMENT_TYPES);
+    expectSameLineOverlays(fr);
   });
 
   it("adds an OPTIONAL top-level 'text' buyerReference field to invoice (BT-10 / Leitweg-ID)", () => {
@@ -106,9 +129,10 @@ describe('country-fields/data — five countries ship a real overlay', () => {
     );
   });
 
-  it('Germany does not touch any other document type', () => {
+  it('Germany gives every document with lines the same line fields, and touches nothing else', () => {
     const de = ALL_COUNTRY_FIELD_OVERLAY_FILES.find((f) => f.countryCode === 'DE')!;
-    expect(de.overlays.map((o) => o.typeId)).toEqual(['invoice']);
+    expect(de.overlays.map((o) => o.typeId)).toEqual(LINE_DOCUMENT_TYPES);
+    expectSameLineOverlays(de);
   });
 
   it("adds an OPTIONAL top-level 'text' correctionReason field to invoice, conditionally required on correctsInvoiceId (never unconditionally required)", () => {
@@ -128,9 +152,10 @@ describe('country-fields/data — five countries ship a real overlay', () => {
     );
   });
 
-  it('Poland does not touch any other document type', () => {
+  it('Poland gives every document with lines the same line fields, and touches nothing else', () => {
     const pl = ALL_COUNTRY_FIELD_OVERLAY_FILES.find((f) => f.countryCode === 'PL')!;
-    expect(pl.overlays.map((o) => o.typeId)).toEqual(['invoice']);
+    expect(pl.overlays.map((o) => o.typeId)).toEqual(LINE_DOCUMENT_TYPES);
+    expectSameLineOverlays(pl);
   });
 
   it('the merged field, once applied, is genuinely conditional end to end — validateAgainstDescriptor (the real gate) only refuses a missing correctionReason once correctsInvoiceId is set', () => {

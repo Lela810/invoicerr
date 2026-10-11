@@ -55,3 +55,11 @@ files, and two pages already say it without anyone retyping it:
 To widen that coverage, or to add a country of your own, see [Adding a
 country](../adding-a-country.md): the catalogue files listed on every other page in this directory
 are the ones Italy already has.
+
+## Default payment term
+
+The `paymentTerms.defaultTerm` entry of `countries/data/it.json` holds the term that applies when
+the parties agreed none: 30 days, from D.Lgs. 231/2002, art. 4, comma 2, lettera a): 30 days from the debtor's receipt of the invoice. An invoice gets its due date from it when the company
+has no default term of its own (see [Payment terms](../../user-guide/settings/payment-terms.md)). The
+statute counts from receipt, which the application cannot know, so the days are counted from the
+invoice date.

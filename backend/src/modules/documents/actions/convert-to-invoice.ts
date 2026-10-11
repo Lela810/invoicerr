@@ -35,12 +35,9 @@ import { createDraftInvoiceFromQuote } from './quote-to-invoice';
  *  - `issueDate`: set to TODAY, not the quote's own issue date — the invoice is issued the day it is
  *    actually raised, which is the moment this handler runs, not whenever the quote happened to be
  *    written.
- *  - `dueDate`: deliberately left UNSET. A quote's due date is an optional validity window; an
- *    invoice's is its payment deadline — two different things this handler has no basis to invent a
- *    value for. The invoice descriptor requires it, but this call bypasses that descriptor's
- *    validation entirely (see below), so an unset `dueDate` here means exactly what it should: a
- *    draft the user still has to finish, the same way "duplicate" (duplicate-extension.ts) can clone
- *    a record without DocumentsService.runAction ever re-validating the copy.
+ *  - `dueDate`: the invoice date plus the company's default term, or its country's when the company
+ *    has none (quote-to-invoice.ts#withDefaultDueDate). Never the quote's own due date, which is a
+ *    validity window, not a payment deadline.
  *
  * Bypasses validateAgainstDescriptor for the CREATED invoice on purpose: DocumentsService.runAction
  * only ever validates `payload.data` against the ACTING type's own descriptor (here, the quote's) —

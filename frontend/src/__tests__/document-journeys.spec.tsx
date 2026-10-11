@@ -541,8 +541,9 @@ describe("Credit note — the mandatory reference, the locked currency, the cred
     // document-create-dialog.tsx's `buildFieldGroups`), reached via "Continue".
     fireEvent.click(screen.getByTestId("document-create-dialog-continue"))
 
-    // The corrected line, picked from the invoice's own lines (rowSelection, live off `invoice`).
-    fireEvent.click(await screen.findByTestId("document-field-correctedLines-row-line-1-checkbox"))
+    // Every line of the picked invoice starts checked (rowSelection, live off `invoice`).
+    const lineCheckbox = await screen.findByTestId("document-field-correctedLines-row-line-1-checkbox")
+    await waitFor(() => expect(lineCheckbox).toBeChecked())
 
     // No "Options" step here (every remaining field is already placed) — "Continue" on "Lines" lands
     // straight on "Summary", whose primary button is the wizard's actual save. `findByTestId`, not

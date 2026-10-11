@@ -121,6 +121,8 @@ const { decodePDFRawStream } = require('pdf-lib/cjs/core');
 export interface ExtractedInvoiceLine {
   description?: string;
   quantity?: number;
+  /** BT-130, the supplier's UN/ECE Rec20 unit code. */
+  unit?: string;
   unitPrice?: number;
   /** RAW text (e.g. "20"), not a parsed number — see this file's own header for why. */
   vatRate?: string;
@@ -244,6 +246,10 @@ function textOf(root: XmlNode, ...tagNames: string[]): string | undefined {
   return undefined;
 }
 
+function unitCodeOf(root: XmlNode, tagName: string): string | undefined {
+  return firstByLocalName(root, tagName)?.getAttribute('unitCode')?.trim() || undefined;
+}
+
 function toFloat(s: string | undefined): number | undefined {
   if (s === undefined) return undefined;
   const n = parseFloat(s.replace(',', '.'));
@@ -313,6 +319,7 @@ function parseCiiLines(root: XmlElement): ExtractedInvoiceLine[] {
     const description = productBlock ? textOf(productBlock, 'Name') : undefined;
 
     const quantity = toFloat(textOf(line, 'BilledQuantity'));
+    const unit = unitCodeOf(line, 'BilledQuantity');
 
     const priceBlock = firstByLocalName(line, 'NetPriceProductTradePrice');
     const unitPrice = toFloat(priceBlock ? textOf(priceBlock, 'ChargeAmount') : undefined);
@@ -320,7 +327,7 @@ function parseCiiLines(root: XmlElement): ExtractedInvoiceLine[] {
     const taxBlock = firstByLocalName(line, 'ApplicableTradeTax');
     const vatRate = taxBlock ? textOf(taxBlock, 'RateApplicablePercent') : undefined;
 
-    return { description, quantity, unitPrice, vatRate };
+    return { description, quantity, ...(unit ? { unit } : {}), unitPrice, vatRate };
   });
 }
 
@@ -383,6 +390,7 @@ function parseUblLines(root: XmlElement): ExtractedInvoiceLine[] {
     const description = itemBlock ? textOf(itemBlock, 'Name') : undefined;
 
     const quantity = toFloat(textOf(line, 'InvoicedQuantity'));
+    const unit = unitCodeOf(line, 'InvoicedQuantity');
 
     const priceBlock = firstByLocalName(line, 'Price');
     const unitPrice = toFloat(priceBlock ? textOf(priceBlock, 'PriceAmount') : undefined);
@@ -390,7 +398,7 @@ function parseUblLines(root: XmlElement): ExtractedInvoiceLine[] {
     const taxCategoryBlock = itemBlock ? firstByLocalName(itemBlock, 'ClassifiedTaxCategory') : undefined;
     const vatRate = taxCategoryBlock ? textOf(taxCategoryBlock, 'Percent') : undefined;
 
-    return { description, quantity, unitPrice, vatRate };
+    return { description, quantity, ...(unit ? { unit } : {}), unitPrice, vatRate };
   });
 }
 

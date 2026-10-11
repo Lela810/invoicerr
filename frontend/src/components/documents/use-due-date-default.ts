@@ -8,7 +8,8 @@ import { computeDueDate } from "@/lib/due-date"
 const isEmpty = (value: unknown) => value === undefined || value === null || value === ""
 
 /**
- * Fills a NEW quote's or invoice's due date from the company's default terms as soon as the issue
+ * Fills a NEW quote's or invoice's due date from the company's default terms (for an invoice, the
+ * country's default term when the company has none) as soon as the issue
  * date is known, and re-computes it when the issue date changes, until the user has set or cleared
  * the due date themselves. A record that already exists, or a form seeded with a due date, is never
  * touched.
@@ -26,7 +27,8 @@ export function useDueDateDefault(
     fields.some((field) => field.key === "issueDate") &&
     fields.some((field) => field.key === "dueDate")
   const { data: terms } = usePaymentTerms(applicable)
-  const term = applicable ? terms?.[typeId as "quote" | "invoice"] : undefined
+  const ownTerm = applicable ? terms?.[typeId as "quote" | "invoice"] : undefined
+  const term = ownTerm ?? (applicable && typeId === "invoice" ? terms?.countryInvoiceDefault : undefined)
 
   const lastAutoFilled = useRef<string | undefined>(undefined)
   const editedByHand = useRef(!isEmpty(seededDueDate))

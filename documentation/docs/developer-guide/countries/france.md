@@ -27,6 +27,14 @@ reads these two numbers to warn, without blocking, when a company's default term
 Periodic invoices have a shorter cap (45 days net, CGI art. 289, I, 3) that this section does not
 model.
 
+## Default payment term
+
+The `paymentTerms.defaultTerm` entry of `countries/data/fr.json` holds the term that applies when
+the parties agreed none: 30 days, from Code de commerce art. L. 441-10, I, first paragraph: 30 days after receipt of the goods or performance of the service, unless the terms of sale or the parties say otherwise. An invoice gets its due date from it when the company
+has no default term of its own (see [Payment terms](../../user-guide/settings/payment-terms.md)). The
+statute counts from receipt, which the application cannot know, so the days are counted from the
+invoice date.
+
 ## Validate and the PDP mandate
 
 Invoicerr's **Validate** action normally only assigns an invoice's legal number and locks it, with

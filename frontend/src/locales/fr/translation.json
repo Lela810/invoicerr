@@ -2766,7 +2766,8 @@
                             "unit": {
                                 "label": "Unité",
                                 "suggestedValues": {
-                                    "C62": "Pièce",
+                                    "H87": "Pièce",
+                                    "C62": "Unité",
                                     "HUR": "Heure",
                                     "DAY": "Jour",
                                     "WEE": "Semaine",
@@ -2908,6 +2909,25 @@
                             "quantity": {
                                 "label": "Quantité"
                             },
+                            "unit": {
+                                "label": "Unité",
+                                "suggestedValues": {
+                                    "H87": "Pièce",
+                                    "C62": "Unité",
+                                    "HUR": "Heure",
+                                    "DAY": "Jour",
+                                    "WEE": "Semaine",
+                                    "MON": "Mois",
+                                    "ANN": "Année",
+                                    "KGM": "Kilogramme",
+                                    "GRM": "Gramme",
+                                    "LTR": "Litre",
+                                    "MTR": "Mètre",
+                                    "KMT": "Kilomètre",
+                                    "SET": "Lot",
+                                    "BX": "Boîte"
+                                }
+                            },
                             "unitPrice": {
                                 "label": "Prix unitaire"
                             },
@@ -3003,6 +3023,45 @@
                     },
                     "correctedLines": {
                         "label": "Lignes corrigées"
+                    },
+                    "lines": {
+                        "label": "Lignes",
+                        "fields": {
+                            "description": {
+                                "label": "Désignation"
+                            },
+                            "quantity": {
+                                "label": "Quantité"
+                            },
+                            "unit": {
+                                "label": "Unité",
+                                "suggestedValues": {
+                                    "H87": "Pièce",
+                                    "C62": "Unité",
+                                    "HUR": "Heure",
+                                    "DAY": "Jour",
+                                    "WEE": "Semaine",
+                                    "MON": "Mois",
+                                    "ANN": "Année",
+                                    "KGM": "Kilogramme",
+                                    "GRM": "Gramme",
+                                    "LTR": "Litre",
+                                    "MTR": "Mètre",
+                                    "KMT": "Kilomètre",
+                                    "SET": "Lot",
+                                    "BX": "Boîte"
+                                }
+                            },
+                            "unitPrice": {
+                                "label": "Prix unitaire"
+                            },
+                            "vatRate": {
+                                "label": "Taux de TVA"
+                            },
+                            "discountPercent": {
+                                "label": "Remise %"
+                            }
+                        }
                     }
                 },
                 "actions": {
@@ -3109,11 +3168,33 @@
                             "quantity": {
                                 "label": "Quantité"
                             },
+                            "unit": {
+                                "label": "Unité",
+                                "suggestedValues": {
+                                    "H87": "Pièce",
+                                    "C62": "Unité",
+                                    "HUR": "Heure",
+                                    "DAY": "Jour",
+                                    "WEE": "Semaine",
+                                    "MON": "Mois",
+                                    "ANN": "Année",
+                                    "KGM": "Kilogramme",
+                                    "GRM": "Gramme",
+                                    "LTR": "Litre",
+                                    "MTR": "Mètre",
+                                    "KMT": "Kilomètre",
+                                    "SET": "Lot",
+                                    "BX": "Boîte"
+                                }
+                            },
                             "unitPrice": {
                                 "label": "Prix unitaire (hors TVA)"
                             },
                             "vatRate": {
                                 "label": "Taux de TVA"
+                            },
+                            "discountPercent": {
+                                "label": "Remise %"
                             }
                         }
                     }

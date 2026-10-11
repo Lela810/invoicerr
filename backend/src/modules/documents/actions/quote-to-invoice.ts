@@ -1,3 +1,4 @@
+import { defaultInvoiceDueDate } from '@/modules/company/payment-terms/load-payment-terms';
 import { findOwnedDocument, upsertDocument } from '../persistence';
 import { DocumentInstanceResult, ActionResult } from './action-registry';
 
@@ -38,7 +39,7 @@ export async function createDraftInvoiceFromQuote(
   const quote = await findOwnedDocument(companyId, 'quote', documentId);
   const quoteData = (quote.data ?? {}) as Record<string, unknown>;
 
-  const invoiceData = buildInvoiceData(quote, quoteData);
+  const invoiceData = await withDefaultDueDate(companyId, buildInvoiceData(quote, quoteData));
   const invoice = await upsertDocument(companyId, 'invoice', undefined, 'draft', invoiceData);
 
   return {
@@ -46,4 +47,15 @@ export async function createDraftInvoiceFromQuote(
     changed: true,
     message: buildMessage(quote, invoice),
   };
+}
+
+/** Fills the due date of a new invoice from its own issue date and the company's default term (or its
+ *  country's), never from the source document's own dates. */
+export async function withDefaultDueDate(
+  companyId: string,
+  data: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const issueDate = typeof data.issueDate === 'string' ? data.issueDate : undefined;
+  const dueDate = issueDate ? await defaultInvoiceDueDate(companyId, issueDate) : undefined;
+  return dueDate ? { ...data, dueDate } : data;
 }

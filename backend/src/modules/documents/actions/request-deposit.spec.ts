@@ -8,6 +8,10 @@ import * as persistence from '../persistence';
 import { computeDocumentTotals } from '../totals/compute-totals';
 
 vi.mock('../persistence');
+// The new invoice's default due date reads the company row, which these unit tests do not create.
+vi.mock('@/modules/company/payment-terms/load-payment-terms', () => ({
+  defaultInvoiceDueDate: vi.fn(async () => undefined),
+}));
 
 /**
  * The INVOICE's own descriptor, used below to total the invoice this action produces with the very

@@ -82,8 +82,8 @@ const DOCUMENT = {
  *  1600.00) already equal quantity×unitPrice exactly). `vatRate` is the RAW TEXT the generator wrote
  *  ("20"), matching the 'select' field kind's own string convention. */
 const EXPECTED_LINES = [
-  { description: 'Conseil stratégique', quantity: 10, unitPrice: 1200, vatRate: '20' },
-  { description: 'Formation équipe', quantity: 2, unitPrice: 800, vatRate: '20' },
+  { description: 'Conseil stratégique', quantity: 10, unit: 'HUR', unitPrice: 1200, vatRate: '20' },
+  { description: 'Formation équipe', quantity: 2, unit: 'DAY', unitPrice: 800, vatRate: '20' },
 ];
 
 describe('received-invoices/extraction — proven against OUR OWN outbound artifacts', () => {
