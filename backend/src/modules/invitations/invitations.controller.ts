@@ -3,6 +3,7 @@ import { Controller, Get, Post, Delete, Body, Param, Query, BadRequestException 
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { InvitationsService } from './invitations.service';
+import { CanRegisterResponseDto } from './dto/can-register.dto';
 import { ActiveCompany } from '@/decorators/active-company.decorator';
 import { CompanyRole } from '../../../prisma/generated/prisma/client';
 import { Roles } from '@/decorators/roles.decorator';
@@ -32,7 +33,7 @@ export class InvitationsController {
     description: 'Checks whether a given invitation code is valid and allows registration (public).',
   })
   @ApiQuery({ name: 'code', required: false, type: String, description: 'Invitation code to validate' })
-  @ApiResponse({ status: 200, description: 'Registration status retrieved' })
+  @ApiResponse({ status: 200, description: 'Registration status retrieved', type: CanRegisterResponseDto })
   async canRegister(@Query('code') code?: string) {
     return this.invitationsService.canRegister(code);
   }

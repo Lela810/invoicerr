@@ -45,9 +45,11 @@ export default function LoginPage() {
   const backendHealth = useBackendHealth()
   const backendUnavailable = backendHealth === "unavailable"
   const { demoMode } = useDemoMode()
-  const { data: registration } = useRegistrationStatus()
+  const { data: registration, isPending: registrationPending } = useRegistrationStatus()
   // Kept on an invitation-only instance: the sign-up page is where an invitee types their code.
-  const signupClosed = registration?.allowed === false && !registration.requiresCode
+  // Hidden until the server answers, so a closed instance never flashes it; a failed check keeps it.
+  const hideSignupLink =
+    registrationPending || (registration?.allowed === false && !registration.requiresCode)
 
   const [searchParams] = useSearchParams()
   // The direct link a company hands its own people: /auth/sign-in?sso=c_<companyId>. No lookup, no
@@ -120,7 +122,7 @@ export default function LoginPage() {
         <>
           {/* No point offering account creation on an instance where an account can only come from
             an identity provider. */}
-          {!oidcOnly && !signupClosed && (
+          {!oidcOnly && !hideSignupLink && (
             <span className="text-muted-foreground">
               {t("auth.login.noAccount")}{" "}
               <AuthLink href="/auth/sign-up" dataCy="auth-signup-link">

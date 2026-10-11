@@ -20,7 +20,9 @@ function jsonResponse(body: unknown): Response {
   } as Response
 }
 
-function installFetchMock(canRegister: { allowed: boolean; requiresCode: boolean }) {
+type CanRegister = { allowed: boolean; requiresCode: boolean } | "pending" | "error"
+
+function installFetchMock(canRegister: CanRegister) {
   const handlers: Record<string, unknown> = {
     "/api/health": { status: "ok" },
     "/api/legal/documents": { saasMode: false, demoMode: false, documents: [] },
@@ -28,6 +30,12 @@ function installFetchMock(canRegister: { allowed: boolean; requiresCode: boolean
   }
   const fn = vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(typeof input === "string" ? input : input.toString(), "http://localhost")
+    if (url.pathname === "/api/invitations/can-register" && canRegister === "pending") {
+      return new Promise<Response>(() => {})
+    }
+    if (url.pathname === "/api/invitations/can-register" && canRegister === "error") {
+      throw new Error("network down")
+    }
     if (!(url.pathname in handlers)) throw new Error(`Unmocked fetch in test: ${url.pathname}`)
     return jsonResponse(handlers[url.pathname])
   })
@@ -37,14 +45,18 @@ function installFetchMock(canRegister: { allowed: boolean; requiresCode: boolean
 
 function renderSignIn() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return render(
+  render(
     <QueryClientProvider client={client}>
       <MemoryRouter>
         <LoginPage />
       </MemoryRouter>
     </QueryClientProvider>,
   )
+  return client
 }
+
+const registrationSettled = (client: QueryClient) =>
+  waitFor(() => expect(client.getQueryState(["registration", "status"])?.status).not.toBe("pending"))
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -64,14 +76,26 @@ describe("<LoginPage> sign-up link", () => {
   })
 
   it("is hidden once the server says sign-up is closed", async () => {
-    const fetchMock = installFetchMock({ allowed: false, requiresCode: false })
+    installFetchMock({ allowed: false, requiresCode: false })
+    const client = renderSignIn()
+
+    await registrationSettled(client)
+    expect(screen.queryByTestId("auth-signup-link")).not.toBeInTheDocument()
+  })
+
+  it("is not shown before the server has answered, so a closed instance never flashes it", async () => {
+    installFetchMock("pending")
     renderSignIn()
 
-    await waitFor(() =>
-      expect(
-        fetchMock.mock.calls.some(([input]) => String(input).includes("/api/invitations/can-register")),
-      ).toBe(true),
-    )
-    await waitFor(() => expect(screen.queryByTestId("auth-signup-link")).not.toBeInTheDocument())
+    await screen.findByTestId("auth-card")
+    expect(screen.queryByTestId("auth-signup-link")).not.toBeInTheDocument()
+  })
+
+  it("stays offered when the check fails: the server still refuses a closed sign-up itself", async () => {
+    installFetchMock("error")
+    const client = renderSignIn()
+
+    await registrationSettled(client)
+    expect(screen.getByTestId("auth-signup-link")).toBeInTheDocument()
   })
 })
