@@ -43,18 +43,17 @@ describe('migration 20261011100000_document_line_unit_codes', () => {
   let companyId: string;
 
   beforeAll(async () => {
+    const stamp = `unit-migration-${Date.now()}`;
+    const text = {
+      name: stamp,
+      address: stamp,
+      postalCode: stamp,
+      city: stamp,
+      country: stamp,
+      phone: stamp,
+    };
     const company = await prisma.company.create({
-      data: {
-        name: 'Unit migration Co',
-        foundedAt: new Date('2020-01-01'),
-        address: '1 Test Street',
-        postalCode: '00000',
-        city: 'Testville',
-        country: 'France',
-        countryCode: 'FR',
-        phone: '+33000000000',
-        email: `unit-migration-${Date.now()}@example.com`,
-      },
+      data: { ...text, foundedAt: new Date(0), email: `${stamp}@example.com` },
     });
     companyId = company.id;
   });
