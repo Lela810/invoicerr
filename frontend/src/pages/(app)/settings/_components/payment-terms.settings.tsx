@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePaymentTerms, useSavePaymentTerms } from "@/hooks/queries/use-payment-terms"
@@ -68,7 +69,12 @@ function TermSection({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor={`payment-terms-${termKey}-days`}>{t("settings.paymentTerms.form.days")}</Label>
+          <FieldLabel
+            htmlFor={`payment-terms-${termKey}-days`}
+            description={t("settings.paymentTerms.form.daysHint")}
+          >
+            {t("settings.paymentTerms.form.days")}
+          </FieldLabel>
           <Input
             id={`payment-terms-${termKey}-days`}
             type="number"
@@ -79,12 +85,15 @@ function TermSection({
             placeholder={t("settings.paymentTerms.form.daysPlaceholder")}
             value={draft.days}
             aria-invalid={invalid}
+            aria-describedby={`${fieldHelpId(`payment-terms-${termKey}-days`)}${invalid ? ` payment-terms-${termKey}-days-error` : ""}`}
             onChange={(event) => onChange({ ...draft, days: event.target.value })}
             data-cy={`payment-terms-${termKey}-days-input`}
           />
-          <p className="text-xs text-muted-foreground">
-            {invalid ? t("settings.paymentTerms.form.daysInvalid") : t("settings.paymentTerms.form.daysHint")}
-          </p>
+          {invalid && (
+            <p id={`payment-terms-${termKey}-days-error`} className="text-sm font-medium text-destructive">
+              {t("settings.paymentTerms.form.daysInvalid")}
+            </p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`payment-terms-${termKey}-mode`}>{t("settings.paymentTerms.form.mode")}</Label>

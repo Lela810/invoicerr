@@ -668,14 +668,17 @@ describe("Company Settings E2E", () => {
 
 			// Raw catalog helpText (de.json): "German EU VAT number (DE + 9 digits), needed to
 			// qualify as B2B for cross-border VAT treatment." (the source text uses an em dash there).
-			cy.get('[data-cy="company-identifier-VAT-help"]', { timeout: 10000 })
+			cy.get('[data-cy="company-identifier-VAT-help-trigger"]', { timeout: 10000 }).click();
+			cy.get('[data-cy="company-identifier-VAT-help-content"]')
 				.should("be.visible")
 				.and("contain.text", "DE123456789")
 				.and("not.contain.text", "needed to qualify as B2B for cross-border VAT treatment");
 
 			// Raw catalog helpText (de.json): "Commercial register number (Amtsgericht + HRB/HRA,
 			// e.g. HRB 12345 München)"
-			cy.get('[data-cy="company-identifier-LEGAL_ID-help"]')
+			cy.get("body").type("{esc}");
+			cy.get('[data-cy="company-identifier-LEGAL_ID-help-trigger"]').click();
+			cy.get('[data-cy="company-identifier-LEGAL_ID-help-content"]')
 				.should("be.visible")
 				.and("contain.text", "registering court")
 				.and("not.contain.text", "Amtsgericht + HRB/HRA");

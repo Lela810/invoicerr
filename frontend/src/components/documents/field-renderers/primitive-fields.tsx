@@ -6,14 +6,7 @@ import { BetterInput } from "@/components/better-input"
 import { CatalogSearchInput } from "@/components/catalog-search-input"
 import { DatePicker } from "@/components/date-picker"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import SearchSelect from "@/components/search-input"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
@@ -30,13 +23,14 @@ function FieldChrome({
 }: Pick<FieldRendererProps, "field"> & { children: React.ReactNode; note?: string; required?: boolean }) {
   return (
     <FormItem data-cy={`document-field-${field.key}`}>
-      <FormLabel required={required ?? field.required}>{field.label}</FormLabel>
+      <FormLabel
+        required={required ?? field.required}
+        description={[field.helpText, note].filter(Boolean).join("\n\n") || undefined}
+        helpDataCy={`document-field-${field.key}-help`}
+      >
+        {field.label}
+      </FormLabel>
       <FormControl>{children}</FormControl>
-      {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
-      {/* The ONLY caller today is SelectField's own `lockedFromReference`
-          note, kept generic (a plain optional prop, not a `field.lockedFromReference` check inside
-          FieldChrome itself) the same way `helpText` above is generic across every field kind. */}
-      {note && <FormDescription data-cy={`document-field-${field.key}-note`}>{note}</FormDescription>}
       <FormMessage />
     </FormItem>
   )
@@ -351,7 +345,13 @@ export function BooleanField({ field, name }: FieldRendererProps) {
           data-cy={`document-field-${field.key}`}
           className="flex flex-row items-center justify-between rounded-md border p-3"
         >
-          <FormLabel required={field.required}>{field.label}</FormLabel>
+          <FormLabel
+            required={field.required}
+            description={field.helpText}
+            helpDataCy={`document-field-${field.key}-help`}
+          >
+            {field.label}
+          </FormLabel>
           <FormControl>
             <Switch
               checked={!!rhfField.value}

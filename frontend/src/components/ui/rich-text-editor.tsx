@@ -220,6 +220,7 @@ function VariableMenu({ variables, disabled }: { variables: Record<string, strin
 
 export interface RichTextEditorProps {
   id?: string
+  "aria-describedby"?: string
   /** HTML string — the same shape `DocumentEmailTemplate.html`/`MailTemplate.body` store server-side. */
   value: string
   onChange: (html: string) => void
@@ -244,6 +245,7 @@ export interface RichTextEditorProps {
  */
 export function RichTextEditor({
   id,
+  "aria-describedby": ariaDescribedBy,
   value,
   onChange,
   readOnly,
@@ -272,6 +274,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         ...(id ? { id } : {}),
+        ...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {}),
         "aria-label": t("component.rich-text-editor.editorAriaLabel"),
       },
     },

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePost } from "@/hooks/use-fetch"
@@ -129,7 +130,12 @@ export function DeclareLastNumberSection() {
 
       <div className="grid gap-2">
         <div className="flex items-center justify-between gap-2">
-          <Label htmlFor="declare-last-number-pattern">{t("settings.declareLastNumber.pattern")}</Label>
+          <FieldLabel
+            htmlFor="declare-last-number-pattern"
+            description={t("settings.declareLastNumber.patternHint")}
+          >
+            {t("settings.declareLastNumber.pattern")}
+          </FieldLabel>
           <Button
             type="button"
             variant="outline"
@@ -147,11 +153,9 @@ export function DeclareLastNumberSection() {
           value={pattern}
           onChange={(event) => setPattern(event.target.value)}
           placeholder="FA-{year}-{number:4}"
+          aria-describedby={fieldHelpId("declare-last-number-pattern")}
           data-cy="declare-last-number-pattern"
         />
-        <p className="text-xs text-muted-foreground text-pretty">
-          {t("settings.declareLastNumber.patternHint")}
-        </p>
       </div>
 
       {result && (

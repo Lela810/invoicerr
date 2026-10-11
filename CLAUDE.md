@@ -234,6 +234,15 @@ hooks live in `hooks/queries/`. UI is shadcn-style Radix primitives in `componen
 user-facing strings go through `t()` with the key defined in `src/locales/en/translation.json` —
 other locales are Weblate-managed, `npm run i18n:check` gates PRs.
 
+**Field descriptions go behind the label's `?`, never under the field.** Pass them to the label:
+`<FormLabel required description={t("…description")}>` inside a `FormItem`, or `FieldLabel htmlFor`
+with `aria-describedby={fieldHelpId(id)}` on the input outside one (`components/ui/field-help.tsx`).
+A custom control inside `FormControl` forwards `id`, `aria-describedby` and `aria-invalid` to its
+focusable element; a Radix `Select` takes `FormControl` around its trigger; a multi-input field uses
+`FormGroup`. Only validation errors (`FormMessage`) render under a field.
+`components/ui/field-help.guard.spec.ts` fails CI otherwise. See
+`documentation/docs/developer-guide/ui-conventions.md`.
+
 ## Conventions
 
 - **Biome is the only linter/formatter.** Backend: single quotes, semicolons always, 110 cols.

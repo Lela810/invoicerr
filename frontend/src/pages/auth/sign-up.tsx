@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
 import { Label } from "@/components/ui/label"
 import { LegalLinks } from "@/components/legal-links"
 import { ServerUnavailableBanner } from "@/components/server-unavailable-banner"
@@ -350,16 +351,20 @@ export default function SignupPage() {
           </div>
         ) : (
           <div className="space-y-1.5">
-            <Label htmlFor="invitationCode">
+            <FieldLabel
+              htmlFor="invitationCode"
+              required={invitationOnly}
+              description={
+                invitationOnly
+                  ? t("auth.signup.form.invitationCode.requiredHint")
+                  : t("auth.signup.form.invitationCode.hint")
+              }
+              helpDataCy={invitationOnly ? "auth-invitation-required-hint" : undefined}
+            >
               {invitationOnly
                 ? t("auth.signup.form.invitationCode.label")
                 : t("auth.signup.form.invitationCode.labelOptional")}
-            </Label>
-            {invitationOnly && (
-              <p className="text-xs text-muted-foreground" data-cy="auth-invitation-required-hint">
-                {t("auth.signup.form.invitationCode.requiredHint")}
-              </p>
-            )}
+            </FieldLabel>
             <div className="relative">
               <TicketIcon className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -368,14 +373,12 @@ export default function SignupPage() {
                 placeholder={t("auth.signup.form.invitationCode.placeholder")}
                 disabled={loading}
                 required={invitationOnly}
+                aria-describedby={fieldHelpId("invitationCode")}
                 defaultValue={codeFromUrl ?? undefined}
                 className="ps-9 font-mono uppercase"
                 data-cy="auth-invitation-code-input"
               />
             </div>
-            {!invitationOnly && (
-              <p className="text-xs text-muted-foreground">{t("auth.signup.form.invitationCode.hint")}</p>
-            )}
             {errors.invitationCode && <p className="text-sm text-destructive">{errors.invitationCode[0]}</p>}
           </div>
         )}
