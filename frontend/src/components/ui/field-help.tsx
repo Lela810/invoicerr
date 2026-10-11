@@ -83,6 +83,7 @@ export function FieldHelp({
           collisionPadding={16}
           data-cy={dataCy ? `${dataCy}-content` : "field-help-content"}
           onOpenAutoFocus={(event) => event.preventDefault()}
+          onCloseAutoFocus={(event) => event.preventDefault()}
           className="w-auto max-w-[min(20rem,calc(100vw-2rem))] p-3 text-sm leading-relaxed text-pretty break-words whitespace-pre-line"
         >
           {children}

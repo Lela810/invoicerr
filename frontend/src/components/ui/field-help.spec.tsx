@@ -79,6 +79,15 @@ describe("<FormLabel description>", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
+  it("never moves focus when a hover opens and closes the help", async () => {
+    render(<VatRateForm />)
+    const trigger = screen.getByRole("button", { name: /help/i })
+    fireEvent.pointerEnter(trigger)
+    fireEvent.pointerLeave(trigger)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(document.activeElement).toBe(document.body)
+  })
+
   it("opens when the help button receives keyboard focus", () => {
     render(<VatRateForm />)
     const trigger = screen.getByRole("button", { name: /help/i })
