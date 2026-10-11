@@ -87,9 +87,10 @@ jobs:
           platforms: linux/amd64
           # Same stamping as docker-pr.yml and docker-publish.yml -- this is the image most likely
           # to end up running somewhere real, so it needs the revision at least as much as either.
+          # GIT_REF_NAME is the image tag, not the branch, so /api/health names the exact dev build.
           build-args: |
             GIT_REVISION=${{ github.sha }}
-            GIT_REF_NAME=${{ github.ref_name }}
+            GIT_REF_NAME=${{ steps.vars.outputs.tag }}
           tags: ${{ steps.vars.outputs.image }}:${{ steps.vars.outputs.tag }}
           push: true
           cache-from: type=gha,scope=dev-linux-amd64

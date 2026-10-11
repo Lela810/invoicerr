@@ -11,8 +11,8 @@
  * something this file fixes). What DOES track the real release is `INVOICERR_REF_NAME`, the
  * Dockerfile's own build-time env var baked from the exact git ref the image was built from — a
  * release tag on a real release build (`docker-publish.yml`'s `GIT_REF_NAME=${{ github.ref_name }}`),
- * a branch name on a dev/PR image (`docker-pr.yml`). `getInstalledVersion()` below prefers it for
- * exactly that reason: it is the one source that is guaranteed to mean the same thing as a GitHub
+ * the `dev-...` image tag on a dev image (`docker-dev.yml`), a branch name on a PR image
+ * (`docker-pr.yml`). `getInstalledVersion()` below prefers it for exactly that reason: it is the one source that is guaranteed to mean the same thing as a GitHub
  * release tag when it IS one. `readBackendPackageJsonVersion()` stays the fallback for a run that
  * never went through that Dockerfile at all (`npm run start:dev`) — the same place PR #369's fix
  * already covered, and still exactly what `swagger-document.ts` uses, unchanged.

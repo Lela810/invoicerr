@@ -449,8 +449,26 @@ directly:
 ```bash
 kubectl port-forward svc/invoicerr-api 8080:80
 curl http://localhost:8080/api/health
-# {"status":"ok","database":"up"}
+# {"status":"ok","database":"up","databaseLatencyMs":1,"redis":"up","redisLatencyMs":1,
+#  "version":"v2.0.0-alpha.4","time":"2026-10-11T08:24:06.172Z","uptimeSeconds":36}
 ```
+
+:::info[What /api/health reports]
+- `200` only when both Postgres (`SELECT 1`) and Redis (`PING`) answer within 2 seconds each.
+  `status` and `database` stay the first two keys, so a probe matching `"database":"up"` keeps working.
+- `databaseLatencyMs` and `redisLatencyMs`: round-trip time of each ping, in milliseconds.
+- `version`: the release tag the image was built from, `dev-<timestamp>-<sha>` for a dev image, a
+  branch name for a branch image, and the `backend/package.json` version outside a published image.
+  It is the same value `GET /api/version` reports as `currentVersion`.
+- `time`: the server clock in ISO 8601 UTC, to measure clock skew. `uptimeSeconds`: process uptime.
+- `503 {"status":"error","database":"down"}` when Postgres does not answer, whatever Redis says.
+- `503 {"status":"error","database":"up","redis":"down"}` when only Redis does not answer. Every other
+  route fails without Redis, so the instance is reported down. A monitor that matches the body
+  without checking the status code sees `"database":"up"` here too: check the status code.
+
+The endpoint is public and not rate limited; within one second, concurrent calls share the same pair
+of pings. Everything it returns, version included, is visible to anyone who can reach it.
+:::
 
 Once `my.invoicerr.app` resolves to the Ingress's external IP (`kubectl get ingress`) and
 cert-manager has issued the certificate (`kubectl get certificate`), the app is reachable at
