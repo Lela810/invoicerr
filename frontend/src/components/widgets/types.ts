@@ -8,7 +8,7 @@ export interface WidgetBase {
   /** Plain-English caveats about THIS widget's own numbers — e.g. the exchange rate(s) a currency
    *  consolidation used, or which currency was missing one. Always shown, never thrown. */
   warnings?: string[]
-  /** Whether the amounts shown include VAT — rendered through `widgets.basis.*`, never in `label`. */
+  /** Whether the amounts shown include VAT, rendered through `widgets.basis.*`, never in `label`. */
   basis?: AmountBasis
 }
 

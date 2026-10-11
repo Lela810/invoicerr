@@ -40,7 +40,7 @@ import {
  * own comments for the reasoning, not just the shape. It covers exactly what was asked for the
  * invoice: a dashboard curve and a pending-invoices list, plus a statistics table so both locations
  * have one worked example. Everything here is ARITHMETIC (counting, and summing totals, payments and
- * credit notes) — never a fiscal rule: every amount comes from `computeDocumentTotals` and
+ * credit notes), never a fiscal rule: every amount comes from `computeDocumentTotals` and
  * `computeSettlement`, reused from their own modules, never reimplemented here. See
  * invoice.descriptor.ts's own header for the same boundary drawn for the invoice's FIELDS.
  */
