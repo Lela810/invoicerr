@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
+import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -36,6 +37,29 @@ interface DomesticInvoiceCurrencyMismatchParams {
 function apiErrorCode(error: unknown): string | undefined {
   if (!(error instanceof ApiError)) return undefined
   return (error.body as { code?: string } | undefined)?.code
+}
+
+/** The server's coded refusals of a delete, re-worded in the reader's language with the linked
+ *  document's own type label instead of its raw id. */
+const DELETE_REFUSAL_KEYS: Record<string, string> = {
+  DOCUMENT_HAS_DEPENDENTS: "documents.form.deleteRefused.hasDependents",
+  DOCUMENT_IS_RECURRENCE_TEMPLATE: "documents.form.deleteRefused.recurrenceTemplate",
+  DOCUMENT_NUMBERED: "documents.form.deleteRefused.numbered",
+  DOCUMENT_CHANGED: "documents.form.deleteRefused.changed",
+  DOCUMENT_LINK_GONE: "documents.form.deleteRefused.linkGone",
+}
+
+function deleteRefusalMessage(t: TFunction, error: unknown): string | undefined {
+  const code = apiErrorCode(error)
+  const key = code ? DELETE_REFUSAL_KEYS[code] : undefined
+  if (!key) return undefined
+  const params = apiErrorParams<{ typeId?: string; displayNumber?: string | null }>(error) ?? {}
+  return t(key, {
+    type: params.typeId
+      ? t(`documents.descriptors.${params.typeId}.label`, { defaultValue: params.typeId })
+      : "",
+    number: params.displayNumber ?? t("documents.form.deleteRefused.unnumbered"),
+  })
 }
 
 function apiErrorParams<T>(error: unknown): T | undefined {
@@ -208,6 +232,11 @@ export function useDocumentActionRunner({
               : undefined,
           },
         )
+        return
+      }
+      const deleteRefusal = deleteRefusalMessage(t, error)
+      if (deleteRefusal) {
+        toast.error(deleteRefusal)
         return
       }
       // The message IS the point here: a 501 means the action is declared on this document type but

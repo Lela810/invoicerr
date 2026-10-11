@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { dropEmptyRows } from "@/components/documents/empty-rows"
 import { buildZodSchema, defaultValuesFor } from "@/components/documents/schema"
 import type { DocumentInstance, DocumentTypeDescriptor } from "@/components/documents/types"
+import { isOfferedOnRecord } from "@/components/documents/action-presentation"
 import { isActionAvailable } from "@/components/documents/types"
 import { useDueDateDefault } from "@/components/documents/use-due-date-default"
 import { useDocumentActionRunner } from "@/components/documents/use-document-action-runner"
@@ -345,8 +346,7 @@ export function useDocumentForm({
       action.id !== "download-xml" &&
       action.id !== "share-link" &&
       action.id !== "accept-manually" &&
-      // A numbered record edited back to draft is still refused by the server.
-      !(action.id === "delete" && currentDisplayNumber) &&
+      isOfferedOnRecord(action, currentDisplayNumber) &&
       isActionAvailable(action, currentStatus),
   )
 

@@ -5036,6 +5036,14 @@
         "confirm": "Delete",
         "cancel": "Cancel"
       },
+      "deleteRefused": {
+        "hasDependents": "{{type}} {{number}} refers to this document. Delete it or remove the link first.",
+        "recurrenceTemplate": "A recurrence uses this document as its template. Delete the recurrence first.",
+        "numbered": "This document already has a number ({{number}}) and can no longer be deleted.",
+        "changed": "This document changed while it was being deleted. Reload it and try again.",
+        "linkGone": "A document this one links to was deleted in the meantime. Reload and try again.",
+        "unnumbered": "(draft)"
+      },
       "messages": {
         "invalid": "Please fix the highlighted fields before continuing.",
         "actionSuccess": "Done.",

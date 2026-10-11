@@ -234,7 +234,7 @@ export function DocumentActionLockConfirmHost({ state }: { state: DocumentFormSt
 }
 
 /** The delete confirmation the action runner opens, mounted once per screen like the lock host above. */
-export function DocumentActionDeleteConfirmHost({ state }: { state: DocumentFormState }) {
+export function DocumentActionDeleteConfirmHost({ state }: Readonly<{ state: DocumentFormState }>) {
   const { runner } = state
   if (!runner.pendingDeleteConfirm) return null
   return (

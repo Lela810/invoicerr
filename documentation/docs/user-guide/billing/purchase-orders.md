@@ -18,7 +18,8 @@ flagged as a supplier, and it is sent by email.
 ## Deleting a draft
 
 Choose **Delete** in a draft order's row menu or on its own page, then confirm: the draft is removed
-permanently. The delete is refused while a goods receipt names the order; delete that receipt first.
+permanently. The delete is refused while a goods receipt or a received invoice names the order;
+delete that document, or remove its link to the order, first.
 
 :::info[Why a sent purchase order cannot be deleted]
 Sending a purchase order gives it a number, and a numbered order is never deleted, even if you edit it

@@ -267,7 +267,6 @@ export function buildPurchaseOrderDescriptor(): DocumentTypeDescriptor {
       {
         id: 'delete',
         label: 'Delete',
-        // Once numbered, a document is corrected (cancel, credit note), never removed.
         availableWhen: ['draft'],
       },
     ],

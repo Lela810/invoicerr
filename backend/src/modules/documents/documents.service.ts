@@ -106,7 +106,9 @@ import {
   DocumentFieldDescriptor,
   DocumentTypeDescriptor,
   isActionAvailable,
+  isMultiTargetReference,
   onEnterStatuses,
+  targetEntitiesOf,
   WidgetLocation,
 } from './descriptors/types';
 import { dropEmptyRows, stripSidecarKeys, validateAgainstDescriptor } from './descriptors/validate';
@@ -1286,6 +1288,28 @@ export class DocumentsService implements OnModuleInit {
    * combination — a fresh call, a different action, a record not already "sending" — runs every gate
    * exactly as if this parameter were never passed at all.
    */
+  /** Ids of the other documents `data` points at through its top-level reference fields. */
+  private referencedDocumentIds(fields: DocumentFieldDescriptor[], data: Record<string, unknown>): string[] {
+    const ids: string[] = [];
+    for (const field of fields) {
+      if (field.kind !== 'reference') continue;
+      const value = data[field.key];
+      if (isMultiTargetReference(field)) {
+        const ref = value as { entity?: unknown; id?: unknown } | undefined;
+        if (
+          typeof ref?.entity === 'string' &&
+          typeof ref.id === 'string' &&
+          this.typeRegistry.has(ref.entity)
+        ) {
+          ids.push(ref.id);
+        }
+      } else if (typeof value === 'string' && targetEntitiesOf(field).some((e) => this.typeRegistry.has(e))) {
+        ids.push(value);
+      }
+    }
+    return ids;
+  }
+
   async runAction(
     companyId: string,
     typeId: string,
@@ -1529,7 +1553,8 @@ export class DocumentsService implements OnModuleInit {
     // Re-validating it here can only ever fail on drift since then (an admin archiving the expense
     // category this exact record already carries, a required custom field added after the fact) —
     // never on anything about the data itself, which has not changed.
-    // A delete persists nothing, so a draft whose data no longer validates must stay removable.
+    // A delete persists nothing (registerDeleteAction never reads `data`), so a draft whose data no
+    // longer validates must stay removable.
     if (!isAdmittedReplay && actionId !== 'delete') {
       // Issue #373 follow-up (review point #4, "option mode is not restricted to quotes") - the line
       // validator right below only ever checks fields the descriptor DECLARES, so it would silently
@@ -1646,6 +1671,7 @@ export class DocumentsService implements OnModuleInit {
       // See this method's own comment on `allowedFromStatuses`, right after `resolveAction` above.
       allowedFromStatuses,
       actor,
+      referencedDocumentIds: this.referencedDocumentIds(fields, data),
     });
 
     // See this method's own header comment on `checkTransitionResult` — a handler is no longer free

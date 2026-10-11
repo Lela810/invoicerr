@@ -50,7 +50,10 @@ export const runDocumentActionTool: ToolDescriptor<typeof inputSchema> = {
     'applies here too: a country that forbids this action, a document status that does not allow ' +
     'it, an action declared but not implemented, or invalid field/param data all come back as a ' +
     'clear, named error — never a silent no-op. Call list_document_types first to see which actions ' +
-    'and fields a type declares, and which are currently blocked for this company and why.',
+    'and fields a type declares, and which are currently blocked for this company and why. ' +
+    '"delete" is destructive and irreversible: it permanently removes a draft that has never been ' +
+    'numbered, with no confirmation step.',
+  annotations: { destructiveHint: true },
   isRegistered: (scopes) => hasAnyScope(DOCUMENT_WRITE_SCOPES, scopes),
   inputSchema,
   handler: async (ctx, input) => {

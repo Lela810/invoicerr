@@ -131,16 +131,23 @@ export function secondaryActions(
 
 /** Actions a create dialog never submits (see `use-document-form.ts`'s own `availableActions`
  *  filter: none of them is a create-time POST through `runAction`). */
-const NON_CREATE_ACTION_IDS = new Set(["cancel", "download-xml", "share-link", "accept-manually", "delete"])
+const NON_CREATE_ACTION_IDS = new Set(["cancel", "download-xml", "share-link", "accept-manually"])
 
 /** The actions a brand-new record of this type could run from its create dialog: the same set
- *  `use-document-form.ts` offers there (`availableActions`, read at `initialStatus`). */
-function createTimeActions(
-  descriptor: Pick<DocumentTypeDescriptor, "actions" | "initialStatus">,
-): DocumentActionDescriptor[] {
+ *  `use-document-form.ts` offers there (`availableActions`, read with no status yet). */
+function createTimeActions(descriptor: Pick<DocumentTypeDescriptor, "actions">): DocumentActionDescriptor[] {
   return descriptor.actions.filter(
-    (action) => !NON_CREATE_ACTION_IDS.has(action.id) && isActionAvailable(action, descriptor.initialStatus),
+    (action) => !NON_CREATE_ACTION_IDS.has(action.id) && isActionAvailable(action, undefined),
   )
+}
+
+/** Whether a saved record offers `action` at all, before its own status gate: a record that holds a
+ *  number is never offered "delete", whatever its status; the server refuses it too. */
+export function isOfferedOnRecord(
+  action: DocumentActionDescriptor,
+  displayNumber: string | null | undefined,
+) {
+  return !(action.id === "delete" && displayNumber)
 }
 
 /**
@@ -154,16 +161,14 @@ function createTimeActions(
  * Generic on purpose, like every predicate in this file: it reads the descriptor's own actions and
  * their `policyBlockedReason`, never a type id or country code.
  */
-export function canCreateDocument(
-  descriptor: Pick<DocumentTypeDescriptor, "actions" | "initialStatus">,
-): boolean {
+export function canCreateDocument(descriptor: Pick<DocumentTypeDescriptor, "actions">): boolean {
   return createTimeActions(descriptor).some((action) => !action.policyBlockedReason)
 }
 
 /** The policy reasons that make `canCreateDocument` false, deduplicated and joined the way the
  *  create dialog's own disabled final button joins them (`blockedReasons.join(" · ")`). */
 export function createBlockedReasons(
-  descriptor: Pick<DocumentTypeDescriptor, "actions" | "initialStatus">,
+  descriptor: Pick<DocumentTypeDescriptor, "actions">,
 ): string | undefined {
   const reasons = Array.from(
     new Set(

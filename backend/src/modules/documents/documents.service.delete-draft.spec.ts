@@ -22,9 +22,17 @@ import { buildQuoteDescriptor } from './descriptors/quote.descriptor';
 import { DocumentTypeRegistry } from './descriptors/type-registry';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
+import { deleteDocument, lockReferencedDocuments } from './persistence';
+import { buildDocumentReferenceProvider } from './references/document-reference.provider';
 import { EntityReferenceRegistry } from './references/reference-registry';
 import { TransportRegistry } from './transports/transport-registry';
-import { createTestCompany, NAME_ONLY_CLIENT_FIELDS } from './__tests__/issuable-client';
+import {
+  createClientsServiceForTest,
+  createTestCompany,
+  ISSUABLE_CLIENT_FIELDS,
+  NAME_ONLY_CLIENT_FIELDS,
+} from './__tests__/issuable-client';
+import { buildClientReferenceProvider } from './references/client-reference.provider';
 
 const DELETABLE_TYPES = ['invoice', 'quote', 'credit-note', 'purchase-order'] as const;
 
@@ -42,6 +50,15 @@ function buildService(): DocumentsService {
   registerCoreFieldKinds(fieldKindRegistry);
 
   const referenceRegistry = new EntityReferenceRegistry();
+  const clientsService = createClientsServiceForTest();
+  referenceRegistry.register('client', buildClientReferenceProvider(clientsService));
+  for (const [typeId, label] of [
+    ['invoice', 'Invoice'],
+    ['quote', 'Quote'],
+    ['purchase-order', 'Purchase order'],
+  ]) {
+    referenceRegistry.register(typeId, buildDocumentReferenceProvider(typeId, label, clientsService));
+  }
   const transportRegistry = new TransportRegistry();
   const actionRegistry = new ActionRegistry();
   registerInvoiceActions(actionRegistry, { transportRegistry, queueDispatcher: unused });
@@ -76,7 +93,7 @@ function buildService(): DocumentsService {
   );
 }
 
-describe('DocumentsService — deleting a draft', () => {
+describe('DocumentsService: deleting a draft', () => {
   let companyId: string;
   const service = buildService();
 
@@ -91,7 +108,7 @@ describe('DocumentsService — deleting a draft', () => {
   function insertDocument(
     typeId: string,
     status: string,
-    extra: { data?: Record<string, unknown>; number?: number; displayNumber?: string } = {},
+    extra: { data?: Record<string, unknown>; number?: number; displayNumber?: string; atcud?: string } = {},
   ) {
     return prisma.documentInstance.create({
       data: {
@@ -101,6 +118,7 @@ describe('DocumentsService — deleting a draft', () => {
         data: (extra.data ?? {}) as object,
         number: extra.number,
         displayNumber: extra.displayNumber,
+        atcud: extra.atcud,
       },
     });
   }
@@ -128,12 +146,108 @@ describe('DocumentsService — deleting a draft', () => {
     expect(await stillExists(reEdited.id)).toBe(true);
   });
 
+  it("refuses a draft carrying another tool's number or an ATCUD, even with no sequence number", async () => {
+    const imported = await insertDocument('invoice', 'draft', { displayNumber: 'F-2019-0042' });
+    const withAtcud = await insertDocument('quote', 'draft', { atcud: 'ATCUD:ABCD1234-7' });
+
+    await expect(runDelete('invoice', imported.id)).rejects.toMatchObject({
+      response: { code: 'DOCUMENT_NUMBERED' },
+    });
+    await expect(runDelete('quote', withAtcud.id)).rejects.toMatchObject({
+      response: { code: 'DOCUMENT_NUMBERED' },
+    });
+    expect(await stillExists(imported.id)).toBe(true);
+    expect(await stillExists(withAtcud.id)).toBe(true);
+  });
+
+  it('refuses when the status moved on since the availability check read it', async () => {
+    const sending = await insertDocument('invoice', 'sending');
+
+    await expect(deleteDocument(companyId, 'invoice', sending.id, 'draft')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(await stillExists(sending.id)).toBe(true);
+  });
+
+  describe('a link created while the delete runs', () => {
+    function gate() {
+      let open!: () => void;
+      const opened = new Promise<void>((resolve) => {
+        open = resolve;
+      });
+      return { open, opened };
+    }
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 400));
+
+    it('refuses the delete when a credit note naming the draft is saved concurrently', async () => {
+      const invoice = await insertDocument('invoice', 'draft');
+      const writing = gate();
+      const commit = gate();
+      const writer = prisma.$transaction(async (tx) => {
+        await lockReferencedDocuments(tx, companyId, [invoice.id]);
+        await tx.documentInstance.create({
+          data: { companyId, typeId: 'credit-note', status: 'draft', data: { invoice: invoice.id } },
+        });
+        writing.open();
+        await commit.opened;
+      });
+      await writing.opened;
+
+      const deleting = runDelete('invoice', invoice.id);
+      await settle();
+      commit.open();
+      await writer;
+
+      await expect(deleting).rejects.toMatchObject({
+        response: { code: 'DOCUMENT_HAS_DEPENDENTS', params: { typeId: 'credit-note' } },
+      });
+      expect(await stillExists(invoice.id)).toBe(true);
+    });
+
+    it('refuses the save of an invoice whose origin quote is deleted concurrently', async () => {
+      const client = await prisma.client.create({
+        data: { companyId, name: 'Origin Client', ...ISSUABLE_CLIENT_FIELDS },
+      });
+      const quote = await insertDocument('quote', 'draft');
+      const invoiceData = (originId: string) => ({
+        client: client.id,
+        issueDate: '2026-08-15',
+        dueDate: '2026-09-15',
+        currency: 'EUR',
+        origin: { entity: 'quote', id: originId },
+        lines: [{ description: 'Work', quantity: 1, unit: 'unit', unitPrice: 100, vatRate: '20' }],
+      });
+      const control = await insertDocument('quote', 'draft');
+      await service.runAction(companyId, 'invoice', 'save-draft', { data: invoiceData(control.id) });
+      const deleted = gate();
+      const commit = gate();
+      const deleter = prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "DocumentInstance" WHERE id = ${quote.id} FOR UPDATE`;
+        await tx.documentInstance.delete({ where: { id: quote.id } });
+        deleted.open();
+        await commit.opened;
+      });
+      await deleted.opened;
+
+      const saving = service.runAction(companyId, 'invoice', 'save-draft', { data: invoiceData(quote.id) });
+      await settle();
+      commit.open();
+      await deleter;
+
+      await expect(saving).rejects.toMatchObject({ response: { code: 'DOCUMENT_LINK_GONE' } });
+      // Only the control invoice, saved before the race, exists.
+      expect(await prisma.documentInstance.count({ where: { companyId, typeId: 'invoice' } })).toBe(1);
+    });
+  });
+
   describe('what is attached to the draft', () => {
     it('refuses while a credit note names the draft invoice as its source', async () => {
       const invoice = await insertDocument('invoice', 'draft');
       const creditNote = await insertDocument('credit-note', 'draft', { data: { invoice: invoice.id } });
 
-      await expect(runDelete('invoice', invoice.id)).rejects.toThrow(/credit-note/);
+      await expect(runDelete('invoice', invoice.id)).rejects.toMatchObject({
+        response: { code: 'DOCUMENT_HAS_DEPENDENTS', params: { typeId: 'credit-note' } },
+      });
       expect(await stillExists(invoice.id)).toBe(true);
 
       await runDelete('credit-note', creditNote.id);
@@ -162,7 +276,9 @@ describe('DocumentsService — deleting a draft', () => {
         },
       });
 
-      await expect(runDelete('invoice', invoice.id)).rejects.toThrow(/recurrence/);
+      await expect(runDelete('invoice', invoice.id)).rejects.toMatchObject({
+        response: { code: 'DOCUMENT_IS_RECURRENCE_TEMPLATE' },
+      });
       expect(await stillExists(invoice.id)).toBe(true);
       expect(await prisma.documentSchedule.count({ where: { id: schedule.id } })).toBe(1);
     });

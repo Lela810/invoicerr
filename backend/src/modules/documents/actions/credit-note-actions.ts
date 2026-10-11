@@ -385,6 +385,7 @@ function registerCreditNoteSaveDraftAction(
       // header (generic-actions.ts) and `documents.service.ts#runAction`'s `allowedFromStatuses`
       // comment.
       ctx.allowedFromStatuses,
+      ctx.referencedDocumentIds,
     );
   });
 }

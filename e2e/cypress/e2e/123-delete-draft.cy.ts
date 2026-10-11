@@ -1,7 +1,8 @@
 export {}; // makes this spec a module, not a global script -- see tsconfig.json
 
 /**
- * A draft invoice is deleted from its list row, and only once the confirmation dialog is accepted.
+ * A draft invoice is deleted from its list row or its own page, and only once the confirmation dialog
+ * is accepted.
  */
 const api = Cypress.env("apiUrl");
 
@@ -54,6 +55,25 @@ describe("Deleting a draft", () => {
 			cy.wait("@delete").its("response.statusCode").should("be.oneOf", [200, 201]);
 
 			cy.get(`[data-cy="document-list-row-${invoiceId}"]`).should("not.exist");
+			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice`, failOnStatusCode: false })
+				.its("status")
+				.should("eq", 404);
+		});
+	});
+
+	it("deletes a draft invoice from its own page, after the confirmation, and returns to the list", () => {
+		createDraftInvoice().then((invoiceId) => {
+			cy.visit("/documents/invoice");
+			cy.openDocument(invoiceId);
+			cy.openDocumentActionsMenu();
+			cy.get('[data-cy="document-action-delete"]').click();
+
+			cy.get('[data-cy="document-detail-delete-confirm"]').should("be.visible");
+			cy.intercept("POST", `${api}/api/documents/types/invoice/actions/delete`).as("delete");
+			cy.get('[data-cy="document-detail-delete-confirm-confirm"]').click();
+			cy.wait("@delete").its("response.statusCode").should("be.oneOf", [200, 201]);
+
+			cy.location("pathname").should("eq", "/documents/invoice");
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice`, failOnStatusCode: false })
 				.its("status")
 				.should("eq", 404);

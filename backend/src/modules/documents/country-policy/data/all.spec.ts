@@ -148,7 +148,17 @@ describe('country-policy/data — the shipped FR/DE/IT/PL/PT files', () => {
     }
   });
 
-  it('no OTHER shipped rule declares a per-status narrowing — these two stay the only deliberate examples', () => {
+  it('every draft-only delete is also narrowed to "draft" by the policy itself', () => {
+    for (const file of ALL_COUNTRY_POLICY_FILES) {
+      for (const typeId of ['invoice', 'quote', 'credit-note', 'purchase-order']) {
+        expect(file.rules.find((r) => r.typeId === typeId && r.actionId === 'delete')?.statuses).toEqual([
+          'draft',
+        ]);
+      }
+    }
+  });
+
+  it('no OTHER shipped rule declares a per-status narrowing: these stay the only deliberate examples', () => {
     // Every one of the five kept countries (FR/DE/IT/PL/PT) sources this narrowing today — the
     // longer list this test used to carry (BE/NL/AT/EE/GR/CY/…) was removed by the
     // 5-country prune (2026-09-10) along with those countries' own data/xx.json files.
@@ -157,7 +167,8 @@ describe('country-policy/data — the shipped FR/DE/IT/PL/PT files', () => {
       (typeId === 'invoice' &&
         actionId === 'save-draft' &&
         COUNTRIES_WITH_SOURCED_SAVE_DRAFT_NARROWING.includes(countryCode)) ||
-      (typeId === 'received-invoice' && actionId === 'receive');
+      (typeId === 'received-invoice' && actionId === 'receive') ||
+      (actionId === 'delete' && ['invoice', 'quote', 'credit-note', 'purchase-order'].includes(typeId));
 
     for (const file of ALL_COUNTRY_POLICY_FILES) {
       for (const rule of file.rules) {

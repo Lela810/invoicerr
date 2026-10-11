@@ -29,6 +29,7 @@ import {
   canCreateDocument,
   createBlockedReasons,
   extraActionGates,
+  isOfferedOnRecord,
   pickPrimaryAction,
   secondaryActions,
   transitionHint,
@@ -321,7 +322,7 @@ function DocumentRowActions({ descriptor, instance, onActionSuccess, children }:
           // "not an electronic signature" warning), which the row cluster does not offer. Marking a
           // quote accepted is a detail-page action, not a one-click row action.
           action.id !== "accept-manually" &&
-          !(action.id === "delete" && instance.displayNumber) &&
+          isOfferedOnRecord(action, instance.displayNumber) &&
           isActionAvailable(action, instance.status),
       )
   const primary = pickPrimaryAction(availableActions, instance.status, false)

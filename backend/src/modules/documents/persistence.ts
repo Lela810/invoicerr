@@ -12,12 +12,15 @@ import { DocumentInstanceResult } from './actions/action-registry';
 
 /** 404s (rather than returning null) when `id` doesn't exist or belongs to another company/type —
  *  the two cases are indistinguishable from the outside, which is the point. */
+type DocumentDb = Prisma.TransactionClient | typeof prisma;
+
 export async function findOwnedDocument(
   companyId: string,
   typeId: string,
   id: string,
+  db: DocumentDb = prisma,
 ): Promise<DocumentInstanceResult> {
-  const document = await prisma.documentInstance.findFirst({ where: { id, companyId, typeId } });
+  const document = await db.documentInstance.findFirst({ where: { id, companyId, typeId } });
   if (!document) {
     throw new NotFoundException(`Document "${id}" not found for type "${typeId}".`);
   }
@@ -39,8 +42,9 @@ async function updateManyConditionally(
   fromStatuses: string[],
   data: Prisma.DocumentInstanceUpdateManyMutationInput,
   knownUpdatedAt?: Date,
+  db: DocumentDb = prisma,
 ): Promise<number> {
-  const result = await prisma.documentInstance.updateMany({
+  const result = await db.documentInstance.updateMany({
     where: {
       id,
       companyId,
@@ -77,7 +81,51 @@ export async function upsertDocument(
   status: string,
   data: Record<string, unknown>,
   fromStatuses?: string[],
-  options: { startNewDelivery?: boolean } = {},
+  options: { startNewDelivery?: boolean; referencedDocumentIds?: string[] } = {},
+): Promise<DocumentInstanceResult> {
+  const referenced = options.referencedDocumentIds ?? [];
+  if (referenced.length === 0) {
+    return writeDocument(prisma, companyId, typeId, documentId, status, data, fromStatuses, options);
+  }
+  return prisma.$transaction(async (tx) => {
+    await lockReferencedDocuments(tx, companyId, referenced);
+    return writeDocument(tx, companyId, typeId, documentId, status, data, fromStatuses, options);
+  });
+}
+
+/**
+ * Takes a key-share lock on every document `ids` names, held until the caller's transaction ends:
+ * a concurrent `deleteDocument` waits for it, then sees the new reference. Refuses (409) when one of
+ * them is already gone, which is the other order of the same race.
+ */
+export async function lockReferencedDocuments(
+  tx: Prisma.TransactionClient,
+  companyId: string,
+  ids: readonly string[],
+): Promise<void> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return;
+  const rows = await tx.$queryRaw<{ id: string }[]>`
+    SELECT id FROM "DocumentInstance"
+    WHERE "companyId" = ${companyId} AND id = ANY(${unique}::text[])
+    FOR KEY SHARE`;
+  if (rows.length < unique.length) {
+    throw new ConflictException({
+      message: 'A document this one links to was deleted in the meantime. Reload and try again.',
+      code: 'DOCUMENT_LINK_GONE',
+    });
+  }
+}
+
+async function writeDocument(
+  db: DocumentDb,
+  companyId: string,
+  typeId: string,
+  documentId: string | undefined,
+  status: string,
+  data: Record<string, unknown>,
+  fromStatuses: string[] | undefined,
+  options: { startNewDelivery?: boolean },
 ): Promise<DocumentInstanceResult> {
   const jsonData = data as Prisma.InputJsonValue;
   // Issue #477 - `startNewDelivery` clears `deliveryConfirmedAt` on this SAME write. Only
@@ -86,29 +134,37 @@ export async function upsertDocument(
   const deliveryReset = options.startNewDelivery ? { deliveryConfirmedAt: null } : {};
 
   if (documentId) {
-    await findOwnedDocument(companyId, typeId, documentId);
+    await findOwnedDocument(companyId, typeId, documentId, db);
     if (fromStatuses === undefined) {
-      return prisma.documentInstance.update({
+      return db.documentInstance.update({
         where: { id: documentId },
         data: { status, data: jsonData, lastActionError: null, ...deliveryReset },
       });
     }
-    const count = await updateManyConditionally(companyId, typeId, documentId, fromStatuses, {
-      status,
-      data: jsonData,
-      lastActionError: null,
-      ...deliveryReset,
-    });
+    const count = await updateManyConditionally(
+      companyId,
+      typeId,
+      documentId,
+      fromStatuses,
+      {
+        status,
+        data: jsonData,
+        lastActionError: null,
+        ...deliveryReset,
+      },
+      undefined,
+      db,
+    );
     if (count === 0) {
       throw new ConflictException(
         `Document "${documentId}" is no longer in one of the expected statuses ` +
           `(${fromStatuses.join(', ')}) — another request already changed it concurrently.`,
       );
     }
-    return findOwnedDocument(companyId, typeId, documentId);
+    return findOwnedDocument(companyId, typeId, documentId, db);
   }
 
-  return prisma.documentInstance.create({
+  return db.documentInstance.create({
     data: { companyId, typeId, status, data: jsonData, lastActionError: null },
   });
 }
@@ -667,51 +723,66 @@ export async function findOwnedDocumentsByIds(
  *  or another document whose `data` names its id anywhere (a credit note's source invoice, an
  *  invoice's origin quote). Matched on an exact JSON string value, so every reference field is
  *  covered without listing them. */
-async function assertNothingDependsOn(companyId: string, id: string): Promise<void> {
-  if ((await prisma.documentSchedule.count({ where: { companyId, sourceDocumentId: id } })) > 0) {
-    throw new ConflictException(
-      'A recurrence uses this document as its template. Delete the recurrence first.',
-    );
+async function assertNothingDependsOn(
+  tx: Prisma.TransactionClient,
+  companyId: string,
+  id: string,
+): Promise<void> {
+  if ((await tx.documentSchedule.count({ where: { companyId, sourceDocumentId: id } })) > 0) {
+    throw new ConflictException({
+      message: 'A recurrence uses this document as its template. Delete the recurrence first.',
+      code: 'DOCUMENT_IS_RECURRENCE_TEMPLATE',
+    });
   }
 
-  const [referencing] = await prisma.$queryRaw<{ typeId: string; displayNumber: string | null }[]>`
+  const [referencing] = await tx.$queryRaw<{ typeId: string; displayNumber: string | null }[]>`
     SELECT "typeId", "displayNumber" FROM "DocumentInstance"
     WHERE "companyId" = ${companyId} AND id <> ${id}
       AND jsonb_path_exists(data, '$.** ? (@ == $target)', jsonb_build_object('target', ${id}::text))
     LIMIT 1`;
   if (referencing) {
-    throw new ConflictException(
-      `A ${referencing.typeId} (${referencing.displayNumber ?? 'draft'}) refers to this document. ` +
+    throw new ConflictException({
+      message:
+        `A ${referencing.typeId} (${referencing.displayNumber ?? 'draft'}) refers to this document. ` +
         'Delete it or remove the link first.',
-    );
+      code: 'DOCUMENT_HAS_DEPENDENTS',
+      params: { typeId: referencing.typeId, displayNumber: referencing.displayNumber },
+    });
   }
 }
 
-/** Permanently removes an owned instance — used by the generic "delete" action
- *  (actions/generic-actions.ts's registerDeleteAction). 404s via findOwnedDocument the same way every
- *  other single-document operation here does. A numbered record is never removed: the sequence must
- *  not lose a number it has handed out. `fromStatus` makes the removal a compare-and-swap against the
- *  status the caller's own availability check read, so a send landing in between wins. */
+/** Permanently removes an owned instance: used by the generic "delete" action
+ *  (actions/generic-actions.ts's registerDeleteAction). A record that has ever held a number (ours,
+ *  another tool's for an import, or an ATCUD) is never removed. The row is locked first, so nothing
+ *  can number it, move its status off `fromStatus`, or link to it before the delete commits. */
 export async function deleteDocument(
   companyId: string,
   typeId: string,
   id: string,
-  fromStatus?: string,
+  fromStatus: string,
 ): Promise<DocumentInstanceResult> {
-  const document = await findOwnedDocument(companyId, typeId, id);
-  if (document.number != null) {
-    throw new ConflictException(
-      `"${document.displayNumber ?? document.number}" already has a number and can no longer be deleted.`,
-    );
-  }
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`
+      SELECT id FROM "DocumentInstance"
+      WHERE id = ${id} AND "companyId" = ${companyId} AND "typeId" = ${typeId}
+      FOR UPDATE`;
+    const document = await findOwnedDocument(companyId, typeId, id, tx);
+    if (document.number != null || document.displayNumber != null || document.atcud != null) {
+      throw new ConflictException({
+        message: `"${document.displayNumber ?? document.number ?? document.atcud}" already has a number and can no longer be deleted.`,
+        code: 'DOCUMENT_NUMBERED',
+        params: { displayNumber: document.displayNumber },
+      });
+    }
+    if (document.status !== fromStatus) {
+      throw new ConflictException({
+        message: 'This document changed while it was being deleted. Reload it and try again.',
+        code: 'DOCUMENT_CHANGED',
+      });
+    }
 
-  await assertNothingDependsOn(companyId, id);
-
-  const { count } = await prisma.documentInstance.deleteMany({
-    where: { id, companyId, typeId, number: null, ...(fromStatus ? { status: fromStatus } : {}) },
+    await assertNothingDependsOn(tx, companyId, id);
+    await tx.documentInstance.delete({ where: { id } });
+    return document;
   });
-  if (count === 0) {
-    throw new ConflictException('This document changed while it was being deleted. Reload it and try again.');
-  }
-  return document;
 }

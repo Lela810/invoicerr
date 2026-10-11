@@ -99,6 +99,7 @@
         "typeId": "quote",
         "actionId": "delete",
         "allowed": true,
+        "statuses": ["draft"],
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
@@ -185,6 +186,7 @@
         "typeId": "invoice",
         "actionId": "delete",
         "allowed": true,
+        "statuses": ["draft"],
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
@@ -233,6 +235,7 @@
         "typeId": "credit-note",
         "actionId": "delete",
         "allowed": true,
+        "statuses": ["draft"],
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
@@ -335,6 +338,7 @@
         "typeId": "purchase-order",
         "actionId": "delete",
         "allowed": true,
+        "statuses": ["draft"],
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."

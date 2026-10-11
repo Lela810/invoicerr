@@ -635,6 +635,7 @@ function registerInvoiceSaveDraftAction(registry: ActionRegistry, webhooks?: Doc
       // was the ONLY guard - a concurrent "send" landing between that read and this write could still
       // demote an issued invoice back to "draft".
       ctx.allowedFromStatuses,
+      ctx.referencedDocumentIds,
     );
   });
 }

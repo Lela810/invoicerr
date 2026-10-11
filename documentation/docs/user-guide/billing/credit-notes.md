@@ -35,7 +35,8 @@ deleted in turn.
 
 :::info[Why an issued credit note cannot be deleted]
 Sending a credit note gives it a number from your continuous sequence. From then on it can no longer be
-deleted, through the screen or the API; a mistake is fixed with a further credit note.
+deleted, through the screen or the API; a mistake is corrected by a new document, never by removing
+this one.
 :::
 
 ## Delivery

@@ -56,7 +56,7 @@ describe('purchase-order.descriptor — passes validateLifecycle and has the dec
     expect(buildPurchaseOrderDescriptor().numbering).toEqual({ onEnterStatus: 'sending' });
   });
 
-  it('declares exactly four actions: save-draft, send, cancel-order, delete — deliberately NOT "cancel"', () => {
+  it('declares exactly four actions: save-draft, send, cancel-order, delete, and deliberately NOT "cancel"', () => {
     const descriptor = buildPurchaseOrderDescriptor();
     expect(descriptor.actions.map((a) => a.id).sort()).toEqual(
       ['save-draft', 'send', 'cancel-order', 'delete'].sort(),

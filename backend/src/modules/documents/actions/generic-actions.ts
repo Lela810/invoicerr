@@ -44,9 +44,14 @@ export async function performSaveDraft(
   data: Record<string, unknown>,
   webhooks?: DocumentWebhookEmitter,
   fromStatuses?: string[],
+  referencedDocumentIds?: string[],
 ) {
   const creating = !documentId;
-  const document = await upsertDocument(companyId, typeId, documentId, 'draft', data, fromStatuses);
+  const document = referencedDocumentIds?.length
+    ? await upsertDocument(companyId, typeId, documentId, 'draft', data, fromStatuses, {
+        referencedDocumentIds,
+      })
+    : await upsertDocument(companyId, typeId, documentId, 'draft', data, fromStatuses);
   if (creating && webhooks) {
     try {
       await webhooks.dispatch(
@@ -90,8 +95,19 @@ export function registerSaveDraftAction(
   typeId: string,
   webhooks?: DocumentWebhookEmitter,
 ): void {
-  registry.register(typeId, 'save-draft', async ({ companyId, documentId, data, allowedFromStatuses }) =>
-    performSaveDraft(companyId, typeId, documentId, data, webhooks, allowedFromStatuses),
+  registry.register(
+    typeId,
+    'save-draft',
+    async ({ companyId, documentId, data, allowedFromStatuses, referencedDocumentIds }) =>
+      performSaveDraft(
+        companyId,
+        typeId,
+        documentId,
+        data,
+        webhooks,
+        allowedFromStatuses,
+        referencedDocumentIds,
+      ),
   );
 }
 
@@ -113,7 +129,7 @@ export function registerDeleteAction(
   webhooks?: DocumentWebhookEmitter,
 ): void {
   registry.register(typeId, 'delete', async ({ companyId, documentId, currentStatus }) => {
-    if (!documentId) {
+    if (!documentId || !currentStatus) {
       // Unreachable in practice — the descriptor's own `availableWhen` already refuses this before
       // the handler runs (a never-saved record has no status to match) — but a handler never trusts
       // that alone, the same discipline duplicate-extension.ts documents.

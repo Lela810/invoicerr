@@ -226,3 +226,25 @@ describe("canCreateDocument", () => {
     expect(canCreateDocument(type)).toBe(false)
   })
 })
+
+describe("canCreateDocument, evaluated like the create dialog (a record with no status yet)", () => {
+  it("is false when save-draft is blocked even though a draft-only send is not", () => {
+    const type = {
+      initialStatus: "draft",
+      actions: [
+        { id: "save-draft", label: "Save draft", availableWhen: "always", policyBlockedReason: "Forbidden" },
+        { id: "send", label: "Send", availableWhen: ["draft", "send_failed"] },
+        { id: "validate", label: "Validate", availableWhen: ["draft"] },
+      ],
+    } as Pick<DocumentTypeDescriptor, "actions" | "initialStatus">
+    expect(canCreateDocument(type)).toBe(false)
+  })
+
+  it("is true when save-draft itself is allowed", () => {
+    const type = {
+      initialStatus: "draft",
+      actions: [{ id: "save-draft", label: "Save draft", availableWhen: "always" }],
+    } as Pick<DocumentTypeDescriptor, "actions" | "initialStatus">
+    expect(canCreateDocument(type)).toBe(true)
+  })
+})

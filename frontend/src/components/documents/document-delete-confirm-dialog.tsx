@@ -15,7 +15,7 @@ export function DocumentDeleteConfirmDialog({
   onConfirm,
   loading,
   dataCy,
-}: DocumentDeleteConfirmDialogProps) {
+}: Readonly<DocumentDeleteConfirmDialogProps>) {
   const { t } = useTranslation()
   return (
     <ConfirmationDialog
