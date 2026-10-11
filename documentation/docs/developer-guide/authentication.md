@@ -31,6 +31,8 @@ An operator can close open sign-up instance-wide with `DISABLE_AUTH=1` (see `.en
 
 The sign-up page (`frontend/src/pages/auth/sign-up.tsx`) reflects this split. By default the invitation code field sits behind a discreet toggle, since most visitors are creating their own company and should not have to read about invitations at all. It opens automatically, labelled required, when the instance itself has closed open sign-up (`GET /api/invitations/can-register` answers `allowed: false`), since entering a code is then the only way forward rather than an optional extra. It also opens pre-filled when a code arrives in the sign-up URL's `code` query parameter.
 
+The sign-in page asks the same endpoint and hides its "Sign up" link once sign-up is closed to everyone: `allowed: false` with `requiresCode: false`, which is what a demo instance answers. An invitation-only instance (`DISABLE_AUTH`) answers `requiresCode: true` and keeps the link, since the sign-up page is where an invitee enters their code.
+
 A user who signs up through a company's own per-company SSO provider (below) is the one exception to needing a code at all: they need no invitation, and are attached directly to that company as a `MEMBER`, see `sso-policy.ts#companyForOAuthSignup`.
 
 ### Setting a password for OIDC-only accounts
