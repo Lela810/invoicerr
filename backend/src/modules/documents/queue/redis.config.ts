@@ -10,7 +10,7 @@
  * REDIS_URL set on the backend) work with no backend env change at all.
  */
 import type { ConnectionOptions } from 'bullmq';
-import Redis from 'ioredis';
+import Redis, { type RedisOptions } from 'ioredis';
 
 import { redactUrlCredentials } from '@/utils/redact-url';
 
@@ -34,11 +34,12 @@ export function redisConnection(): ConnectionOptions {
  * than through BullMQ. Same precedence as `redisConnection()`, deliberately kept in sync: two Redis
  * connection helpers agreeing on different rules would be its own bug waiting to happen.
  */
-export function createIoredisClient(): Redis {
+export function createIoredisClient(options: RedisOptions = {}): Redis {
   if (process.env.REDIS_URL) {
-    return new Redis(process.env.REDIS_URL);
+    return new Redis(process.env.REDIS_URL, options);
   }
   return new Redis({
+    ...options,
     host: process.env.REDIS_HOST ?? 'localhost',
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
     ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
