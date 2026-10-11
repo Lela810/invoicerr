@@ -18,15 +18,21 @@ import type { FieldRendererProps } from "./registry"
 function FieldChrome({
   field,
   children,
-  note,
+  lockReason,
   required,
-}: Pick<FieldRendererProps, "field"> & { children: React.ReactNode; note?: string; required?: boolean }) {
+}: Pick<FieldRendererProps, "field"> & {
+  children: React.ReactNode
+  lockReason?: string
+  required?: boolean
+}) {
   return (
     <FormItem data-cy={`document-field-${field.key}`}>
       <FormLabel
         required={required ?? field.required}
-        description={[field.helpText, note].filter(Boolean).join("\n\n") || undefined}
+        description={field.helpText}
         helpDataCy={`document-field-${field.key}-help`}
+        lockReason={lockReason}
+        lockDataCy={`document-field-${field.key}-lock`}
       >
         {field.label}
       </FormLabel>
@@ -445,7 +451,7 @@ export function SelectField({ field, name }: FieldRendererProps) {
       render={({ field: rhfField }) => (
         <FieldChrome
           field={field}
-          note={isLocked ? t("documents.form.select.lockedFromReference") : undefined}
+          lockReason={isLocked ? t("documents.form.select.lockedFromReference") : undefined}
         >
           <SearchSelect
             options={filtered}

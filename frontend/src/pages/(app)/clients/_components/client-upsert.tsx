@@ -1,4 +1,5 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FieldLock, fieldLockId } from "@/components/ui/field-help"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { usePatch, usePost } from "@/hooks/use-fetch"
@@ -848,25 +849,38 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
               data-cy={`client-contact-row-${index}`}
             >
               <div className="flex items-center justify-between gap-2">
-                <label
-                  className={cn(
-                    "flex items-center gap-2 text-sm",
-                    otherRowLocked && "cursor-not-allowed text-muted-foreground opacity-60",
+                <div className="flex items-center gap-1">
+                  <label
+                    className={cn(
+                      "flex items-center gap-2 text-sm",
+                      otherRowLocked && "cursor-not-allowed text-muted-foreground opacity-60",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="client-contact-primary"
+                      checked={isPrimaryRow}
+                      disabled={otherRowLocked}
+                      onChange={() => setPrimary(index)}
+                      aria-describedby={
+                        otherRowLocked ? fieldLockId(`client-contact-primary-${index}`) : undefined
+                      }
+                      data-cy={`client-contact-primary-radio-${index}`}
+                    />
+                    {isPrimaryRow
+                      ? t("clients.upsert.fields.contacts.primaryBadge", "Primary")
+                      : t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
+                  </label>
+                  {otherRowLocked && (
+                    <FieldLock
+                      id={fieldLockId(`client-contact-primary-${index}`)}
+                      label={t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
+                      dataCy={`client-contact-primary-locked-${index}`}
+                    >
+                      {t("clients.upsert.fields.contacts.primaryLockedHint")}
+                    </FieldLock>
                   )}
-                  title={otherRowLocked ? t("clients.upsert.fields.contacts.primaryLockedTitle") : undefined}
-                >
-                  <input
-                    type="radio"
-                    name="client-contact-primary"
-                    checked={isPrimaryRow}
-                    disabled={otherRowLocked}
-                    onChange={() => setPrimary(index)}
-                    data-cy={`client-contact-primary-radio-${index}`}
-                  />
-                  {isPrimaryRow
-                    ? t("clients.upsert.fields.contacts.primaryBadge", "Primary")
-                    : t("clients.upsert.fields.contacts.setPrimary", "Set as primary")}
-                </label>
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
@@ -879,16 +893,6 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   {t("clients.upsert.fields.contacts.remove", "Remove")}
                 </Button>
               </div>
-              {otherRowLocked && (
-                // A native `title` tooltip is invisible until hovered, and a disabled radio looks like
-                // an unchecked one: say it on the row itself (#415 second review, point 1).
-                <p
-                  className="text-xs text-muted-foreground"
-                  data-cy={`client-contact-primary-locked-${index}`}
-                >
-                  {t("clients.upsert.fields.contacts.primaryLockedHint")}
-                </p>
-              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -896,9 +900,10 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        description={
+                        lockReason={
                           primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
                         }
+                        lockDataCy={`client-contact-firstName-${index}-lock`}
                       >
                         {t("clients.upsert.fields.contactFirstname.label")}
                       </FormLabel>
@@ -926,9 +931,10 @@ function ContactsSection({ form, clientType }: { form: UseFormReturn<FieldValues
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        description={
+                        lockReason={
                           primaryLocked ? t("clients.upsert.fields.contacts.primaryFromIdentity") : undefined
                         }
+                        lockDataCy={`client-contact-lastName-${index}-lock`}
                       >
                         {t("clients.upsert.fields.contactLastname.label")}
                       </FormLabel>

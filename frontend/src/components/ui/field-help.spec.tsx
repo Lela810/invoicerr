@@ -4,7 +4,7 @@ import type * as React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { describe, expect, it } from "vitest"
 
-import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId, fieldLockId } from "@/components/ui/field-help"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import CountrySelect from "@/components/country-select"
 import CurrencySelect from "@/components/currency-select"
@@ -286,5 +286,117 @@ describe("SearchSelect inside a form field", () => {
   it("marks its trigger invalid when the field has an error", () => {
     render(<SupplierForm error="Pick a supplier" />)
     expect(screen.getByLabelText("Linked supplier")).toHaveAttribute("aria-invalid", "true")
+  })
+})
+
+const LOCK = "Follows the linked invoice."
+
+function CurrencyForm({ locked = true, description }: { locked?: boolean; description?: string }) {
+  const form = useForm({ defaultValues: { currency: "EUR" } })
+  return (
+    <Form {...form}>
+      <FormField
+        control={form.control}
+        name="currency"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel description={description} lockReason={locked ? LOCK : undefined}>
+              Currency
+            </FormLabel>
+            <FormControl>
+              <Input {...field} disabled={locked} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </Form>
+  )
+}
+
+describe("<FormLabel lockReason>", () => {
+  it("shows no lock on a field that is not locked", () => {
+    render(<CurrencyForm locked={false} />)
+    expect(screen.queryByRole("button", { name: /locked/i })).not.toBeInTheDocument()
+  })
+
+  it("names the lock button after the field", () => {
+    render(<CurrencyForm />)
+    expect(screen.getByRole("button", { name: "Why is Currency locked?" })).toBeInTheDocument()
+  })
+
+  it("describes the locked field with its lock reason, after its description", () => {
+    render(<CurrencyForm description={HELP} />)
+    expect(screen.getByRole("textbox", { name: /Currency/ })).toHaveAccessibleDescription(`${HELP} ${LOCK}`)
+  })
+
+  it("keeps the description behind the help button and the reason behind the lock", () => {
+    render(<CurrencyForm description={HELP} />)
+    fireEvent.click(screen.getByRole("button", { name: "Why is Currency locked?" }))
+    expect(screen.getByRole("dialog")).toHaveTextContent(LOCK)
+    expect(screen.getByRole("dialog")).not.toHaveTextContent(HELP)
+  })
+
+  it("opens the reason on tap and closes it on a press outside", async () => {
+    render(<CurrencyForm />)
+    fireEvent.click(screen.getByRole("button", { name: /locked/i }))
+    expect(screen.getByRole("dialog")).toHaveTextContent(LOCK)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(document.body)
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+
+  it("opens the reason on hover, survives the trip onto its text, and closes after", async () => {
+    render(<CurrencyForm />)
+    const lock = screen.getByRole("button", { name: /locked/i })
+    fireEvent.pointerEnter(lock)
+    const content = screen.getByRole("dialog")
+    expect(content).toHaveTextContent(LOCK)
+    fireEvent.pointerLeave(lock)
+    fireEvent.pointerEnter(content)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    fireEvent.pointerLeave(content)
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+  })
+
+  it("opens the reason on keyboard focus and closes it on Escape", () => {
+    render(<CurrencyForm />)
+    const lock = screen.getByRole("button", { name: /locked/i })
+    fireEvent.keyDown(document.body, { key: "Tab" })
+    act(() => lock.focus())
+    expect(screen.getByRole("dialog")).toHaveTextContent(LOCK)
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" })
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+})
+
+describe("aria-describedby lists only what is rendered", () => {
+  it("leaves an unlocked field without a description undescribed", () => {
+    render(<CurrencyForm locked={false} />)
+    expect(screen.getByRole("textbox", { name: /Currency/ })).not.toHaveAttribute("aria-describedby")
+  })
+
+  it("points a locked field without a description at its lock reason only", () => {
+    render(<CurrencyForm />)
+    const input = screen.getByRole("textbox", { name: /Currency/ })
+    const ids = input.getAttribute("aria-describedby")?.split(" ") ?? []
+    expect(ids).toHaveLength(1)
+    expect(document.getElementById(ids[0])).toHaveTextContent(LOCK)
+  })
+})
+
+describe("<FieldLabel lockReason> outside a form", () => {
+  it("derives the lock reason id from htmlFor", () => {
+    render(
+      <>
+        <FieldLabel htmlFor="pattern" lockReason={LOCK}>
+          Pattern
+        </FieldLabel>
+        <input id="pattern" disabled aria-describedby={fieldLockId("pattern")} />
+      </>,
+    )
+    expect(screen.getByLabelText("Pattern")).toHaveAccessibleDescription(LOCK)
+    expect(screen.getByRole("button", { name: "Why is Pattern locked?" })).toBeInTheDocument()
   })
 })

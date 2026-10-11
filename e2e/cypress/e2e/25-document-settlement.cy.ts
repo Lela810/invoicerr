@@ -427,6 +427,7 @@ describe("A credit note created ON SCREEN follows the currency of the invoice it
 					cy.get('[data-cy="document-field-currency-input"] button')
 						.should("not.be.disabled")
 						.and("contain.text", "Currency");
+					cy.get('[data-cy="document-field-currency-lock-trigger"]').should("not.exist");
 
 					cy.get('[data-cy="document-field-invoice-input"] button')
 						.first()
@@ -453,6 +454,25 @@ describe("A credit note created ON SCREEN follows the currency of the invoice it
 					})
 						.should("be.disabled")
 						.and("contain.text", "USD");
+
+					// The reason sits behind a lock on the label, opened by a tap and closed by Escape.
+					const lock = "document-field-currency-lock";
+					cy.get(`[data-cy="${lock}-trigger"]`)
+						.should("be.visible")
+						.and("have.attr", "aria-label", "Why is Currency locked?")
+						.click();
+					cy.get(`[data-cy="${lock}-content"]`)
+						.should("be.visible")
+						.and("contain.text", "cannot be edited directly");
+					cy.get("body").type("{esc}");
+					cy.get(`[data-cy="${lock}-content"]`).should("not.exist");
+					cy.get(`[data-cy="${lock}"]`)
+						.invoke("attr", "id")
+						.then((id) => {
+							cy.get(
+								`[data-cy="document-field-currency-input"] button[aria-describedby~="${id}"]`,
+							).should("exist");
+						});
 
 					cy.get(
 						'[data-cy^="document-field-correctedLines-row-"][data-cy$="-checkbox"]',

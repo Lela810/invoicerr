@@ -10,6 +10,9 @@ const CONTROL =
   /^(input|textarea|select)$|(Input|Textarea|Select|SelectTrigger|Switch|Checkbox|Picker|RadioGroup|Slider|Combobox|Editor)$/
 const LABEL_CLOSE = /<\/(FormControl|FormGroup|FormLabel|FieldLabel|Label)>$/
 const EXPRESSION_OPENER = /(\{[^{}]*?(&&|\?|:)\s*\(?|\(|:)\s*$/
+const TRAILING_COMMENT = /(\n[ \t]*\/\/[^\n]*|\{\/\*[\s\S]*?\*\/\})$/
+// A lock reason names itself: a key, a variable or a data-cy carrying "lock", in any colour.
+const LOCK_REASON = /(^|[^A-Za-z])lock|Lock/
 
 function lineOf(source: string, index: number): number {
   return source.slice(0, index).split("\n").length
@@ -55,10 +58,10 @@ function wrapperBefore(text: string): string | undefined {
   return undefined
 }
 
-function previousSiblingIsField(before: string): boolean {
+function previousSiblingIsField(before: string, labelledOnly = true): boolean {
   let text = before.trimEnd()
-  for (let guard = 0; guard < 4; guard++) {
-    const stripped = text.replace(EXPRESSION_OPENER, "").trimEnd()
+  for (let guard = 0; guard < 8; guard++) {
+    const stripped = text.replace(EXPRESSION_OPENER, "").replace(TRAILING_COMMENT, "").trimEnd()
     if (stripped === text) break
     text = stripped
   }
@@ -69,6 +72,7 @@ function previousSiblingIsField(before: string): boolean {
     if (closing[1] !== "div") return false
     const wrapper = wrapperBefore(text)
     if (!wrapper || !holdsControl(wrapper)) return false
+    if (!labelledOnly) return true
     // Only a labelled wrapper is a field; a toolbar holding a control is not.
     return /<\/(FormLabel|FieldLabel|Label)>$/.test(text.slice(0, text.length - wrapper.length).trimEnd())
   }
@@ -92,6 +96,7 @@ function isAdornment(content: string): boolean {
   return !text.includes("{") && text.length <= 4
 }
 
+// Muted text beside a field is a description; a lock reason is flagged in any colour, beside any control.
 export function findDescriptionsUnderFields(source: string): DescriptionHit[] {
   const hits: DescriptionHit[] = []
   for (const match of source.matchAll(/<FormDescription\b/g)) {
@@ -100,13 +105,15 @@ export function findDescriptionsUnderFields(source: string): DescriptionHit[] {
   for (const match of source.matchAll(TEXT_OPENING)) {
     const tagEnd = openingTagEnd(source, match.index)
     const openingTag = source.slice(match.index, tagEnd)
-    if (!/\btext-muted-foreground\b/.test(openingTag)) continue
+    const closeAt = source.indexOf(`</${match[1]}>`, tagEnd)
+    const content = source.slice(tagEnd, closeAt < 0 ? tagEnd : closeAt)
+    const lockReason = !content.includes("<") && LOCK_REASON.test(openingTag + content)
+    if (!lockReason && !/\btext-muted-foreground\b/.test(openingTag)) continue
     const dataCy = openingTag.match(/\bdata-cy="([^"]+)"/)?.[1]
     if (/\brole="status"/.test(openingTag) && dataCy && LIVE_STATUS.has(dataCy)) continue
-    const closeAt = source.indexOf(`</${match[1]}>`, tagEnd)
-    if (isAdornment(source.slice(tagEnd, closeAt < 0 ? tagEnd : closeAt))) continue
+    if (isAdornment(content)) continue
     const before = source.slice(0, match.index)
-    if (previousSiblingIsField(before) || insideFormItemOutsideControl(before)) {
+    if (previousSiblingIsField(before, !lockReason) || insideFormItemOutsideControl(before)) {
       hits.push({ line: lineOf(source, match.index), text: openingTag.replace(/\s+/g, " ").slice(0, 80) })
     }
   }

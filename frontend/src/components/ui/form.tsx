@@ -50,21 +50,27 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>")
   }
 
-  const { id } = itemContext
+  const { id, rendered } = itemContext
 
   return {
     id,
+    rendered,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
     formLabelId: `${id}-form-item-label`,
     formDescriptionId: `${id}-form-item-description`,
+    formLockId: `${id}-form-item-lock`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
   }
 }
 
+type RenderedHints = { description: boolean; lock: boolean }
+
 type FormItemContextValue = {
   id: string
+  rendered?: RenderedHints
+  setRendered?: (hints: RenderedHints) => void
 }
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue)
@@ -72,9 +78,11 @@ const FormItemContext = React.createContext<FormItemContextValue>({} as FormItem
 const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const id = React.useId()
+    const [rendered, setRendered] = React.useState<RenderedHints>({ description: false, lock: false })
+    const value = React.useMemo(() => ({ id, rendered, setRendered }), [id, rendered])
 
     return (
-      <FormItemContext.Provider value={{ id }}>
+      <FormItemContext.Provider value={value}>
         <div ref={ref} className={cn("space-y-2", className)} {...props} />
       </FormItemContext.Provider>
     )
@@ -87,13 +95,25 @@ function FormLabel({
   required,
   description,
   helpDataCy,
+  lockReason,
+  lockDataCy,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root> & {
   required?: boolean
   description?: React.ReactNode
   helpDataCy?: string
+  lockReason?: React.ReactNode
+  lockDataCy?: string
 }) {
-  const { error, formItemId, formLabelId, formDescriptionId } = useFormField()
+  const { error, formItemId, formLabelId, formDescriptionId, formLockId } = useFormField()
+  const { setRendered } = React.useContext(FormItemContext)
+  const hasDescription = !!description
+  const hasLock = !!lockReason
+  // The control is rendered after the label, so it learns which hint nodes exist on the next pass.
+  React.useLayoutEffect(() => {
+    setRendered?.({ description: hasDescription, lock: hasLock })
+    return () => setRendered?.({ description: false, lock: false })
+  }, [setRendered, hasDescription, hasLock])
 
   return (
     <FieldLabel
@@ -106,22 +126,31 @@ function FormLabel({
       description={description}
       descriptionId={formDescriptionId}
       helpDataCy={helpDataCy}
+      lockReason={lockReason}
+      lockReasonId={formLockId}
+      lockDataCy={lockDataCy}
       {...props}
     />
   )
 }
 
+const describedBy = (...ids: (string | false | undefined)[]) => ids.filter(Boolean).join(" ") || undefined
+
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, rendered, formItemId, formDescriptionId, formLockId, formMessageId } = useFormField()
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={describedBy(
+        rendered?.description && formDescriptionId,
+        rendered?.lock && formLockId,
+        error && formMessageId,
+      )}
       aria-invalid={!!error}
       {...props}
     />
@@ -131,7 +160,8 @@ FormControl.displayName = "FormControl"
 
 // For a control made of several inputs: the label cannot point at a group, so the group names itself.
 const FormGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
-  const { error, formItemId, formLabelId, formDescriptionId, formMessageId } = useFormField()
+  const { error, rendered, formItemId, formLabelId, formDescriptionId, formLockId, formMessageId } =
+    useFormField()
 
   return (
     <div
@@ -139,7 +169,11 @@ const FormGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
       role="group"
       id={formItemId}
       aria-labelledby={formLabelId}
-      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={describedBy(
+        rendered?.description && formDescriptionId,
+        rendered?.lock && formLockId,
+        error && formMessageId,
+      )}
       aria-invalid={!!error}
       {...props}
     />

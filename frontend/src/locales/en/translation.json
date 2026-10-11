@@ -289,7 +289,6 @@
           "setPrimary": "Set as primary",
           "primaryFromIdentity": "Comes from the identity step",
           "primaryLockedHint": "Only the person on the identity step can be the primary contact of an individual client.",
-          "primaryLockedTitle": "The primary contact of an individual client is the person on the identity step - edit the identity step to change it",
           "removeLockedTitle": "The primary contact of an individual client is the person on the identity step and cannot be removed here"
         }
       },
@@ -3836,6 +3835,10 @@
       "trigger": "Show help",
       "triggerFor": "Help for {{field}}"
     },
+    "fieldLock": {
+      "trigger": "Why is this field locked?",
+      "triggerFor": "Why is {{field}} locked?"
+    },
     "loading": "Loading...",
     "finish": "Finish",
     "valueWithCurrency": "{{amount}} {{currency}}",
@@ -4992,7 +4995,7 @@
         "removeRow": "Remove row"
       },
       "select": {
-        "lockedFromReference": "Follows the linked record — cannot be edited directly."
+        "lockedFromReference": "Follows the linked record and cannot be edited directly."
       },
       "rowSelection": {
         "selectSourceFirst": "Select the related document above first.",
