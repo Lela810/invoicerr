@@ -131,13 +131,14 @@ describe("Empty line items are dropped on save, a half-filled one is not", () =>
 					expect(lines[0]).to.deep.include({
 						description: "Full line",
 						quantity: 2,
-						unit: "unit",
+						// "unit" is the label of a listed unit, so it is stored as its code.
+						unit: "C62",
 						unitPrice: 100,
 					});
 					expect(lines[1]).to.deep.include({
 						description: "Half then completed",
 						quantity: 1,
-						unit: "unit",
+						unit: "C62",
 						unitPrice: 55,
 					});
 				});
