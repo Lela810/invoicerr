@@ -141,13 +141,14 @@ describe("Document totals", () => {
 			.type("100", { force: true });
 
 		// The rate: also a SearchSelect (the country's own catalog). "20 %" is the catalog's French label.
-		cy.get('[data-cy="document-field-lines-row-0"] [data-cy$="-input"] button')
-			.last()
+		// Targeted by its own data-cy: a quote line also carries the "Supply type" select.
+		cy.get('[data-cy="document-field-lines-row-0"] [data-cy="document-field-vatRate-input"] button')
+			.first()
 			.click({ force: true });
-		cy.get('[data-cy$="-input-options"]', { timeout: 10000 }).should(
+		cy.get('[data-cy="document-field-vatRate-input-options"]', { timeout: 10000 }).should(
 			"be.visible",
 		);
-		cy.contains('[data-cy*="-option-"]', /20\s?%/)
+		cy.contains('[data-cy="document-field-vatRate-input-options"] [data-cy*="-option-"]', /20\s?%/)
 			.first()
 			.click();
 
@@ -203,8 +204,6 @@ describe("Document totals", () => {
 		cy.get('[data-cy="document-field-lines-row-0"]').should("exist");
 		cy.get('input[name="lines.0.description"]').type("Item 1", { force: true });
 		cy.get('input[name="lines.0.quantity"]').clear({ force: true }).type("1", { force: true });
-		// Unlike the quote descriptor above, an invoice line's `unit` is `required` — left blank, the
-		// wizard's own per-step `form.trigger` refuses to advance past this step at all.
 		cy.get('input[name="lines.0.unit"]').type("unit", { force: true });
 		cy.get('input[name="lines.0.unitPrice"]').clear({ force: true }).type("100", { force: true });
 

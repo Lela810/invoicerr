@@ -315,13 +315,14 @@ describe("Free credit note — the screen, browser level", () => {
 		// The VAT rate is a real SearchSelect (countries/data/fr.json (section "vatRates")'s own catalog) — the exact rate
 		// picked is irrelevant here (only the totals engine's own arithmetic is covered by jest), so
 		// the first offered option is enough to move on.
-		cy.get('[data-cy="document-field-lines-row-0"] [data-cy$="-input"] button')
-			.last()
+		// Targeted by its own data-cy: credit note lines also carry the "Supply type" select.
+		cy.get('[data-cy="document-field-lines-row-0"] [data-cy="document-field-vatRate-input"] button')
+			.first()
 			.click({ force: true });
-		cy.get('[data-cy$="-input-options"]', { timeout: 10000 }).should(
+		cy.get('[data-cy="document-field-vatRate-input-options"]', { timeout: 10000 }).should(
 			"be.visible",
 		);
-		cy.get('[data-cy*="-option-"]').first().click();
+		cy.get('[data-cy="document-field-vatRate-input-options"] [data-cy*="-option-"]').first().click();
 		cy.continueDocumentWizard(); // Lines -> Options
 
 		// Options: "invoice" (never picked), "notes" (left empty), and "reason" — REQUIRED, the moment
