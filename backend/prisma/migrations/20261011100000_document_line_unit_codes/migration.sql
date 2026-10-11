@@ -1,12 +1,12 @@
--- Converts free-text line units that name exactly one UN/ECE Rec20 unit to that code, on quotes and
--- on draft invoices and credit notes. Issued documents are never rewritten; anything else stays as typed
--- and is exported as C62. The word list is a copy of UNAMBIGUOUS_UNIT_WORDS (formats/semantic/unit-code.ts).
+-- Converts free-text line units that name exactly one UN/ECE Rec20 unit to that code, on draft
+-- quotes, invoices and credit notes only. Anything sent, signed or issued is never rewritten; any other
+-- text stays as typed. The word list is a copy of UNAMBIGUOUS_UNIT_WORDS (formats/semantic/unit-code.ts),
+-- matched like knownUnitCode: surrounding whitespace trimmed, then lowercased.
 WITH "unit_word" ("word", "code") AS (
   VALUES
     ('piece', 'H87'),
     ('pieces', 'H87'),
     ('pcs', 'H87'),
-    ('pc', 'H87'),
     ('pièce', 'H87'),
     ('pièces', 'H87'),
     ('stück', 'H87'),
@@ -38,9 +38,6 @@ WITH "unit_word" ("word", "code") AS (
     ('heures', 'HUR'),
     ('stunde', 'HUR'),
     ('stunden', 'HUR'),
-    ('std', 'HUR'),
-    ('std.', 'HUR'),
-    ('ora', 'HUR'),
     ('ore', 'HUR'),
     ('godzina', 'HUR'),
     ('godziny', 'HUR'),
@@ -52,7 +49,6 @@ WITH "unit_word" ("word", "code") AS (
     ('days', 'DAY'),
     ('jour', 'DAY'),
     ('jours', 'DAY'),
-    ('tag', 'DAY'),
     ('tage', 'DAY'),
     ('giorno', 'DAY'),
     ('giorni', 'DAY'),
@@ -92,7 +88,6 @@ WITH "unit_word" ("word", "code") AS (
     ('anno', 'ANN'),
     ('anni', 'ANN'),
     ('rok', 'ANN'),
-    ('lata', 'ANN'),
     ('ano', 'ANN'),
     ('anos', 'ANN'),
     ('kg', 'KGM'),
@@ -153,7 +148,6 @@ WITH "unit_word" ("word", "code") AS (
     ('quilómetros', 'KMT'),
     ('set', 'SET'),
     ('sets', 'SET'),
-    ('satz', 'SET'),
     ('zestaw', 'SET'),
     ('zestawy', 'SET'),
     ('conjunto', 'SET'),
@@ -183,14 +177,14 @@ SET "data" = jsonb_set(
     )
     FROM jsonb_array_elements(d."data"::jsonb -> 'lines') WITH ORDINALITY AS l("line", "position")
     LEFT JOIN "unit_word" AS w
-      ON jsonb_typeof(l."line" -> 'unit') = 'string' AND w."word" = lower(btrim(l."line" ->> 'unit'))
+      ON jsonb_typeof(l."line" -> 'unit') = 'string' AND w."word" = lower(regexp_replace(l."line" ->> 'unit', '^\s+|\s+$', '', 'g'))
   )
 )
-WHERE (d."typeId" = 'quote' OR (d."typeId" IN ('invoice', 'credit-note') AND d."status" = 'draft'))
+WHERE (d."typeId" IN ('quote', 'invoice', 'credit-note') AND d."status" = 'draft')
   AND jsonb_typeof(d."data"::jsonb -> 'lines') = 'array'
   AND EXISTS (
     SELECT 1
     FROM jsonb_array_elements(d."data"::jsonb -> 'lines') AS l("line")
     JOIN "unit_word" AS w
-      ON jsonb_typeof(l."line" -> 'unit') = 'string' AND w."word" = lower(btrim(l."line" ->> 'unit'))
+      ON jsonb_typeof(l."line" -> 'unit') = 'string' AND w."word" = lower(regexp_replace(l."line" ->> 'unit', '^\s+|\s+$', '', 'g'))
   );

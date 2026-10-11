@@ -56,15 +56,17 @@ entry, and any other text you type is kept as it is. Unit is optional.
 A unit picked from the list is stored as its UN/ECE Recommendation 20 code (for example `HUR` for
 hour or `H87` for piece): the e-invoice XML carries that code, and the PDF prints the unit's name in
 the document's language. A unit typed by hand is printed as typed and exported as the generic code
-`C62` ("one"), so the XML stays valid. A typed word that names exactly one unit, such as `h`,
-`Stunde` or `szt.`, is exported with that unit's code.
+`C62` ("one"), so the XML stays valid. Units typed in English before the list existed (`hour`,
+`day`, `kg`, `m` and similar) keep the code they were always exported with, so the XML of an
+invoice already issued does not change.
 
 Quotes, invoices, credit notes and received invoices all offer the same line fields, Unit included.
 
 :::info[Units typed before the list existed]
-On upgrade, units typed as free text on quotes and on draft invoices and credit notes are converted
-to their code when the text names exactly one unit (`h` becomes hour). Anything ambiguous, such as
-`m` (metre or minute), stays as typed. Issued invoices and credit notes are never modified.
+On upgrade, units typed as free text on draft quotes, invoices and credit notes are converted to
+their code when the text names exactly one unit (`h` becomes hour). Anything ambiguous, such as `m`
+(metre or minute), stays as typed. A quote that was sent, signed or accepted, and an issued invoice
+or credit note, are never modified.
 :::
 
 When you type a **Designation**, matching items from your [article catalog](../articles.md) are

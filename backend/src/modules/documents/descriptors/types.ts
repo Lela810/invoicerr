@@ -478,6 +478,9 @@ export interface DocumentFieldDescriptor {
    * purpose (the screen for a good experience, the server because the screen is never trusted
    * alone) — never make one a substitute for the other.
    */
+  /** Read-only on screen while the named top-level `data` value is truthy. The action that writes the
+   *  field is what enforces it (e.g. received-invoice-actions.ts re-reads supplier XML lines). */
+  readOnlyWhen?: string;
   lockedFromReference?: { field: string; entity: string; sourceKey: string };
   /**
    * 'reference', SINGLE target: which EntityReferenceRegistry entry resolves/searches values for

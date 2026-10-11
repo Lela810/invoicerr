@@ -27,10 +27,11 @@ To widen that coverage, or to add a country of your own, see [Adding a
 country](../adding-a-country.md): the catalogue files listed on every other page in this directory
 are the ones Germany already has.
 
-## Default payment term
+## Fallback payment term
 
-The `paymentTerms.defaultTerm` entry of `countries/data/de.json` holds the term that applies when
-the parties agreed none: 30 days, from BGB § 286 Abs. 3: a debtor who has not paid within 30 days of the due date and of receiving the invoice is in default; absent an agreed date the claim is due at once (BGB § 271 Abs. 1). An invoice gets its due date from it when the company
-has no default term of its own (see [Payment terms](../../user-guide/settings/payment-terms.md)). The
-statute counts from receipt, which the application cannot know, so the days are counted from the
-invoice date.
+The `paymentTerms.fallbackTerm` entry of `countries/data/de.json` is the 30 days an invoice's due
+date falls back to when the company has no default term of its own (see [Payment
+terms](../../user-guide/settings/payment-terms.md)). BGB § 286 Abs. 3 puts a debtor in default at
+the latest 30 days after the due date and receipt of the invoice (`basis: "latePaymentThreshold"`).
+It sets no payment term: without an agreed date a claim is due at once (BGB § 271 Abs. 1). The
+application counts the 30 days from the invoice date, not from receipt of the invoice.

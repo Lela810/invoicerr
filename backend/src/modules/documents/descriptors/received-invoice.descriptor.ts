@@ -364,6 +364,8 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         label: 'Lines',
         required: false,
         // No `min`: a scanned PDF, or a structured deposit with no readable line, is still a valid record.
+        // Lines read from a structured supplier file are the supplier's and stay read-only.
+        readOnlyWhen: 'linesFromSupplierXml',
         // No `articleId`: a received invoice line is never linked to the article it was typed from.
         prefillFrom: {
           entity: 'article',

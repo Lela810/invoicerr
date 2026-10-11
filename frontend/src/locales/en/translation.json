@@ -5053,7 +5053,8 @@
       },
       "array": {
         "addRow": "Add row",
-        "removeRow": "Remove row"
+        "removeRow": "Remove row",
+        "readOnlyFromSource": "These lines come from the supplier's e-invoice and cannot be edited."
       },
       "select": {
         "lockedFromReference": "Follows the linked record — cannot be edited directly."

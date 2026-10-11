@@ -77,6 +77,9 @@ export interface DocumentFieldDescriptor {
    *  mechanism (pre-fills, disables the control once resolved) and the backend's own
    *  `DocumentFieldDescriptor.lockedFromReference` for the full "why", including the server-side
    *  hard block this screen convenience is backed by, never a substitute for it. */
+  /** Read-only while the named top-level value is truthy (set by the backend, e.g. lines read from a
+   *  supplier e-invoice). */
+  readOnlyWhen?: string
   lockedFromReference?: { field: string; entity: string; sourceKey: string }
   /** 'reference', SINGLE target: which entity the generic search/resolve endpoints target (e.g.
    *  "client"). The stored value is a plain non-empty id string.

@@ -15,6 +15,8 @@ import * as persistence from './persistence';
 import { EntityReferenceRegistry } from './references/reference-registry';
 import * as supplierReconciliation from './received-invoices/supplier-reconciliation';
 import * as settlementPayments from './settlement/payments';
+import * as receivedExtraction from './received-invoices/extraction';
+import * as receivedStorage from './received-invoices/storage';
 import { PdpReceptionStatusPusher } from './transports/pdp/pdp-reception';
 import { TransportRegistry } from './transports/transport-registry';
 
@@ -35,6 +37,11 @@ vi.mock('./received-invoices/supplier-reconciliation');
 // "record-payment": this file's concern is the ACTION's wiring, not `DocumentPayment` persistence
 // itself (proven for real elsewhere).
 vi.mock('./settlement/payments');
+vi.mock('./received-invoices/storage');
+vi.mock('./received-invoices/extraction', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./received-invoices/extraction')>()),
+  extractReceivedInvoiceFields: vi.fn(),
+}));
 
 /**
  * Received-invoice reception — the FIFTH document type written entirely as data.
@@ -640,5 +647,51 @@ describe('DocumentsService — "received-invoice", the FIFTH descriptor-only typ
         data: {},
       }),
     ).rejects.toThrow(/No document action policy is declared for "DE"/);
+  });
+
+  describe('lines read from the supplier XML', () => {
+    const SUPPLIER_LINES = [
+      { description: 'Supplier line', quantity: 2, unit: 'HUR', unitPrice: 50, vatRate: '20' },
+    ];
+    const EDITED_LINES = [
+      { description: 'Edited', quantity: 9, unit: 'DAY', unitPrice: 1, vatRate: '0', discountPercent: 50 },
+    ];
+    const FILE = { fileRef: 'cafe', fileName: 'supplier.xml', fileMime: 'application/xml' };
+
+    it('"receive" keeps the lines of a structured supplier file, whatever the form sent', async () => {
+      (persistence.upsertDocument as Mock).mockResolvedValue(fakeRecord());
+      (receivedStorage.readInboundFile as Mock).mockResolvedValue(Buffer.from('<Invoice/>'));
+      (receivedExtraction.extractReceivedInvoiceFields as Mock).mockResolvedValue({
+        syntax: 'UBL',
+        fields: { lines: SUPPLIER_LINES },
+      });
+      const { service } = buildService();
+
+      await service.runAction('company-1', 'received-invoice', 'receive', {
+        data: { ...FILE, lines: EDITED_LINES },
+      });
+
+      const persistedData = (persistence.upsertDocument as Mock).mock.calls[0][4];
+      expect(persistedData.lines).toEqual(SUPPLIER_LINES);
+      expect(persistedData.linesFromSupplierXml).toBe(true);
+    });
+
+    it('"receive" keeps the lines typed for a file with no structured data', async () => {
+      (persistence.upsertDocument as Mock).mockResolvedValue(fakeRecord());
+      (receivedStorage.readInboundFile as Mock).mockResolvedValue(Buffer.from('%PDF'));
+      (receivedExtraction.extractReceivedInvoiceFields as Mock).mockResolvedValue({
+        syntax: null,
+        fields: {},
+      });
+      const { service } = buildService();
+
+      await service.runAction('company-1', 'received-invoice', 'receive', {
+        data: { ...FILE, fileName: 'scan.pdf', fileMime: 'application/pdf', lines: EDITED_LINES },
+      });
+
+      const persistedData = (persistence.upsertDocument as Mock).mock.calls[0][4];
+      expect(persistedData.lines).toEqual(EDITED_LINES);
+      expect(persistedData).not.toHaveProperty('linesFromSupplierXml');
+    });
   });
 });

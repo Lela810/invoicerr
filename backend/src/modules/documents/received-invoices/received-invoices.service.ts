@@ -190,6 +190,9 @@ export class ReceivedInvoicesService {
     if (supplierMatch.outcome === 'matched') {
       fields.supplierClient = supplierMatch.clientId;
     }
+    if (structural.syntax && structural.fields.lines?.length) {
+      fields.linesFromSupplierXml = true;
+    }
 
     return {
       fileRef,

@@ -53,6 +53,23 @@ describe('goblUnitKey', () => {
     expect(goblUnitKey('unit')).toBe('unit');
   });
 
+  it.each([
+    ['HUR', 'h'],
+    ['DAY', 'day'],
+    ['WEE', 'wk'],
+    ['MON', 'mon'],
+    ['ANN', 'yr'],
+    ['KGM', 'kg'],
+    ['GRM', 'g'],
+    ['LTR', 'l'],
+    ['MTR', 'm'],
+    ['KMT', 'km'],
+    ['C62', 'unit'],
+    ['H87', 'piece'],
+  ])('translates the stored UN/ECE code %s to %s', (code, key) => {
+    expect(goblUnitKey(code)).toBe(key);
+  });
+
   it('returns undefined rather than guessing for anything it does not know', () => {
     // The whole point: an unrecognised unit costs a descriptive attribute, while passing it through
     // costs the deposit - the sandbox rejects an invalid `item.unit` with GOBL-ORG-ITEM-04 and takes

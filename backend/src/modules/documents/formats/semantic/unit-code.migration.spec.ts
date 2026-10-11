@@ -10,7 +10,9 @@ const MIGRATION = join(
   '../../../../../prisma/migrations/20261011100000_document_line_unit_codes/migration.sql',
 );
 
-const FREE_TEXT = ['sprint', 'm', 'lot', 'forfait', ''];
+// Matching rule, same as knownUnitCode: surrounding whitespace trimmed, then lowercased (Postgres
+// lower() under the database's UTF-8 collation, which agrees with toLowerCase() for every listed word).
+const FREE_TEXT = ['sprint', 'm', 'lot', 'forfait', 'lata', 'tag', ''];
 
 /** Runs the migration on one company's rows only, so parallel specs sharing the database are untouched. */
 async function migrate(companyId: string) {
@@ -72,8 +74,8 @@ describe('migration 20261011100000_document_line_unit_codes', () => {
     expect(await unitsOf(draft.id)).toEqual(words.map((word) => knownUnitCode(word)));
   });
 
-  it('maps h to HUR and Stunde to HUR on a quote, whatever its status', async () => {
-    const quote = await createDocument(companyId, 'quote', 'signed', ['h', 'Stunde', 'DAY']);
+  it('maps h to HUR and Stunde to HUR on a draft quote, trimming tabs and line breaks like the app', async () => {
+    const quote = await createDocument(companyId, 'quote', 'draft', ['h', '\tStunde\n', 'DAY']);
 
     await migrate(companyId);
 
@@ -88,15 +90,30 @@ describe('migration 20261011100000_document_line_unit_codes', () => {
     expect(await unitsOf(draft.id)).toEqual([...FREE_TEXT, undefined, 3]);
   });
 
-  it('never touches an issued invoice, an issued credit note or a received invoice', async () => {
+  it('never touches a sent or signed quote, an issued invoice or credit note, or a received invoice', async () => {
+    const sentQuote = await createDocument(companyId, 'quote', 'sent', ['h']);
+    const signedQuote = await createDocument(companyId, 'quote', 'signed', ['Stunde']);
     const issued = await createDocument(companyId, 'invoice', 'sent', ['hour', 'h']);
     const credit = await createDocument(companyId, 'credit-note', 'validated', ['day']);
     const received = await createDocument(companyId, 'received-invoice', 'draft', ['kg']);
 
     await migrate(companyId);
 
+    expect(await unitsOf(sentQuote.id)).toEqual(['h']);
+    expect(await unitsOf(signedQuote.id)).toEqual(['Stunde']);
     expect(await unitsOf(issued.id)).toEqual(['hour', 'h']);
     expect(await unitsOf(credit.id)).toEqual(['day']);
     expect(await unitsOf(received.id)).toEqual(['kg']);
+  });
+
+  it('carries the same word list as the application', () => {
+    const sql = readFileSync(MIGRATION, 'utf-8');
+    const pairs = [...sql.matchAll(/\('([^']+)', '([A-Z0-9]+)'\)/g)].map(
+      ([, word, code]) => `${word}=${code}`,
+    );
+    const expected = Object.entries(UNAMBIGUOUS_UNIT_WORDS).flatMap(([code, words]) =>
+      words.map((word) => `${word}=${code}`),
+    );
+    expect(pairs.sort()).toEqual(expected.sort());
   });
 });

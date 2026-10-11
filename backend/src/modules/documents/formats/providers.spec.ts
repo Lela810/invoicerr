@@ -438,3 +438,34 @@ describe('line unit: a picked code is exported as is, free text as C62', () => {
     30_000,
   );
 });
+
+describe('line unit: text stored on an issued invoice exports the code it always had', () => {
+  const ISSUED_WITH_TEXT_UNITS = {
+    ...DOCUMENT,
+    data: {
+      ...DOCUMENT_DATA,
+      lines: [
+        { ...DOCUMENT_DATA.lines[0], unit: 'piece' },
+        { ...DOCUMENT_DATA.lines[1], unit: 'm' },
+        { ...DOCUMENT_DATA.lines[1], unit: 'h' },
+      ],
+    },
+  };
+
+  it.each([
+    ['CII', ciiFormatProvider, 'BilledQuantity'] as const,
+    ['UBL', ublFormatProvider, 'InvoicedQuantity'] as const,
+  ])(
+    '%s',
+    async (_label, provider, element) => {
+      const result = await provider.build(descriptor, ISSUED_WITH_TEXT_UNITS, SELLER, BUYER);
+      const xml = Buffer.from(result.bytes).toString('utf-8');
+      const units = [...xml.matchAll(new RegExp(`<[\\w:]*${element} unitCode="([^"]+)"`, 'g'))].map(
+        (m) => m[1],
+      );
+
+      expect(units).toEqual(['C62', 'MTR', 'C62']);
+    },
+    30_000,
+  );
+});

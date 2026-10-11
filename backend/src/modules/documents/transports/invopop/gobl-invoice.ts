@@ -110,6 +110,17 @@ const UNIT_KEYS: Record<string, string> = {
   service: 'service',
   job: 'job',
   day_rate: 'rate',
+  // UN/ECE Rec 20 codes stored by the line's unit field, lowercased like every other key.
+  hur: 'h',
+  wee: 'wk',
+  ann: 'yr',
+  kgm: 'kg',
+  grm: 'g',
+  ltr: 'l',
+  mtr: 'm',
+  kmt: 'km',
+  c62: 'unit',
+  h87: 'piece',
 };
 
 /** Maps one free-text unit onto a GOBL unit key, or `undefined` when nothing matches - see above. */

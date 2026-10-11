@@ -20,7 +20,7 @@ function termsOf(partial: Partial<ResolvedPaymentTerms>): { data: ResolvedPaymen
       quote: null,
       invoice: null,
       cap: null,
-      countryInvoiceDefault: null,
+      countryInvoiceFallback: null,
       exceedsCap: { quote: false, invoice: false },
       ...partial,
     },
@@ -56,14 +56,14 @@ describe("useDueDateDefault", () => {
   })
 
   it("falls back to the country's term for an invoice when the company has none", () => {
-    mockTerms({ countryInvoiceDefault: { days: 30, mode: "net" } })
+    mockTerms({ countryInvoiceFallback: { days: 30, mode: "net" } })
     const { result } = setup()
     pick(result.current, "issueDate", "2026-10-01")
     expect(result.current.getValues("dueDate")).toBe("2026-10-31")
   })
 
   it("never applies the country's invoice term to a quote", () => {
-    mockTerms({ countryInvoiceDefault: { days: 30, mode: "net" } })
+    mockTerms({ countryInvoiceFallback: { days: 30, mode: "net" } })
     const { result } = setup({ typeId: "quote" })
     pick(result.current, "issueDate", "2026-10-01")
     expect(result.current.getValues("dueDate")).toBeUndefined()

@@ -76,11 +76,14 @@ describe('resolvePaymentTerms cap, read from the country data', () => {
   });
 });
 
-describe('country default invoice term', () => {
+describe('country fallback invoice term', () => {
   it.each(['DE', 'FR', 'IT', 'PL', 'PT'])('%s: 30 days net when the company set none', (countryCode) => {
+    expect(defaultComposedCountryCatalog.get(countryCode)?.paymentTerms?.fallbackTerm?.basis).toMatch(
+      /^(latePaymentThreshold|maximumWhenNotAgreed)$/,
+    );
     const resolved = resolvePaymentTerms({ countryCode });
     expect(resolved.invoice).toBeNull();
-    expect(resolved.countryInvoiceDefault).toEqual({ days: 30, mode: 'net' });
+    expect(resolved.countryInvoiceFallback).toEqual({ days: 30, mode: 'net' });
     expect(effectiveInvoiceTerm(resolved)).toEqual({ days: 30, mode: 'net' });
   });
 
@@ -118,19 +121,34 @@ describe('assertValidPaymentTerms', () => {
     ).not.toThrow();
   });
 
-  it('accepts a sourced default term without a cap, and refuses an unsourced one or an empty section', () => {
+  it('accepts a sourced fallback term without a cap, and refuses an unsourced one, an unknown basis or an empty section', () => {
     expect(() =>
-      assertValidPaymentTerms({ countryCode: 'ZZ', defaultTerm: { days: 30, provenance } }, 'x'),
+      assertValidPaymentTerms(
+        { countryCode: 'ZZ', fallbackTerm: { days: 30, basis: 'latePaymentThreshold', provenance } },
+        'x',
+      ),
     ).not.toThrow();
     expect(() =>
       assertValidPaymentTerms(
-        { countryCode: 'ZZ', defaultTerm: { days: 30, provenance: undefined as never } },
+        { countryCode: 'ZZ', fallbackTerm: { days: 30, basis: 'default' as never, provenance } },
+        'x',
+      ),
+    ).toThrow(/basis/);
+    expect(() =>
+      assertValidPaymentTerms(
+        {
+          countryCode: 'ZZ',
+          fallbackTerm: { days: 30, basis: 'maximumWhenNotAgreed', provenance: undefined as never },
+        },
         'x',
       ),
     ).toThrow(/provenance/);
     expect(() =>
-      assertValidPaymentTerms({ countryCode: 'ZZ', defaultTerm: { days: 0, provenance } }, 'x'),
-    ).toThrow(/defaultTerm.days/);
+      assertValidPaymentTerms(
+        { countryCode: 'ZZ', fallbackTerm: { days: 0, basis: 'maximumWhenNotAgreed', provenance } },
+        'x',
+      ),
+    ).toThrow(/fallbackTerm.days/);
     expect(() => assertValidPaymentTerms({ countryCode: 'ZZ' }, 'x')).toThrow(/neither/);
   });
 

@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
-import { defaultPaymentTermFor, paymentTermsCapFor } from '@/modules/documents/payment-terms/registry';
+import { fallbackPaymentTermFor, paymentTermsCapFor } from '@/modules/documents/payment-terms/registry';
 
 export type DueDateMode = 'net' | 'endOfMonth';
 
@@ -19,8 +19,8 @@ export interface ResolvedPaymentTerms {
   invoice: DueDateTerm | null;
   /** `null` for a country with no known cap. */
   cap: PaymentTermCap | null;
-  /** The country's term for an invoice when the company set none, from the country's own file. */
-  countryInvoiceDefault: DueDateTerm | null;
+  /** The country's fallback term for an invoice when the company set none, from the country's own file. */
+  countryInvoiceFallback: DueDateTerm | null;
   /** Per document type: the configured term is longer than the country's cap. Never blocks a save. */
   exceedsCap: { quote: boolean; invoice: boolean };
 }
@@ -58,22 +58,22 @@ export function resolvePaymentTerms(company: {
   const cap: PaymentTermCap | null = capFact
     ? { maxNetDays: capFact.maxNetDays, maxEndOfMonthDays: capFact.maxEndOfMonthDays }
     : null;
-  const countryDefault = defaultPaymentTermFor(company.countryCode ?? '');
-  const countryInvoiceDefault: DueDateTerm | null = countryDefault
-    ? { days: countryDefault.days, mode: 'net' }
+  const countryFallback = fallbackPaymentTermFor(company.countryCode ?? '');
+  const countryInvoiceFallback: DueDateTerm | null = countryFallback
+    ? { days: countryFallback.days, mode: 'net' }
     : null;
   return {
     quote,
     invoice,
     cap,
-    countryInvoiceDefault,
+    countryInvoiceFallback,
     exceedsCap: { quote: exceeds(quote, cap), invoice: exceeds(invoice, cap) },
   };
 }
 
 /** The term a new invoice's due date is computed from: the company's own, else its country's. */
 export function effectiveInvoiceTerm(terms: ResolvedPaymentTerms): DueDateTerm | null {
-  return terms.invoice ?? terms.countryInvoiceDefault;
+  return terms.invoice ?? terms.countryInvoiceFallback;
 }
 
 /** The due date `term` gives for a calendar `issueDate` ("YYYY-MM-DD", a longer ISO string is cut to

@@ -2,8 +2,9 @@
  * The country catalog format for two payment-term facts, each optional:
  *  - the longest term the country's law lets two businesses agree on, counted from the invoice's
  *    issue date (a country without one is never warned about);
- *  - the term that applies when the parties agreed none, used to prefill an invoice's due date
- *    when the company has no default of its own.
+ *  - the fallback term the application uses to prefill an invoice's due date when the company has
+ *    no default of its own. No shipped country sets a payment term by statute: `basis` says what the
+ *    quoted text actually provides the 30 days for.
  *
  * Reuses `country-policy/schema.ts`'s provenance union, like every sibling catalog.
  */
@@ -13,9 +14,17 @@ import {
   PolicyProvenance,
 } from '../country-policy/schema';
 
-export interface CountryDefaultPaymentTerm {
+/**
+ * - `latePaymentThreshold`: the statute says when the debtor is late or interest starts to run.
+ * - `maximumWhenNotAgreed`: the statute caps the payment period when nothing was agreed.
+ */
+export const FALLBACK_TERM_BASES = ['latePaymentThreshold', 'maximumWhenNotAgreed'] as const;
+export type FallbackTermBasis = (typeof FALLBACK_TERM_BASES)[number];
+
+export interface CountryFallbackPaymentTerm {
   /** Calendar days after the invoice date. */
   days: number;
+  basis: FallbackTermBasis;
   provenance: PolicyProvenance;
   notes?: string;
 }
@@ -29,7 +38,7 @@ export interface CountryPaymentTermsFile {
   maxEndOfMonthDays?: number;
   /** Source of the two caps above. */
   provenance?: PolicyProvenance;
-  defaultTerm?: CountryDefaultPaymentTerm;
+  fallbackTerm?: CountryFallbackPaymentTerm;
   notes?: string;
 }
 
@@ -48,8 +57,10 @@ export function hasPaymentTermCap(file: CountryPaymentTermsFile): boolean {
 }
 
 export function assertValidPaymentTerms(file: CountryPaymentTermsFile, context: string): void {
-  if (!hasPaymentTermCap(file) && !file.defaultTerm) {
-    throw new InvalidPaymentTermsError(`${context}: declares neither a payment-term cap nor a default term.`);
+  if (!hasPaymentTermCap(file) && !file.fallbackTerm) {
+    throw new InvalidPaymentTermsError(
+      `${context}: declares neither a payment-term cap nor a fallback term.`,
+    );
   }
   if (hasPaymentTermCap(file)) {
     assertPositiveInteger(file.maxNetDays, 'maxNetDays', context);
@@ -60,12 +71,17 @@ export function assertValidPaymentTerms(file: CountryPaymentTermsFile, context: 
       'a payment-term cap',
     );
   }
-  if (file.defaultTerm) {
-    assertPositiveInteger(file.defaultTerm.days, 'defaultTerm.days', context);
+  if (file.fallbackTerm) {
+    assertPositiveInteger(file.fallbackTerm.days, 'fallbackTerm.days', context);
+    if (!FALLBACK_TERM_BASES.includes(file.fallbackTerm.basis)) {
+      throw new InvalidPaymentTermsError(
+        `${context}: "fallbackTerm.basis" must be one of ${FALLBACK_TERM_BASES.join(', ')}.`,
+      );
+    }
     assertValidPolicyProvenance(
-      file.defaultTerm.provenance,
-      `${context} paymentTerms.defaultTerm`,
-      'a default payment term',
+      file.fallbackTerm.provenance,
+      `${context} paymentTerms.fallbackTerm`,
+      'a fallback payment term',
     );
   }
 }

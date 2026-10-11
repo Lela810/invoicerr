@@ -107,6 +107,25 @@ describe('ReceivedInvoicesService', () => {
   });
 
   describe('upload', () => {
+    it('marks the lines of a structured file as read from the supplier XML', async () => {
+      const withLine = MINIMAL_CII_XML.replace(
+        '<ram:ApplicableHeaderTradeAgreement>',
+        `<ram:IncludedSupplyChainTradeLineItem>
+      <ram:SpecifiedTradeProduct><ram:Name>Audit</ram:Name></ram:SpecifiedTradeProduct>
+      <ram:SpecifiedLineTradeDelivery><ram:BilledQuantity unitCode="HUR">2</ram:BilledQuantity></ram:SpecifiedLineTradeDelivery>
+    </ram:IncludedSupplyChainTradeLineItem>
+    <ram:ApplicableHeaderTradeAgreement>`,
+      );
+      const preview = await service.upload('company-1', {
+        fileName: 'supplier-lines.xml',
+        mime: 'application/xml',
+        bytes: Buffer.from(withLine, 'utf-8'),
+      });
+
+      expect(preview.extraction.fields.lines).toEqual([{ description: 'Audit', quantity: 2, unit: 'HUR' }]);
+      expect(preview.extraction.fields.linesFromSupplierXml).toBe(true);
+    });
+
     it('stores the file, extracts CII fields, and returns the SHA-256 as fileRef', async () => {
       const bytes = Buffer.from(MINIMAL_CII_XML, 'utf-8');
       const expectedHash = computeArtifactHash(Buffer.from(MINIMAL_CII_XML, 'utf-8'));

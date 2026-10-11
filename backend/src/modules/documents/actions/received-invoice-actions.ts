@@ -4,7 +4,9 @@ import { toMinor } from '@/utils/financial';
 
 import { findOwnedDocument, updateDocumentStatus, upsertDocument } from '../persistence';
 import { DocumentWebhookEmitter } from '../queue/document-webhooks';
+import { extractReceivedInvoiceFields } from '../received-invoices/extraction';
 import { checkReceivedInvoiceLineTotals } from '../received-invoices/line-totals-check';
+import { readInboundFile } from '../received-invoices/storage';
 import { markClientAsSupplier } from '../received-invoices/supplier-reconciliation';
 import { listPayments, recordPayment, toSettlementPaymentInputs } from '../settlement/payments';
 import { PdpReceptionStatusPusher } from '../transports/pdp/pdp-reception';
@@ -86,7 +88,8 @@ export function registerReceivedInvoiceActions(
    * three converge on this ONE handler, so all three mark the role the same way. Never called when the
    * field is empty — a received invoice with no linked supplier touches no Client at all.
    */
-  registry.register('received-invoice', 'receive', async ({ companyId, documentId, data }) => {
+  registry.register('received-invoice', 'receive', async ({ companyId, documentId, data: submitted }) => {
+    const data = await withSupplierXmlLines(companyId, submitted);
     const lineTotalWarnings = checkReceivedInvoiceLineTotals(data);
     const dataWithWarnings = { ...data, lineTotalWarnings };
     // `fromStatuses: ['received']` — every shipped country's own `receive` rule (country-policy/data/
@@ -296,4 +299,22 @@ function readPdpInboundId(data: unknown): string | undefined {
 
 function sumMinor(inputs: readonly { amountMinor: number }[]): number {
   return inputs.reduce((total, input) => total + input.amountMinor, 0);
+}
+
+/** Lines read from a structured supplier file are the supplier's own and stay read-only: they are
+ *  re-read from the stored file on every save, so an edited copy sent by the form never lands. */
+async function withSupplierXmlLines(
+  companyId: string,
+  data: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { linesFromSupplierXml: _ignored, ...rest } = data;
+  const fileRef = typeof data.fileRef === 'string' ? data.fileRef : undefined;
+  if (!fileRef) return rest;
+  const mime = typeof data.fileMime === 'string' ? data.fileMime : 'application/octet-stream';
+  const fileName = typeof data.fileName === 'string' ? data.fileName : '';
+  const bytes = await readInboundFile(companyId, fileRef, mime);
+  if (!bytes) return rest;
+  const { syntax, fields } = await extractReceivedInvoiceFields(bytes, mime, fileName);
+  if (!syntax || !fields.lines?.length) return rest;
+  return { ...rest, lines: fields.lines, linesFromSupplierXml: true };
 }
