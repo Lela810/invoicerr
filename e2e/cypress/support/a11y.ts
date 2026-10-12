@@ -17,6 +17,12 @@ function printViolations(violations: Result[]) {
 }
 
 Cypress.Commands.add("assertAccessible", (options: Cypress.AssertAccessibleOptions = {}) => {
+    // A toast fading in or out is measured at partial opacity, which axe reports as low contrast.
+    cy.get("body", { log: false }).should(($body) => {
+        $body.find('[data-sonner-toast][data-visible="true"]').each((_, toast) => {
+            expect(toast.ownerDocument.defaultView?.getComputedStyle(toast).opacity, "toast opacity").to.eq("1")
+        })
+    })
     cy.injectAxe()
     cy.checkA11y(
         options.context,
