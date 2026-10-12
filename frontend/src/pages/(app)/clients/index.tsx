@@ -82,7 +82,7 @@ function ClientRow({
       identity={
         <>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="min-w-0 break-words font-medium text-foreground">
+            <h2 className="min-w-0 break-words font-medium text-foreground">
               {/* A real button, the one control a keyboard or screen-reader user can reach to open
                   the record (the row's own onClick is invisible to both). */}
               <button
@@ -96,7 +96,7 @@ function ClientRow({
               >
                 {clientDisplayName(client)}
               </button>
-            </h3>
+            </h2>
             <ClientBadges client={client} />
           </div>
           {meta.length > 0 && (

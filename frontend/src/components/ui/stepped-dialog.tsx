@@ -372,7 +372,7 @@ export const SteppedDialog = forwardRef<SteppedDialogHandle, SteppedDialogProps>
                       onClick={() => setState((s) => stepperJumpTo(s, i))}
                       className={cn(
                         "flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium transition-colors disabled:cursor-default",
-                        status === "current" && "bg-primary/10 text-primary",
+                        status === "current" && "bg-accent text-accent-foreground",
                         status === "done" && "text-foreground hover:bg-accent",
                         status === "upcoming" && "text-muted-foreground",
                       )}
@@ -384,7 +384,7 @@ export const SteppedDialog = forwardRef<SteppedDialogHandle, SteppedDialogProps>
                           status === "done"
                             ? "border-primary bg-primary text-primary-foreground"
                             : status === "current"
-                              ? "border-primary text-primary"
+                              ? "border-primary"
                               : "border-muted-foreground/30",
                         )}
                       >

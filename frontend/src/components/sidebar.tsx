@@ -341,38 +341,40 @@ export function Sidebar() {
             </SidebarMenuItem>
 
             {documentsOpen && (
-              <SidebarMenuSub>
-                {typesLoading && (
-                  <SidebarMenuSubItem>
-                    <Skeleton className="h-6 w-full" />
-                  </SidebarMenuSubItem>
-                )}
+              <SidebarMenuItem>
+                <SidebarMenuSub>
+                  {typesLoading && (
+                    <SidebarMenuSubItem>
+                      <Skeleton className="h-6 w-full" />
+                    </SidebarMenuSubItem>
+                  )}
 
-                {/* A country with no policy at all (or that can't be resolved) has NO document
-                    types — this SAYS so plainly, with the backend's own reason, rather than leaving the
-                    group silently empty (which would look like a loading bug, not a real state). */}
-                {!typesLoading && (availableTypes?.types.length ?? 0) === 0 && (
-                  <SidebarMenuSubItem>
-                    <p
-                      className="whitespace-normal px-2 py-1.5 text-xs text-muted-foreground"
-                      data-cy="sidebar-documents-empty"
-                    >
-                      {availableTypes?.reason ?? t("sidebar.documents.empty")}
-                    </p>
-                  </SidebarMenuSubItem>
-                )}
+                  {/* A country with no policy at all (or that can't be resolved) has NO document
+                      types — this SAYS so plainly, with the backend's own reason, rather than leaving the
+                      group silently empty (which would look like a loading bug, not a real state). */}
+                  {!typesLoading && (availableTypes?.types.length ?? 0) === 0 && (
+                    <SidebarMenuSubItem>
+                      <p
+                        className="whitespace-normal px-2 py-1.5 text-xs text-muted-foreground"
+                        data-cy="sidebar-documents-empty"
+                      >
+                        {availableTypes?.reason ?? t("sidebar.documents.empty")}
+                      </p>
+                    </SidebarMenuSubItem>
+                  )}
 
-                {availableTypes?.types.map((type) => (
-                  <SidebarMenuSubItem key={type.id}>
-                    <SidebarMenuSubButton asChild isActive={location.pathname === `/documents/${type.id}`}>
-                      <Link data-cy={`sidebar-document-type-link-${type.id}`} to={`/documents/${type.id}`}>
-                        <FileText className="h-4 w-4" />
-                        <span>{type.label}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
+                  {availableTypes?.types.map((type) => (
+                    <SidebarMenuSubItem key={type.id}>
+                      <SidebarMenuSubButton asChild isActive={location.pathname === `/documents/${type.id}`}>
+                        <Link data-cy={`sidebar-document-type-link-${type.id}`} to={`/documents/${type.id}`}>
+                          <FileText className="h-4 w-4" />
+                          <span>{type.label}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             )}
           </SidebarMenu>
         </SidebarGroup>
@@ -404,18 +406,20 @@ export function Sidebar() {
             </SidebarMenuItem>
 
             {dataOpen && (
-              <SidebarMenuSub>
-                {dataItems.map((item) => (
-                  <SidebarMenuSubItem key={item.url}>
-                    <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(item.url)}>
-                      <Link data-cy={item.dataCy} to={item.url}>
-                        {item.icon}
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
+              <SidebarMenuItem>
+                <SidebarMenuSub>
+                  {dataItems.map((item) => (
+                    <SidebarMenuSubItem key={item.url}>
+                      <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(item.url)}>
+                        <Link data-cy={item.dataCy} to={item.url}>
+                          {item.icon}
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             )}
           </SidebarMenu>
         </SidebarGroup>

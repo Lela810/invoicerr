@@ -1546,7 +1546,7 @@
       "unchanged": "No change",
       "variationPercent": "{{sign}}{{percent}}%",
       "variationAbsolute": "{{sign}}{{value}} {{unit}}",
-      "openList": "Open the list behind \"{{label}}\""
+      "openListHint": "open the list"
     },
     "period": {
       "ariaLabel": "Period",

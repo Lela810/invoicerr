@@ -489,3 +489,11 @@ button:disabled {
   color: var(--muted-foreground);
   pointer-events: none;
 }
+
+/* Sonner's light rich colours put toast text under 4.5:1 on its own background (WCAG 1.4.3). */
+:root [data-sonner-toaster][data-sonner-theme="light"] {
+  --success-text: hsl(140, 100%, 22%);
+  --info-text: hsl(210, 92%, 38%);
+  --warning-text: hsl(31, 92%, 30%);
+  --error-text: hsl(360, 100%, 38%);
+}

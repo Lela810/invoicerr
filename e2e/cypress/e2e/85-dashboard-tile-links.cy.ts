@@ -334,4 +334,11 @@ describe("Dashboard tile links (#419)", () => {
 			cy.get('[data-cy^="widget-"][data-cy$="-link"]').should("have.length", metricsWithLink.length);
 		});
 	});
+
+	it("a tile link's accessible name contains the text it shows", () => {
+		cy.visit("/dashboard");
+		cy.get('[data-cy^="widget-"][data-cy$="-link"]', { timeout: 20000 }).should("have.length.greaterThan", 0);
+		cy.assertAccessible({ rules: ["label-content-name-mismatch"] });
+		cy.assertAccessible();
+	});
 });

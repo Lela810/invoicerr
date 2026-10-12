@@ -47,6 +47,7 @@ describe("Deleting a draft", () => {
 
 			const dialog = `document-row-delete-confirm-${invoiceId}`;
 			cy.get(`[data-cy="${dialog}"]`).should("be.visible");
+			cy.assertAccessible();
 			// Nothing is removed before the user confirms.
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` }).its("status").should("eq", 200);
 
@@ -65,10 +66,12 @@ describe("Deleting a draft", () => {
 		createDraftInvoice().then((invoiceId) => {
 			cy.visit("/documents/invoice");
 			cy.openDocument(invoiceId);
+			cy.assertAccessible();
 			cy.openDocumentActionsMenu();
 			cy.get('[data-cy="document-action-delete"]').click();
 
 			cy.get('[data-cy="document-detail-delete-confirm"]').should("be.visible");
+			cy.assertAccessible();
 			cy.intercept("POST", `${api}/api/documents/types/invoice/actions/delete`).as("delete");
 			cy.get('[data-cy="document-detail-delete-confirm-confirm"]').click();
 			cy.wait("@delete").its("response.statusCode").should("be.oneOf", [200, 201]);

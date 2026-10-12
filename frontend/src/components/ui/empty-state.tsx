@@ -65,9 +65,9 @@ function EmptyState({
       >
         <Icon className={size === "sm" ? "size-5" : "size-6"} strokeWidth={1.5} />
       </div>
-      <h3 className={cn("font-medium text-foreground text-balance", size === "sm" ? "mt-3 text-sm" : "mt-4")}>
+      <h2 className={cn("font-medium text-foreground text-balance", size === "sm" ? "mt-3 text-sm" : "mt-4")}>
         {title}
-      </h3>
+      </h2>
       {description && (
         <p className="mt-1 max-w-sm text-sm text-muted-foreground text-pretty">{description}</p>
       )}

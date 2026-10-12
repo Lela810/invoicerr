@@ -1,7 +1,8 @@
 name: Lighthouse CI
 
-# Audits the logged-in screens of a seeded instance. Informative only: no score fails the build, but a
-# page that ends on another path than the one requested does (the score would describe a redirect).
+# Audits the logged-in screens of a seeded instance. An accessibility score below 100 fails the build,
+# and so does a page that ends on another path than the one requested (the score would describe a
+# redirect). Performance, best practices and SEO are informative.
 # Runs when dev is merged into main, and by hand from the Actions tab.
 on:
   pull_request:

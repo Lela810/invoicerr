@@ -215,6 +215,8 @@ describe("Company Settings E2E", () => {
 				"have.value",
 				"123 Main St",
 			);
+			cy.assertAccessible();
+			cy.assertAccessible({ rules: ["button-name", "heading-order"] });
 		});
 	});
 

@@ -125,6 +125,7 @@ Every audited page must end on the path that was requested. A redirect to the si
 still get a score, so the job fails instead of reporting it.
 :::
 
-This is informative only: no score failing the pull request yet. Budgets (a minimum score below
-which the job fails) are a deliberate follow-up once a baseline of real scores exists, not
-something to add by just editing this file.
+Accessibility is gated: a score below 100 on any audited page fails the job, and the summary lists
+the failing audits per page. Performance, Best Practices and SEO stay informative. See
+[UI Conventions](./ui-conventions.md#accessibility-checks) for the axe checks that catch the same
+problems earlier, on every pull request.
