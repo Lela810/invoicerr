@@ -61,10 +61,14 @@ function createInvitationCodeViaUI(): Cypress.Chainable<string> {
 	// clipboard-copy-on-create is a real, unguarded `await`, out of this file's e2e-only scope to fix.
 	tolerateUncaughtException(/Clipboard write was blocked/);
 	cy.intercept('POST', '**/api/invitations').as('createSeatsInvitation');
+	cy.intercept('GET', '**/api/invitations').as('listSeatsInvitations');
 	cy.visit('/settings/invitations');
-	cy.wait(1000);
+	cy.wait('@listSeatsInvitations', { timeout: 15000 });
 	cy.contains('button', /generate|create/i, { timeout: 15000 }).click();
-	return cy.wait('@createSeatsInvitation').its('response.body.code');
+	cy.wait('@createSeatsInvitation').its('response.body.code').as('seatsInvitationCode');
+	// The list refetch that follows a create would answer 401 once the caller clears cookies, and redirect.
+	cy.wait('@listSeatsInvitations', { timeout: 15000 });
+	return cy.get<string>('@seatsInvitationCode');
 }
 
 describe('Settings > Seats', () => {
@@ -129,6 +133,8 @@ describe('Settings > Seats', () => {
 			cy.clearCookies();
 			fillSignupForm({ firstname: 'Fresh', lastname: 'Signup', email: freshEmail, saasMode });
 			cy.url({ timeout: 20000 }).should('include', '/auth/sign-in');
+			// The URL changes before React swaps the page, and both forms tag their email `auth-email-input`.
+			cy.get('[data-cy="auth-firstname-input"]').should('not.exist');
 
 			// A direct sign-in, not `cy.login()` - that helper is hardcoded to the seeded OWNER
 			// (`john.doe@acme.org`), who already has a company.
