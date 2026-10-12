@@ -395,7 +395,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: invoicerr
-          POSTGRES_PASSWORD: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_db
         ports:
           - "5433:5432"
@@ -482,17 +482,19 @@ jobs:
           node-version: 24
 
       - name: Install backend dependencies
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
           npm ci --ignore-scripts
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma generate
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma migrate deploy
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
           # `migrate deploy` does NOT run the seed hook (only `migrate dev`/`migrate reset`/`db seed`
           # do — see prisma.config.ts) — without this, the document country-action policy table stays
           # EMPTY and every document action 403s in every spec below (country-policy.ts blocks
           # everything for a country with no rows). `npm run start:test` doesn't call
           # syncDatabaseSchema() either (production-only, see main.ts), so nothing else seeds it here.
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
+          PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # This job renders REAL PDFs (documents.controller -> render-instance-pdf -> render-pdf.ts),
       # exercised by the e2e specs that send a document — e.g. 23-document-email.cy.ts. Unlike the
@@ -621,7 +623,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: invoicerr
-          POSTGRES_PASSWORD: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_db
         ports:
           - "5433:5432"
@@ -652,12 +654,14 @@ jobs:
           node-version: 24
 
       - name: Install backend dependencies
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
           npm ci --ignore-scripts
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma generate
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma migrate deploy
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
+          PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       - name: Cache Playwright Chromium
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -733,7 +737,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: invoicerr
-          POSTGRES_PASSWORD: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_db
         ports:
           - "5433:5432"
@@ -764,11 +768,13 @@ jobs:
           node-version: 24
 
       - name: Install backend dependencies
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
           npm ci --ignore-scripts
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma generate
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma migrate deploy
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
 
       - name: Cache Playwright Chromium
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -794,13 +800,15 @@ jobs:
         run: e2e/node_modules/.bin/wait-on tcp:5433 tcp:8025 tcp:1025 tcp:6379 --timeout 60000
 
       - name: Build & seed the demo dataset
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
           npm run build
           mkdir -p dist/scripts
           cp scripts/demo-reset.ts dist/scripts/demo-reset.ts
           cd dist
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ../node_modules/.bin/tsx scripts/demo-reset.ts
+          ../node_modules/.bin/tsx scripts/demo-reset.ts
 
       - name: Run backend, frontend & the demo-mode spec
         run: |

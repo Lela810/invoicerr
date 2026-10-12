@@ -52,7 +52,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: invoicerr
-          POSTGRES_PASSWORD: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_db
         ports:
           - "5433:5432"
@@ -96,16 +96,18 @@ jobs:
           node-version: 24
 
       - name: Install backend dependencies
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
           npm ci --ignore-scripts
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma generate
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma migrate deploy
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
           # See the same step in cypress.yml: `migrate deploy` never runs the seed hook, and
           # `npm run start:test` doesn't call syncDatabaseSchema() (production-only) either — without
           # this, the document country-action policy table stays empty and every document action
           # 403s for the whole scenario.
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
+          PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # See the same step in cypress.yml's `cypress-run` job: `full-lifecycle.cy.ts` sends real
       # documents, so this job renders real PDFs and needs a real Chromium — `ubuntu-latest` shipping
