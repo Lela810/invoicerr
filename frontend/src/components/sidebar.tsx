@@ -328,6 +328,7 @@ export function Sidebar() {
               <SidebarMenuButton
                 className="flex items-center gap-2 py-6"
                 onClick={() => setDocumentsOpen((open) => !open)}
+                aria-expanded={documentsOpen}
                 data-cy="sidebar-documents-group-toggle"
               >
                 <FileStack className="w-4 h-4" />
@@ -338,10 +339,7 @@ export function Sidebar() {
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 rtl:rotate-180" />
                 )}
               </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            {documentsOpen && (
-              <SidebarMenuItem>
+              {documentsOpen && (
                 <SidebarMenuSub>
                   {typesLoading && (
                     <SidebarMenuSubItem>
@@ -374,8 +372,8 @@ export function Sidebar() {
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>
-              </SidebarMenuItem>
-            )}
+              )}
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
@@ -393,6 +391,7 @@ export function Sidebar() {
               <SidebarMenuButton
                 className="flex items-center gap-2 py-6"
                 onClick={() => setDataOpen((open) => !open)}
+                aria-expanded={dataOpen}
                 data-cy="sidebar-data-group-toggle"
               >
                 <Users className="w-4 h-4" />
@@ -403,10 +402,7 @@ export function Sidebar() {
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 rtl:rotate-180" />
                 )}
               </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            {dataOpen && (
-              <SidebarMenuItem>
+              {dataOpen && (
                 <SidebarMenuSub>
                   {dataItems.map((item) => (
                     <SidebarMenuSubItem key={item.url}>
@@ -419,8 +415,8 @@ export function Sidebar() {
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>
-              </SidebarMenuItem>
-            )}
+              )}
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 

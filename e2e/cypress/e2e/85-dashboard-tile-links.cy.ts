@@ -341,4 +341,15 @@ describe("Dashboard tile links (#419)", () => {
 		cy.assertAccessible({ rules: ["label-content-name-mismatch"] });
 		cy.assertAccessible();
 	});
+
+	it("the sidebar groups say whether they are open, and nest their links under the toggle", () => {
+		cy.visit("/dashboard");
+		const toggle = '[data-cy="sidebar-data-group-toggle"]';
+		cy.get(toggle, { timeout: 20000 }).should("have.attr", "aria-expanded", "true");
+		cy.get(`li:has(> ${toggle}) > ul a[data-cy="sidebar-clients-link"]`).should("exist");
+		cy.assertAccessible({ rules: ["list", "listitem"] });
+		cy.get(toggle).click();
+		cy.get(toggle).should("have.attr", "aria-expanded", "false");
+		cy.get('[data-cy="sidebar-clients-link"]').should("not.exist");
+	});
 });

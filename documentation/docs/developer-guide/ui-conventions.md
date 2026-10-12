@@ -88,7 +88,9 @@ A button that hides its label on small screens, such as an icon-only "Import" be
 `aria-label` and marks its icon `aria-hidden`. A link whose visible text is not the whole story keeps
 that text as its name and adds the rest as screen-reader-only text after it, rather than replacing it
 with an `aria-label`. Headings go down one level at a time: a list row or an empty state under a page
-`h1` is an `h2`.
+`h1` is an `h2`. A page has one `main`, the layout's: a screen's own content area is a
+plain element. A toggle that opens a group carries `aria-expanded`, and the group's list sits inside
+the toggle's own list item.
 
 The Cypress specs of the key screens (document lists and detail, the document editor and its line
 rows, the create-document, delete-confirmation and client dialogs, onboarding, sign-in, sign-up and

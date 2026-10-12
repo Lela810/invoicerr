@@ -37,7 +37,7 @@ function ArticleRow({
       identity={
         <>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="min-w-0 break-words font-medium text-foreground">{article.name}</h3>
+            <h2 className="min-w-0 break-words font-medium text-foreground">{article.name}</h2>
             <Badge variant="outline" className="text-xs">
               {t(`articles.fields.type.${article.type?.toLowerCase()}`) || article.type}
             </Badge>
