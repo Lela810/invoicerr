@@ -129,6 +129,8 @@ describe('Settings > Seats', () => {
 			cy.clearCookies();
 			fillSignupForm({ firstname: 'Fresh', lastname: 'Signup', email: freshEmail, saasMode });
 			cy.url({ timeout: 20000 }).should('include', '/auth/sign-in');
+			// The URL changes before React swaps the page, and both forms tag their email `auth-email-input`.
+			cy.get('[data-cy="auth-firstname-input"]').should('not.exist');
 
 			// A direct sign-in, not `cy.login()` - that helper is hardcoded to the seeded OWNER
 			// (`john.doe@acme.org`), who already has a company.
