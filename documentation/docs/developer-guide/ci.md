@@ -35,6 +35,28 @@ SonarCloud's automatic analysis only analyzes pull requests and the default bran
 reports on a queue branch. Its result gates the pull request itself, before it is queued.
 :::
 
+## Workflow rules
+
+SonarCloud analyzes `.github/workflows/` too. A step added to a workflow follows the same rules as
+the existing ones:
+
+- **No lifecycle scripts.** Install with `npm ci --ignore-scripts`. A package that needs its
+  postinstall gets it as an explicit step instead: `./node_modules/.bin/cypress install` downloads
+  the Cypress binary, `./node_modules/.bin/playwright-core install chromium` the PDF browser.
+- **No `npx`.** Call the binary the lockfile installed, `./node_modules/.bin/<tool>`. `npx` installs
+  a missing package on demand, at whatever version the registry serves that day. A tool no project
+  depends on is installed once, at an exact version, with `npm install --prefix /tmp/ci-tools
+  --no-save --ignore-scripts <name>@<version>` (see `lighthouse.yml`).
+- **Actions pinned by commit SHA**, with the version in a trailing comment
+  (`uses: actions/checkout@<sha> # v4`). Renovate keeps both up to date.
+- **Least privilege.** The workflow declares `permissions: contents: read` or `permissions: {}`,
+  and each job asks for what it needs on top of that, for example `packages: write` to push an
+  image, `security-events: write` to upload a SARIF report, `pages: write` and `id-token: write`
+  only on the job that deploys to GitHub Pages.
+- **No `${{ }}` inside a script.** A value from the event, an input, a matrix or another step's
+  output goes through `env:` and is read as `"$NAME"`. GitHub substitutes `${{ }}` before the shell
+  parses the line, so a branch name or a tag containing shell syntax would run as code.
+
 ## Release notes and the Discord announcement
 
 `.github/release.yml` groups pull requests into the categories GitHub's "Generate release notes"
