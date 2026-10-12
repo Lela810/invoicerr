@@ -3797,7 +3797,8 @@
       "suggestionsLabel": "Address suggestions"
     },
     "catalog-search": {
-      "suggestionsLabel": "Catalog suggestions"
+      "suggestionsLabel": "Catalog suggestions",
+      "noMatch": "No matching item in the catalog"
     },
     "document-language-select": {
       "automatic": "Automatic",
@@ -4429,7 +4430,8 @@
               "unit": {
                 "label": "Unit",
                 "suggestedValues": {
-                  "C62": "Piece",
+                  "H87": "Piece",
+                  "C62": "Unit",
                   "HUR": "Hour",
                   "DAY": "Day",
                   "WEE": "Week",
@@ -4574,6 +4576,25 @@
               "quantity": {
                 "label": "Quantity"
               },
+              "unit": {
+                "label": "Unit",
+                "suggestedValues": {
+                  "H87": "Piece",
+                  "C62": "Unit",
+                  "HUR": "Hour",
+                  "DAY": "Day",
+                  "WEE": "Week",
+                  "MON": "Month",
+                  "ANN": "Year",
+                  "KGM": "Kilogram",
+                  "GRM": "Gram",
+                  "LTR": "Litre",
+                  "MTR": "Metre",
+                  "KMT": "Kilometre",
+                  "SET": "Set",
+                  "BX": "Box"
+                }
+              },
               "unitPrice": {
                 "label": "Unit price"
               },
@@ -4694,11 +4715,36 @@
               "quantity": {
                 "label": "Quantity"
               },
+              "unit": {
+                "label": "Unit",
+                "suggestedValues": {
+                  "H87": "Piece",
+                  "C62": "Unit",
+                  "HUR": "Hour",
+                  "DAY": "Day",
+                  "WEE": "Week",
+                  "MON": "Month",
+                  "ANN": "Year",
+                  "KGM": "Kilogram",
+                  "GRM": "Gram",
+                  "LTR": "Litre",
+                  "MTR": "Metre",
+                  "KMT": "Kilometre",
+                  "SET": "Set",
+                  "BX": "Box"
+                }
+              },
               "unitPrice": {
                 "label": "Unit price"
               },
               "vatRate": {
                 "label": "VAT rate"
+              },
+              "discountPercent": {
+                "label": "Discount %"
+              },
+              "date": {
+                "label": "Work date"
               }
             }
           }
@@ -4847,11 +4893,36 @@
               "quantity": {
                 "label": "Quantity"
               },
+              "unit": {
+                "label": "Unit",
+                "suggestedValues": {
+                  "H87": "Piece",
+                  "C62": "Unit",
+                  "HUR": "Hour",
+                  "DAY": "Day",
+                  "WEE": "Week",
+                  "MON": "Month",
+                  "ANN": "Year",
+                  "KGM": "Kilogram",
+                  "GRM": "Gram",
+                  "LTR": "Litre",
+                  "MTR": "Metre",
+                  "KMT": "Kilometre",
+                  "SET": "Set",
+                  "BX": "Box"
+                }
+              },
               "unitPrice": {
                 "label": "Unit price (excl. VAT)"
               },
               "vatRate": {
                 "label": "VAT rate"
+              },
+              "discountPercent": {
+                "label": "Discount %"
+              },
+              "date": {
+                "label": "Work date"
               }
             }
           }
@@ -4992,7 +5063,8 @@
       },
       "array": {
         "addRow": "Add row",
-        "removeRow": "Remove row"
+        "removeRow": "Remove row",
+        "readOnlyFromSource": "These lines come from the supplier's e-invoice and cannot be edited."
       },
       "select": {
         "lockedFromReference": "Follows the linked record and cannot be edited directly."

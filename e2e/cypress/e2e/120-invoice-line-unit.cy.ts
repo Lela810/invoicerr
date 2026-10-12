@@ -1,7 +1,7 @@
 export {}; // makes this spec a module, not a global script -- see tsconfig.json
 
 /**
- * The invoice line's `unit` is a free-text input that suggests common units: a known label is stored
+ * The invoice line's `unit` is a combobox that suggests common units: a known label is stored
  * as its UN/ECE Rec20 code and shown back as the label, any other text is kept as typed. Also guards
  * the closed VAT rate field against clipping its long labels out of its cell.
  */
@@ -47,12 +47,11 @@ describe("Invoice line `unit` picklist and VAT rate label", () => {
 		addLine(0, "Day");
 		addLine(1, "sprint");
 
-		cy.get('input[name="lines.0.unit"]')
-			.invoke("attr", "list")
-			.then((listId) => {
-				cy.get(`datalist#${listId} option[value="Day"]`).should("exist");
-				cy.get(`datalist#${listId} option[value="Hour"]`).should("exist");
-			});
+		cy.get('input[name="lines.0.unit"]').click();
+		cy.get('[data-cy="document-field-unit-input-options"]')
+			.should("contain.text", "Day")
+			.and("contain.text", "Hour");
+		cy.get('input[name="lines.0.unit"]').type("{esc}");
 
 		cy.continueDocumentWizard();
 		cy.continueDocumentWizard();

@@ -985,7 +985,85 @@
                   "label": "Services"
                 }
               ],
-              "helpText": "Whether this line is a delivery of goods or a supply of services — it decides how a cross-border sale is taxed. Goods sold to a consumer in another EU member state are an intra-Community distance sale, taxed where they arrive once your EU-wide distance sales pass EUR 10 000 in a calendar year (Directive 2006/112/EC art. 33(a) and art. 59c); the same sale as a service stays taxable here (art. 45). Optional: a line that declares nothing is treated as a supply of services."
+              "helpText": "Whether this line is a delivery of goods or a supply of services: it decides how a cross-border sale is taxed. Goods sold to a consumer in another EU member state are an intra-Community distance sale, taxed where they arrive once your EU-wide distance sales pass EUR 10 000 in a calendar year (Directive 2006/112/EC art. 33(a) and art. 59c); the same sale as a service stays taxable here (art. 45). Optional: a line that declares nothing is treated as a supply of services."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "quote",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: it decides how a cross-border sale is taxed. Goods sold to a consumer in another EU member state are an intra-Community distance sale, taxed where they arrive once your EU-wide distance sales pass EUR 10 000 in a calendar year (Directive 2006/112/EC art. 33(a) and art. 59c); the same sale as a service stays taxable here (art. 45). Optional: a line that declares nothing is treated as a supply of services."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "credit-note",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: it decides how a cross-border sale is taxed. Goods sold to a consumer in another EU member state are an intra-Community distance sale, taxed where they arrive once your EU-wide distance sales pass EUR 10 000 in a calendar year (Directive 2006/112/EC art. 33(a) and art. 59c); the same sale as a service stays taxable here (art. 45). Optional: a line that declares nothing is treated as a supply of services."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "received-invoice",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: it decides how a cross-border sale is taxed. Goods sold to a consumer in another EU member state are an intra-Community distance sale, taxed where they arrive once your EU-wide distance sales pass EUR 10 000 in a calendar year (Directive 2006/112/EC art. 33(a) and art. 59c); the same sale as a service stays taxable here (art. 45). Optional: a line that declares nothing is treated as a supply of services."
             }
           }
         ]
@@ -1015,5 +1093,18 @@
     "countryCode": "IT",
     "providers": ["eu-vies"],
     "noteKey": "companyLookup.notes.IT"
+  },
+  "paymentTerms": {
+    "countryCode": "IT",
+    "fallbackTerm": {
+      "days": 30,
+      "basis": "maximumWhenNotAgreed",
+      "provenance": {
+        "kind": "legal",
+        "sourceText": "D.Lgs. 9 ottobre 2002, n. 231, art. 4, comma 2, lettera a): \"Salvo quanto previsto dai commi 3, 4 e 5, il periodo di pagamento non può superare i seguenti termini: a) trenta giorni dalla data di ricevimento da parte del debitore della fattura o di una richiesta di pagamento di contenuto equivalente.\"",
+        "sourceCheckedAt": "2026-10-11"
+      },
+      "notes": "Read at normattiva.it (text in force since 2020-01-01). The statute caps the payment period at thirty days from the debtor's receipt of the invoice, save where the parties agree otherwise under its commi 3 to 5; it sets no term of its own. The application uses those 30 days as its fallback and counts them from the invoice date, not from receipt."
+    }
   }
 }

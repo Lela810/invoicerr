@@ -2,6 +2,7 @@ import { Currency } from '../../../../prisma/generated/prisma/client';
 import { BUILT_IN_PAYMENT_METHODS } from '../payment-methods/built-in';
 import { transitionsAvailableWhen } from './lifecycle';
 import { DocumentActionTransition, DocumentFieldDescriptor, DocumentTypeDescriptor } from './types';
+import { documentLineFields } from './document-lines';
 
 /** Same reused, un-invented list as every other document type's — see quote.descriptor.ts. */
 const CURRENCY_OPTIONS = Object.values(Currency).map((code) => ({ value: code, label: code }));
@@ -362,51 +363,29 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         kind: 'array',
         label: 'Lines',
         required: false,
-        // No `min` — unlike the invoice's own `lines` (min: 1), a received invoice with NO readable
-        // lines (a plain scanned PDF, or a structured deposit this best-effort extraction could not
-        // parse a single BG-25 line out of) is still a completely valid record — see this file's own
-        // header, "Fields — why these, and why so little is required".
-        // `articleId` is deliberately not mapped: a received invoice never moves stock.
+        // No `min`: a scanned PDF, or a structured deposit with no readable line, is still a valid record.
+        // Lines read from a structured supplier file are the supplier's and stay read-only.
+        readOnlyWhen: 'linesFromSupplierXml',
+        // No `articleId`: a received invoice line is never linked to the article it was typed from.
         prefillFrom: {
           entity: 'article',
           map: { description: 'name', unitPrice: 'unitPrice', vatRate: 'vatRate' },
         },
-        fields: [
-          {
-            key: 'description',
-            kind: 'text',
-            label: 'Designation',
-            required: false,
+        fields: documentLineFields({
+          required: false,
+          vatRateRequired: false,
+          vatRateCatalog: false,
+          overrides: {
+            unitPrice: {
+              label: 'Unit price (excl. VAT)',
+              helpText: "The line's own unit price excluding VAT, as printed on the supplier's document.",
+            },
+            vatRate: {
+              helpText:
+                "The VAT rate the supplier applied to this line, any value, not this company's own catalog.",
+            },
           },
-          {
-            key: 'quantity',
-            kind: 'number',
-            label: 'Quantity',
-            required: false,
-            min: 0,
-          },
-          {
-            key: 'unitPrice',
-            kind: 'money',
-            label: 'Unit price (excl. VAT)',
-            required: false,
-            min: 0,
-            currencyField: 'currency',
-            helpText: "The line's own HT unit price, as printed on the supplier's document.",
-          },
-          {
-            // Deliberately NO `usesVatRateCatalog` — see this file's own header for why: this rate is
-            // the SUPPLIER's, not this company's own, and may legitimately be foreign.
-            key: 'vatRate',
-            kind: 'select',
-            label: 'VAT rate',
-            required: false,
-            options: [],
-            allowCustomValue: true,
-            helpText:
-              "The VAT rate the supplier applied to this line — any value, not this company's own catalog.",
-          },
-        ],
+        }),
       },
     ],
     actions: [

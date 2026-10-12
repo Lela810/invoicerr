@@ -1,9 +1,9 @@
 import { Currency } from '../../../../prisma/generated/prisma/client';
 import { BUILT_IN_PAYMENT_METHODS } from '../payment-methods/built-in';
 import { transitionsAvailableWhen } from './lifecycle';
-import { SUGGESTED_UNIT_CODES, SUGGESTED_UNIT_LABELS } from '../formats/semantic/unit-code';
 import { standardDocumentEmailTranslations } from './standard-email-translations';
 import { DocumentActionTransition, DocumentFieldDescriptor, DocumentTypeDescriptor } from './types';
+import { DOCUMENT_LINE_PREFILL, documentLineFields } from './document-lines';
 
 /** Same reused, un-invented list as the quote's — see quote.descriptor.ts. */
 const CURRENCY_OPTIONS = Object.values(Currency).map((code) => ({ value: code, label: code }));
@@ -49,8 +49,8 @@ const PAYMENT_METHOD_OPTIONS = BUILT_IN_PAYMENT_METHODS.map((method) => ({
  * a one-line flag for whichever second country's pass has to decide whether it moves into
  * country-fields/, not a claim that it definitely will.
  *
- * A line now carries SEVEN fields — description, quantity, unit, unit price, VAT rate, discount,
- * date — the minimum the business itself imposes everywhere.
+ * A line carries the fields `document-lines.ts` declares, shared with quotes, credit notes and
+ * received invoices: description, quantity, unit, unit price, VAT rate, discount, date.
  * Two of them (`unit`, `vatRate`) were new at that pass; `discountPercent` was added in a LATER one
  * (see below); `date` in a LATER one still (see its own bullet below).
  *
@@ -62,8 +62,8 @@ const PAYMENT_METHOD_OPTIONS = BUILT_IN_PAYMENT_METHODS.map((method) => ({
  *    git tag `avant-refonte-documents` (e.g. `unitCode="C62"` on every BilledQuantity/
  *    InvoicedQuantity in compliance/schemas/en16931/* and compliance/providers/format/__fixtures__/*
  *    ("C62" being the UN/ECE Recommendation 20 code for "one/piece"). Declared as free `text` that
- *    suggests Rec20 codes (`suggestedValues`), deliberately NOT a closed list: `formats/semantic/unit-code.ts`
- *    maps any stored value to a code and falls back to C62. EN 16931 is a European
+ *    suggests Rec20 codes (`suggestedValues`), deliberately NOT a closed list and optional: `formats/semantic/unit-code.ts`
+ *    exports a picked code as is and free text as C62. EN 16931 is a European
  *    norm, not a France-specific one, so this field is NOT flagged as suspected-French.
  *
  *  - `vatRate` (kind: 'select') — `options` is intentionally EMPTY in this trunk descriptor:
@@ -588,98 +588,8 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         label: 'Lines',
         required: true,
         min: 1,
-        // See this file's own header, "The line shape — written FROM France, for now", for why each
-        // of these six fields is here and which ones are flagged as possibly France-only.
-        //
-        // `description` maps from the article's `name`, not its own `description`: this line shape
-        // has one free-text designation field, not the separate name+description pair the old,
-        // removed article-line form used to have.
-        prefillFrom: {
-          entity: 'article',
-          // `articleId: 'id'` — see article-reference.provider.ts's own
-          // `getFields` comment for why `id` is there to map from at all.
-          map: { articleId: 'id', description: 'name', unitPrice: 'unitPrice', vatRate: 'vatRate' },
-        },
-        fields: [
-          {
-            key: 'description',
-            kind: 'text',
-            label: 'Designation',
-            required: true,
-          },
-          {
-            // See this file's own header bullet on `articleId` for the
-            // full "why", and types.ts's `entity` doc comment for why this is a distinct field KIND
-            // rather than a 'reference' field or a rendering flag.
-            key: 'articleId',
-            kind: 'hiddenReference',
-            label: 'Article',
-            required: false,
-            entity: 'article',
-          },
-          {
-            key: 'quantity',
-            kind: 'number',
-            label: 'Quantity',
-            required: true,
-            min: 0,
-          },
-          {
-            // STRUCTURAL, not legal: EN 16931's BT-130 (mandatory unit-of-measure code). Free text
-            // with suggested Rec20 codes, never a closed list; see this file's header.
-            key: 'unit',
-            kind: 'text',
-            label: 'Unit',
-            required: true,
-            helpText: 'How the quantity is counted — e.g. "hour", "day", "kg", "unit".',
-            suggestedValues: SUGGESTED_UNIT_CODES.map((value) => ({
-              value,
-              label: SUGGESTED_UNIT_LABELS[value],
-            })),
-          },
-          {
-            key: 'unitPrice',
-            kind: 'money',
-            label: 'Unit price',
-            required: true,
-            min: 0,
-            currencyField: 'currency',
-          },
-          {
-            // SUSPECTED FRANCE-SPECIFIC — see this file's header. `options` is filled per company by
-            // descriptors/company-view.ts, from vat-rates/, never here.
-            key: 'vatRate',
-            kind: 'select',
-            label: 'VAT rate',
-            required: true,
-            options: [],
-            allowCustomValue: true,
-            usesVatRateCatalog: true,
-            helpText: 'The VAT rate that applies to this line.',
-          },
-          {
-            // See this file's own header for why this is universal arithmetic, not a national rule.
-            key: 'discountPercent',
-            kind: 'number',
-            label: 'Discount %',
-            required: false,
-            min: 0,
-            max: 100,
-            helpText: 'Percentage discount applied to this line, before VAT.',
-          },
-          {
-            // See this file's own header, "The line shape" — issue #145, `hideWhenEmpty` given a
-            // second, column-level meaning inside an 'array' row by rendering/render-html.ts, and
-            // deliberately NOT mapped into any e-invoicing format (formats/shared-build.ts /
-            // formats/national/national-lines.ts).
-            key: 'date',
-            kind: 'date',
-            label: 'Work date',
-            required: false,
-            hideWhenEmpty: true,
-            helpText: 'When the work on this line was actually done, if it differs from the invoice date.',
-          },
-        ],
+        prefillFrom: DOCUMENT_LINE_PREFILL,
+        fields: documentLineFields({ required: true, vatRateRequired: true, vatRateCatalog: true }),
       },
     ],
     actions: [

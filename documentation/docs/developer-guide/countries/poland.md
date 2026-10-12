@@ -27,3 +27,13 @@ files, and two pages already say it without anyone retyping it:
 To widen that coverage, or to add a country of your own, see [Adding a
 country](../adding-a-country.md): the catalogue files listed on every other page in this directory
 are the ones Poland already has.
+
+## Fallback payment term
+
+The `paymentTerms.fallbackTerm` entry of `countries/data/pl.json` is the 30 days an invoice's due
+date falls back to when the company has no default term of its own (see [Payment
+terms](../../user-guide/settings/payment-terms.md)). Art. 6 ust. 1 of the Act of 8 March 2013 on
+preventing excessive delays in commercial transactions starts statutory interest 30 days after the
+creditor's performance when the contract sets no payment date (`basis: "latePaymentThreshold"`). It
+sets no payment term. The application counts the 30 days from the invoice date, not from the
+creditor's performance.

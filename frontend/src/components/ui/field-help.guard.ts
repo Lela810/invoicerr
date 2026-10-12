@@ -96,6 +96,17 @@ function isAdornment(content: string): boolean {
   return !text.includes("{") && text.length <= 4
 }
 
+// A hidden element holding a single self-closing child, such as a loader icon, renders no text.
+function isHiddenIcon(openingTag: string, content: string): boolean {
+  const child = content.trim()
+  return (
+    /\saria-hidden(="true"|=\{true\})?[\s/>]/.test(openingTag) &&
+    child.startsWith("<") &&
+    child.endsWith("/>") &&
+    count(child, /</g) === 1
+  )
+}
+
 // Muted text beside a field is a description; a lock reason is flagged in any colour, beside any control.
 export function findDescriptionsUnderFields(source: string): DescriptionHit[] {
   const hits: DescriptionHit[] = []
@@ -111,7 +122,7 @@ export function findDescriptionsUnderFields(source: string): DescriptionHit[] {
     if (!lockReason && !/\btext-muted-foreground\b/.test(openingTag)) continue
     const dataCy = openingTag.match(/\bdata-cy="([^"]+)"/)?.[1]
     if (/\brole="status"/.test(openingTag) && dataCy && LIVE_STATUS.has(dataCy)) continue
-    if (isAdornment(content)) continue
+    if (isAdornment(content) || isHiddenIcon(openingTag, content)) continue
     const before = source.slice(0, match.index)
     if (previousSiblingIsField(before, !lockReason) || insideFormItemOutsideControl(before)) {
       hits.push({ line: lineOf(source, match.index), text: openingTag.replace(/\s+/g, " ").slice(0, 80) })

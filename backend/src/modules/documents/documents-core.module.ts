@@ -14,7 +14,8 @@ import { WebhooksModule } from '@/modules/webhooks/webhooks.module';
 import { ActionExtensionRegistry } from './actions/action-extensions';
 import { ActionRegistry } from './actions/action-registry';
 import { registerConvertToInvoiceAction } from './actions/convert-to-invoice';
-import { registerDuplicateExtension } from './actions/duplicate-extension';
+import { applyDateRecalc, registerDuplicateExtension } from './actions/duplicate-extension';
+import { withDefaultDueDate } from './actions/quote-to-invoice';
 import { registerExpenseActions } from './actions/expense-actions';
 import { registerGoodsReceiptActions } from './actions/goods-receipt-actions';
 import { registerInvoiceActions } from './actions/invoice-actions';
@@ -627,8 +628,14 @@ function buildActionRegistry(
 function buildActionExtensionRegistry(actionRegistry: ActionRegistry): ActionExtensionRegistry {
   const registry = new ActionExtensionRegistry();
   registerDuplicateExtension('quote', registry, actionRegistry);
+  const invoiceDateRecalc = { anchorField: 'issueDate', dependentFields: ['dueDate'] };
   registerDuplicateExtension('invoice', registry, actionRegistry, {
-    dateRecalc: { anchorField: 'issueDate', dependentFields: ['dueDate'] },
+    dateRecalc: invoiceDateRecalc,
+    prepareManualCopy: async (companyId, sourceData) => {
+      const today = new Date().toISOString().slice(0, 10);
+      const redated = applyDateRecalc(sourceData, today, invoiceDateRecalc);
+      return withDefaultDueDate(companyId, { ...redated, issueDate: today });
+    },
   });
   return registry;
 }

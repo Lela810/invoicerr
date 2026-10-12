@@ -16,7 +16,14 @@ const fields: DocumentFieldDescriptor[] = [
 
 function termsOf(partial: Partial<ResolvedPaymentTerms>): { data: ResolvedPaymentTerms } {
   return {
-    data: { quote: null, invoice: null, cap: null, exceedsCap: { quote: false, invoice: false }, ...partial },
+    data: {
+      quote: null,
+      invoice: null,
+      cap: null,
+      countryInvoiceFallback: null,
+      exceedsCap: { quote: false, invoice: false },
+      ...partial,
+    },
   }
 }
 
@@ -46,6 +53,20 @@ describe("useDueDateDefault", () => {
     expect(result.current.getValues("dueDate")).toBeUndefined()
     pick(result.current, "issueDate", "2026-10-01")
     expect(result.current.getValues("dueDate")).toBe("2026-10-31")
+  })
+
+  it("falls back to the country's term for an invoice when the company has none", () => {
+    mockTerms({ countryInvoiceFallback: { days: 30, mode: "net" } })
+    const { result } = setup()
+    pick(result.current, "issueDate", "2026-10-01")
+    expect(result.current.getValues("dueDate")).toBe("2026-10-31")
+  })
+
+  it("never applies the country's invoice term to a quote", () => {
+    mockTerms({ countryInvoiceFallback: { days: 30, mode: "net" } })
+    const { result } = setup({ typeId: "quote" })
+    pick(result.current, "issueDate", "2026-10-01")
+    expect(result.current.getValues("dueDate")).toBeUndefined()
   })
 
   it("uses the term of the document type", () => {

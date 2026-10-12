@@ -52,13 +52,42 @@ Click **Add New** and fill in:
 - **Line items** — Designation, Quantity, Unit, Unit price, VAT rate, and a per-line **Discount %**; drag to reorder, or add a line straight from your [article catalog](../articles.md)
 - **Notes** (optional)
 
-The **Unit** field suggests common units (piece, hour, day, week, month, year, kilogram, gram, litre, metre, kilometre, set, box) in your language, and you can still type any other value. A suggested unit is exported in e-invoices as its standard UN/ECE Recommendation 20 code (for example `DAY`), and a unit you type yourself is exported as the generic `C62` code unless it is a known unit name or code.
+The **Unit** field is a list you can also type into. Clicking it, or reaching it with the keyboard,
+opens the common units (piece, unit, hour, day, week, month, year, kilogram, gram, litre, metre,
+kilometre, set, box) in your language; typing narrows the list, the arrow keys and Enter pick an
+entry, and any other text you type is kept as it is. Unit is optional.
+
+A unit picked from the list is stored as its UN/ECE Recommendation 20 code (for example `HUR` for
+hour or `H87` for piece): the e-invoice XML carries that code, and the PDF prints the unit's name in
+the document's language. A unit typed by hand is printed as typed and exported as the generic code
+`C62` ("one"), so the XML stays valid. Units typed in English before the list existed (`hour`,
+`day`, `kg`, `m` and similar) keep the code they were always exported with, so the XML of an
+invoice already issued does not change.
+
+Quotes, invoices, credit notes and received invoices all offer the same line fields, Unit included.
+
+:::info[Units typed before the list existed]
+On upgrade, units typed as free text on draft quotes, invoices and credit notes are converted to
+their code when the text names exactly one unit (`h` becomes hour). Anything ambiguous, such as `m`
+(metre or minute), stays as typed. A quote that was sent, signed or accepted, and an issued invoice
+or credit note, are never modified.
+:::
+
+When you type a **Designation**, matching items from your [article catalog](../articles.md) are
+offered under the field. A small spinner shows at the right of the field while the search is
+running, and the list says so when nothing in the catalog matches.
 
 There is no per-document "Payment Method" field: every enabled [payment method](../billing/payment-methods.md) your company has turned on is printed on the invoice automatically - unless the client has its own [restriction](../clients.md#restricting-payment-methods-for-a-client), in which case only the methods you allowed for that client are printed. The one actually used is only recorded afterwards, when you mark the invoice as paid.
 
 ### Creating from a quote
 
-Once a quote is **Signed**, click **Create invoice** on the quote. All client info, line items, and details carry over. You can adjust before finalising.
+Once a quote is **Signed**, click **Create invoice** on the quote. The client, currency, notes and
+every line field (unit, discount, work date and the rest) carry over. The invoice is dated today and
+its due date is filled from your [payment terms](../settings/payment-terms.md), never from the
+quote's validity date. You can adjust everything before finalising.
+
+**Duplicate** on an invoice makes a new draft dated today, with its due date recalculated the same
+way.
 
 ### Recurring invoices
 

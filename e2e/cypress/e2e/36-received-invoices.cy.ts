@@ -421,6 +421,28 @@ describe("Receiving invoices", () => {
 		cy.get('input[name="lines.0.quantity"]').should("have.value", "5");
 		cy.get('input[name="lines.0.unitPrice"]').should("have.value", "100");
 		cy.get('input[name="lines.0.vatRate"]').should("have.value", "20");
+		// Lines read from the supplier's e-invoice are read-only, the reason behind a lock on the label.
+		const lock = "document-field-lines-lock";
+		cy.get(`[data-cy="${lock}-trigger"]`)
+			.should("be.visible")
+			.and("have.attr", "aria-label", "Why is Lines locked?")
+			.click();
+		cy.get(`[data-cy="${lock}-content"]`)
+			.should("be.visible")
+			.and("contain.text", "supplier's e-invoice");
+		cy.get("body").type("{esc}");
+		cy.get(`[data-cy="${lock}"]`)
+			.invoke("attr", "id")
+			.then((id) => {
+				cy.get(`[data-cy="document-field-lines"] [role="group"][aria-describedby~="${id}"]`).should(
+					"exist",
+				);
+			});
+		for (const key of ["description", "quantity", "unit", "unitPrice", "discountPercent"]) {
+			cy.get(`input[name="lines.0.${key}"]`).should("be.disabled");
+		}
+		cy.get('[data-cy="document-field-lines-add-row"]').should("be.disabled");
+		cy.get('[data-cy="document-field-lines-remove-row-0"]').should("be.disabled");
 		cy.continueDocumentWizard(); // Lines -> Options ("grossAmount" lives there)
 
 		// The deposited gross total (650) is carried over AS-IS — never rewritten by the sum of the lines (600).
@@ -454,38 +476,32 @@ describe("Receiving invoices", () => {
 		});
 	});
 
-	it("Editing a line makes the sum check react (the number of warnings changes)", () => {
+	it("Editing a total makes the sum check react, while the supplier's lines stay read-only", () => {
 		listReceivedInvoices().then((instances) => {
 			const target = instances.find((i) => i.data.supplier === "Fixture Fournisseur Discordant SARL");
 			expect(target, "le document créé par le test précédent existe toujours").to.exist;
 
 			cy.openDocument(target!.id);
 
-			// Before editing: a single warning (gross/TTC — see the previous test).
+			// Before editing: a single warning (gross/TTC, see the previous test).
 			cy.get('[data-cy="document-line-total-warnings"] p').should("have.length", 1);
+			cy.get('input[name="lines.0.quantity"]').should("be.disabled");
 
-			// The quantity is doubled (5 -> 10): the line becomes net 1000 / VAT 200 / gross 1200, which
-			// no longer agrees with ANY of the three deposited totals (500 / 100 / 650) — the three
-			// warnings must appear, the proof that the check REACTS to editing a line.
-			cy.get('input[name="lines.0.quantity"]').clear({ force: true }).type("10", { force: true });
-			cy.runDocumentAction("receive");
-			cy.get('[data-sonner-toast]', { timeout: 10000 }).should("exist");
-
-			// The record's page stays where it is after a successful "receive" on an already-existing
-			// record (document-detail.tsx adopts the response as the form's new baseline): the banner,
-			// ON SCREEN, must therefore already show the THREE warnings without reopening the document.
-			cy.get('[data-cy="document-line-total-warnings"] p', { timeout: 10000 }).should("have.length", 3);
+			// The deposited gross total is corrected to what the lines add up to (5 x 100 + 20 % = 600):
+			// the warning goes away, the proof that the check REACTS to an edit.
+			cy.get('[data-cy="document-field-grossAmount-input"]').scrollIntoView().type("{selectall}600");
+			cy.get('[data-cy="document-field-grossAmount-input"]').should("have.value", "600");
+						cy.get('[data-cy="document-action-receive"]').first().click();
+			cy.get("[data-sonner-toast]", { timeout: 10000 }).should("exist");
+			cy.get('[data-cy="document-line-total-warnings"] p', { timeout: 10000 }).should("have.length", 0);
 
 			cy.request<ReceivedInvoiceInstance>({
 				url: `${api}/api/documents/${target!.id}?typeId=received-invoice`,
 			})
 				.its("body")
 				.then((updated) => {
-					const warnings = updated.data.lineTotalWarnings as string[];
-					expect(warnings, "l'édition de la ligne a fait réagir le contrôle").to.have.length(3);
-					expect(warnings.some((w) => w.includes("net / HT"))).to.eq(true);
-					expect(warnings.some((w) => w.includes("VAT"))).to.eq(true);
-					expect(warnings.some((w) => w.includes("gross / TTC"))).to.eq(true);
+					expect(updated.data.lineTotalWarnings as string[]).to.have.length(0);
+					expect((updated.data.lines as { quantity: number }[])[0].quantity).to.eq(5);
 				});
 		});
 	});

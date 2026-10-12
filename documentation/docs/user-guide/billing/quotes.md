@@ -43,7 +43,7 @@ Click **Add New** and fill in:
 - **Date** (required) and **Due date** (optional). If you set quote [payment terms](../settings/payment-terms.md), the due date is filled in as soon as you pick the date; you can still change it
 - **Currency** (required)
 - **Client reference / PO number** (optional) — the buyer's own reference, shown only once you fill it in
-- **Line items** — each has a Designation, Quantity, Unit price, and VAT rate, plus a per-line **Discount %**; drag to reorder, or add a line straight from your [article catalog](../articles.md)
+- **Line items**: the same fields as an invoice line, Designation, Quantity, [Unit](invoices.md#creating-an-invoice), Unit price, VAT rate (optional on a quote), a per-line **Discount %** and a work date; drag to reorder, or add a line straight from your [article catalog](../articles.md). The quote PDF shows the Unit column like the invoice PDF
 - **Notes** (optional)
 
 There is no per-document "Payment Method" field on a quote.

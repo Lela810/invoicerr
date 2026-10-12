@@ -2,6 +2,7 @@ import { Currency } from '../../../../prisma/generated/prisma/client';
 import { transitionsAvailableWhen } from './lifecycle';
 import { standardDocumentEmailTranslations } from './standard-email-translations';
 import { DocumentActionTransition, DocumentTypeDescriptor } from './types';
+import { DOCUMENT_LINE_PREFILL, documentLineFields } from './document-lines';
 
 /**
  * The reference currency list is the existing `Currency` enum (used everywhere else money is
@@ -219,120 +220,11 @@ export function buildQuoteDescriptor(): DocumentTypeDescriptor {
         label: 'Lines',
         required: true,
         min: 1,
-        // Lets each row offer a "from catalog" button (field-renderers/array-field.tsx, frontend)
-        // that fills `description`/`unitPrice`/`vatRate` from a picked Article — see types.ts's own
-        // comment on `prefillFrom` for the full mechanism, and articles/articles.service.ts for the
-        // Article shape these map keys name (`name`, `unitPrice`, `vatRate` — the ITEM's own business
-        // fields, never `unitPriceMinor`, an internal storage detail). `description` maps from the
-        // article's `name`, not its own `description`: this line shape has a single free-text
-        // designation field, not the separate name+description pair the old, removed article-line
-        // form used to have — see the 14-articles.cy.ts spec this was built to make pass again.
-        prefillFrom: {
-          entity: 'article',
-          // `articleId: 'id'` (basic stock management) — see
-          // article-reference.provider.ts's own `getFields` comment for why `id` is there to map
-          // from, and invoice.descriptor.ts's identical `articleId` field for the full "why".
-          map: { articleId: 'id', description: 'name', unitPrice: 'unitPrice', vatRate: 'vatRate' },
-        },
+        prefillFrom: DOCUMENT_LINE_PREFILL,
         fields: [
-          {
-            key: 'description',
-            kind: 'text',
-            label: 'Designation',
-            required: true,
-          },
-          {
-            // See invoice.descriptor.ts's identical field for the full
-            // "why". A quote never itself decrements stock (only an invoice's own ISSUANCE does — see
-            // documents.service.ts's call site), but this line still carries the pointer: "convert to
-            // invoice" (actions/convert-to-invoice.ts) copies `lines` VERBATIM, `articleId` included,
-            // so a quote line picked from the catalog keeps pointing at its article once it becomes a
-            // real, stock-decrementing invoice line — no separate mechanism needed for that to happen.
-            key: 'articleId',
-            kind: 'hiddenReference',
-            label: 'Article',
-            required: false,
-            entity: 'article',
-          },
-          {
-            key: 'quantity',
-            kind: 'number',
-            label: 'Quantity',
-            required: true,
-            min: 0,
-          },
-          {
-            key: 'unitPrice',
-            kind: 'money',
-            label: 'Unit price',
-            required: true,
-            min: 0,
-            currencyField: 'currency',
-          },
-          {
-            // Same field as on the invoice (invoice.descriptor.ts): a quote states a price, and a
-            // price without its VAT rate does not say what the client will pay. OPTIONAL here, where
-            // the invoice requires it: pricing without detailing the tax remains a valid quote — this
-            // is a product choice, not a legal rule.
-            key: 'vatRate',
-            kind: 'select',
-            label: 'VAT rate',
-            options: [],
-            allowCustomValue: true,
-            usesVatRateCatalog: true,
-            helpText: 'The VAT rate that applies to this line.',
-          },
-          {
-            // A PER-LINE discount — universal invoicing arithmetic (it reduces the pre-tax base
-            // before VAT applies to it, see totals/compute-totals.ts), not a particular country's
-            // fiscal rule: no citation to carry here, unlike `vatRate` above whose RATE genuinely is
-            // a national fact. Optional (a line with no discount stays the ordinary line as before);
-            // `min`/`max` are what prevents a -20% from turning into a price markup on the
-            // calculation side — see field-kinds.ts's 'number' validator (numberRangeError), which
-            // already applies to an 'array' subfield the same way it does to any top-level field
-            // (validate.ts recurses with the SAME registry for each row).
-            key: 'discountPercent',
-            kind: 'number',
-            label: 'Discount %',
-            required: false,
-            min: 0,
-            max: 100,
-            helpText: 'Percentage discount applied to this line, before VAT.',
-          },
-          {
-            // Same field as the invoice's own (invoice.descriptor.ts's "The line shape" header,
-            // issue #145) — added here too, for consistency, and because `convert-to-invoice`
-            // (actions/convert-to-invoice.ts) copies `lines` VERBATIM: a quote line already carrying
-            // a work date (a proposal for work planned on a specific day) keeps that value once it
-            // becomes a real invoice line, exactly like `articleId` above already does. A quote's own
-            // work is typically NOT yet done (the client hasn't accepted it), so this is read as "the
-            // planned/expected date" here rather than invoice.descriptor.ts's "date actually worked" —
-            // the field records a date, not which of the two meanings applies; nothing in this
-            // descriptor forces either reading. `hideWhenEmpty: true` — same column-level meaning
-            // inside an 'array' row, see invoice.descriptor.ts's own bullet and
-            // rendering/render-html.ts's 'array' case for the mechanism.
-            key: 'date',
-            kind: 'date',
-            label: 'Work date',
-            required: false,
-            hideWhenEmpty: true,
-            helpText: 'When the work on this line is due, or was done, if it differs from the quote date.',
-          },
-          // Issue #373 ("quotes with options"): a free-text tag naming which OPTION this line belongs
-          // to - "Basic", "Premium", anything a company types. Deliberately a SUBFIELD on the existing
-          // `lines` row shape, never a nested array of options each carrying its own lines: the generic
-          // descriptor field system has no 'array'-of-'array' kind (types.ts's own `fields` comment -           // "'array': the shape of one row" - is itself a flat list, one level deep, by design), so a
-          // second array level would need a whole new field kind, its own validator, its own PDF/editor
-          // renderer, for a shape this lighter model gets for free out of what already exists. A
-          // quote's own OPTIONS are never stored anywhere of their own: they are the distinct,
-          // non-empty values of THIS field across `lines`, in first-appearance order (see
-          // `options/quote-options.ts#deriveQuoteOptions`, the ONLY place that reads this field's
-          // semantics - everywhere else it is just another 'text' subfield). Optional: a quote with
-          // every line's `option` unset (or all sharing the same one) has zero or one distinct value,
-          // which `deriveQuoteOptions` treats as "no options at all" - today's single-total behavior,
-          // completely unchanged, no new required input for the common case. `hideWhenEmpty` mirrors
-          // `date` right above: a document that never uses options must not print an empty "Option: - "
-          // on every single line.
+          ...documentLineFields({ required: true, vatRateRequired: false, vatRateCatalog: true }),
+          // Quote only: which option a line belongs to. Converting to an invoice keeps the accepted
+          // option's lines and drops this tag (options/quote-options.ts#resolveInvoiceableLines).
           {
             key: 'option',
             kind: 'text',

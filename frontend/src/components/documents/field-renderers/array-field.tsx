@@ -4,12 +4,15 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { DocumentField } from "@/components/documents/document-field"
-import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
+import {
+  DocumentFormReadOnlyProvider,
+  useDocumentFormReadOnly,
+} from "@/components/documents/document-form-readonly"
 import { formatTotal } from "@/components/documents/document-totals"
 import { toMinor } from "@/components/documents/totals-calculator"
 import type { DocumentFieldDescriptor } from "@/components/documents/types"
 import { Button } from "@/components/ui/button"
-import { FieldLabel, fieldHelpId } from "@/components/ui/field-help"
+import { FieldLabel, fieldHelpId, fieldLockId } from "@/components/ui/field-help"
 import { fetchPrefillFields } from "@/hooks/queries"
 
 import { type TextFieldCatalog, TextField } from "./primitive-fields"
@@ -219,7 +222,10 @@ export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) 
   } = useFormContext()
   const { fields: rows, append, remove } = useFieldArray({ control, name })
   const rowFields = field.fields ?? []
-  const readOnly = useDocumentFormReadOnly()
+  const formReadOnly = useDocumentFormReadOnly()
+  const lockedBy = useWatch({ control, name: field.readOnlyWhen ?? "__readOnlyWhen_unset__" })
+  const lockedBySource = !!field.readOnlyWhen && !!lockedBy
+  const readOnly = formReadOnly || lockedBySource
   const groupId = useId()
 
   const emptyRow = Object.fromEntries(rowFields.map((rowField) => [rowField.key, undefined]))
@@ -242,46 +248,55 @@ export function ArrayField({ field, name, documentTypeId }: FieldRendererProps) 
         description={field.helpText}
         descriptionId={fieldHelpId(groupId)}
         helpDataCy={`document-field-${field.key}-help`}
+        lockReason={lockedBySource ? t("documents.form.array.readOnlyFromSource") : undefined}
+        lockReasonId={fieldLockId(groupId)}
+        lockDataCy={`document-field-${field.key}-lock`}
       >
         {field.label}
       </FieldLabel>
 
-      <div
-        role="group"
-        aria-labelledby={`${groupId}-label`}
-        aria-describedby={field.helpText ? fieldHelpId(groupId) : undefined}
-        className="space-y-4 sm:space-y-3"
-      >
-        {rows.map((row, index) => (
-          <LineRowCard
-            key={row.id}
-            arrayFieldKey={field.key}
-            name={name}
-            index={index}
-            rowFields={rowFields}
-            documentTypeId={documentTypeId}
-            onRemove={() => remove(index)}
-            removeLabel={t("documents.form.array.removeRow")}
-            readOnly={readOnly}
-            designationCatalog={
-              field.prefillFrom
-                ? {
-                    entity: field.prefillFrom.entity,
-                    onSelect: async (id) => {
-                      const values = await resolvePrefillValues(
-                        field.prefillFrom!.entity,
-                        id,
-                        field.prefillFrom!.map,
-                        rowFields,
-                      )
-                      if (values) applyPrefill(index, values)
-                    },
-                  }
-                : undefined
-            }
-          />
-        ))}
-      </div>
+      <DocumentFormReadOnlyProvider value={readOnly}>
+        <div
+          role="group"
+          aria-labelledby={`${groupId}-label`}
+          aria-describedby={
+            [field.helpText && fieldHelpId(groupId), lockedBySource && fieldLockId(groupId)]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+          className="space-y-4 sm:space-y-3"
+        >
+          {rows.map((row, index) => (
+            <LineRowCard
+              key={row.id}
+              arrayFieldKey={field.key}
+              name={name}
+              index={index}
+              rowFields={rowFields}
+              documentTypeId={documentTypeId}
+              onRemove={() => remove(index)}
+              removeLabel={t("documents.form.array.removeRow")}
+              readOnly={readOnly}
+              designationCatalog={
+                field.prefillFrom
+                  ? {
+                      entity: field.prefillFrom.entity,
+                      onSelect: async (id) => {
+                        const values = await resolvePrefillValues(
+                          field.prefillFrom!.entity,
+                          id,
+                          field.prefillFrom!.map,
+                          rowFields,
+                        )
+                        if (values) applyPrefill(index, values)
+                      },
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+      </DocumentFormReadOnlyProvider>
 
       <Button
         type="button"

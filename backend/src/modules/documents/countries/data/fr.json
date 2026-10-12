@@ -1042,7 +1042,85 @@
                   "label": "Services"
                 }
               ],
-              "helpText": "Whether this line is a delivery of goods or a supply of services — used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+              "helpText": "Whether this line is a delivery of goods or a supply of services: used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "quote",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "credit-note",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
+            }
+          }
+        ]
+      },
+      {
+        "typeId": "received-invoice",
+        "operations": [
+          {
+            "op": "add",
+            "path": "lines",
+            "field": {
+              "key": "supplyType",
+              "kind": "select",
+              "label": "Supply type",
+              "required": false,
+              "options": [
+                {
+                  "value": "GOODS",
+                  "label": "Goods"
+                },
+                {
+                  "value": "SERVICES",
+                  "label": "Services"
+                }
+              ],
+              "helpText": "Whether this line is a delivery of goods or a supply of services: used to derive BT-23 (\"cadre de facturation\") on a French invoice. Optional: leave unset if unsure."
             }
           }
         ]
@@ -1104,6 +1182,16 @@
       "kind": "legal",
       "sourceText": "Code de commerce, art. L. 441-10, I: \"Le délai convenu entre les parties pour régler les sommes dues ne peut dépasser soixante jours après la date d'émission de la facture. Par dérogation, un délai maximal de quarante-cinq jours fin de mois après la date d'émission de la facture peut être convenu entre les parties, sous réserve que ce délai soit expressément stipulé par contrat et qu'il ne constitue pas un abus manifeste à l'égard du créancier.\"",
       "sourceCheckedAt": "2026-10-05"
+    },
+    "fallbackTerm": {
+      "days": 30,
+      "basis": "maximumWhenNotAgreed",
+      "provenance": {
+        "kind": "legal",
+        "sourceText": "Code de commerce, art. L. 441-10, I, first paragraph: \"Sauf dispositions contraires figurant aux conditions de vente ou convenues entre les parties, le délai de règlement des sommes dues ne peut dépasser trente jours après la date de réception des marchandises ou d'exécution de la prestation demandée.\"",
+        "sourceCheckedAt": "2026-10-11"
+      },
+      "notes": "Read at codes.droit.org (Code de commerce PDF). The statute caps the payment period, when the terms of sale and the parties set nothing else, at thirty days after receipt of the goods or performance of the service; it sets no term of its own. The application uses those 30 days as its fallback and counts them from the invoice date, which only approximates the statutory starting point."
     },
     "notes": "Read directly at codes.droit.org (Code de commerce PDF, https://codes.droit.org/PDF/Code%20de%20commerce.pdf). Absent a contrary agreement the term cannot exceed thirty days after receipt of the goods or performance of the service (first paragraph of the same article). A periodic invoice (CGI art. 289, I, 3) is capped at forty-five days net, which this fact does not model."
   }

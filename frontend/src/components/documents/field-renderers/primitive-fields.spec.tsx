@@ -132,13 +132,41 @@ function UnitForm({ stored, onChange }: { stored: string; onChange: (value: stri
 }
 
 describe("<TextField> - suggestedValues", () => {
-  it("offers the labels in a datalist and shows a stored code as its label", () => {
+  it("shows a stored code as its label and lists the labels as soon as the field is focused", () => {
     render(<UnitForm stored="DAY" onChange={() => {}} />)
 
     const input = screen.getByTestId("document-field-unit-input") as HTMLInputElement
     expect(input.value).toBe("Jour")
-    const options = document.getElementById(input.getAttribute("list") as string)?.querySelectorAll("option")
-    expect(Array.from(options ?? []).map((option) => option.getAttribute("value"))).toEqual(["Jour", "Heure"])
+    fireEvent.focus(input)
+    const options = screen.getAllByRole("option").map((option) => option.textContent)
+    expect(options).toEqual(["Jour", "Heure"])
+  })
+
+  it("narrows the list to what is typed and picks the highlighted entry with Enter", () => {
+    let stored = ""
+    render(<UnitForm stored="" onChange={(value) => (stored = value)} />)
+    const input = screen.getByTestId("document-field-unit-input")
+
+    fireEvent.focus(input)
+    fireEvent.change(input, { target: { value: "heu" } })
+    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["Heure"])
+    fireEvent.keyDown(input, { key: "ArrowDown" })
+    fireEvent.keyDown(input, { key: "Enter" })
+    expect(stored).toBe("HUR")
+    expect(screen.queryByRole("listbox")).toBeNull()
+  })
+
+  it("closes on Escape and keeps free text on Enter when nothing is highlighted", () => {
+    let stored = ""
+    render(<UnitForm stored="" onChange={(value) => (stored = value)} />)
+    const input = screen.getByTestId("document-field-unit-input")
+
+    fireEvent.focus(input)
+    fireEvent.keyDown(input, { key: "Escape" })
+    expect(screen.queryByRole("listbox")).toBeNull()
+    fireEvent.change(input, { target: { value: "j" } })
+    fireEvent.keyDown(input, { key: "Enter" })
+    expect(stored).toBe("j")
   })
 
   it("shows a stored free-text value as typed", () => {

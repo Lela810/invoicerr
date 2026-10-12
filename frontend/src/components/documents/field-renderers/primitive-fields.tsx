@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { BetterInput } from "@/components/better-input"
 import { CatalogSearchInput } from "@/components/catalog-search-input"
+import { ComboboxInput } from "@/components/combobox-input"
 import { DatePicker } from "@/components/date-picker"
 import { useDocumentFormReadOnly } from "@/components/documents/document-form-readonly"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -178,7 +179,6 @@ export function TextField({ field, name, catalog }: FieldRendererProps & { catal
   const required = useConditionallyRequired(field)
   const readOnly = useDocumentFormReadOnly()
   const suggestionsPath = siblingSuggestionsPath(field, name)
-  const fixedListId = field.suggestedValues ? `${name.replaceAll(".", "-")}-suggested` : undefined
   // A stable, collision-safe id: `name` itself is already unique per field instance (react-hook-form
   // never reuses one), just not a valid HTML id verbatim (dots).
   const datalistId = suggestionsPath ? `${name.replace(/\./g, "-")}-suggestions` : undefined
@@ -203,24 +203,26 @@ export function TextField({ field, name, catalog }: FieldRendererProps & { catal
                 disabled={readOnly}
                 data-cy={`document-field-${field.key}-input`}
               />
+            ) : field.suggestedValues ? (
+              <ComboboxInput
+                {...rhfField}
+                value={suggestedLabelOf(field, rhfField.value ?? "")}
+                onChange={(text) => rhfField.onChange(suggestedValueOf(field, text))}
+                onOptionSelect={(option) => rhfField.onChange(option.value)}
+                options={field.suggestedValues}
+                disabled={readOnly}
+                data-cy={`document-field-${field.key}-input`}
+              />
             ) : (
               <BetterInput
                 {...rhfField}
-                value={suggestedLabelOf(field, rhfField.value ?? "")}
-                onChange={(event) => rhfField.onChange(suggestedValueOf(field, event.target.value))}
+                value={rhfField.value ?? ""}
                 disabled={readOnly}
-                list={datalistId ?? fixedListId}
+                list={datalistId}
                 data-cy={`document-field-${field.key}-input`}
               />
             )}
           </FieldChrome>
-          {fixedListId && field.suggestedValues && (
-            <datalist id={fixedListId}>
-              {field.suggestedValues.map((entry) => (
-                <option key={entry.value} value={entry.label} />
-              ))}
-            </datalist>
-          )}
           {datalistId && suggestionsPath && (
             <SiblingSuggestionsDatalist
               id={datalistId}

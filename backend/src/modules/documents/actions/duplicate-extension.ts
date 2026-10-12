@@ -61,6 +61,11 @@ export interface DuplicateDateRecalc {
 
 export interface RegisterDuplicateExtensionOptions {
   dateRecalc?: DuplicateDateRecalc;
+  /** Reshapes the copy made by a manual duplicate (no `occurrenceDate`), e.g. to date it today. */
+  prepareManualCopy?: (
+    companyId: string,
+    sourceData: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>>;
 }
 
 /** Applies `dateRecalc` to a clone of `sourceData`, given the occurrence's own anchor value — pure,
@@ -100,7 +105,7 @@ export function registerDuplicateExtension(
   actions: ActionRegistry,
   options: RegisterDuplicateExtensionOptions = {},
 ): void {
-  const { dateRecalc } = options;
+  const { dateRecalc, prepareManualCopy } = options;
 
   extensions.register(typeId, {
     id: 'duplicate',
@@ -131,8 +136,10 @@ export function registerDuplicateExtension(
     const source = await findOwnedDocument(companyId, typeId, documentId);
     const sourceData = source.data as Record<string, unknown>;
     const occurrenceDate = typeof params.occurrenceDate === 'string' ? params.occurrenceDate : undefined;
-    const clonedData =
-      occurrenceDate && dateRecalc ? applyDateRecalc(sourceData, occurrenceDate, dateRecalc) : sourceData;
+    let clonedData = sourceData;
+    if (occurrenceDate && dateRecalc) clonedData = applyDateRecalc(sourceData, occurrenceDate, dateRecalc);
+    else if (!occurrenceDate && prepareManualCopy)
+      clonedData = await prepareManualCopy(companyId, sourceData);
 
     const document = await upsertDocument(companyId, typeId, undefined, 'draft', clonedData);
 

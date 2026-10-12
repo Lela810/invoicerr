@@ -108,6 +108,16 @@ describe("field descriptions guard", () => {
       <small className="text-muted-foreground">{days_hint}</small>`,
     ],
     [
+      "hidden muted text after an input",
+      `<Input id="days" />
+      <span aria-hidden="true" className="text-xs text-muted-foreground">{days_hint}</span>`,
+    ],
+    [
+      "a muted icon after an input that is not hidden",
+      `<Input id="days" />
+      <span className="text-xs text-muted-foreground"><Trans i18nKey="days_hint" /></span>`,
+    ],
+    [
       "a class built with a template literal",
       `<Input id="days" />
       <p className={\`\${size} text-muted-foreground\`}>{days_hint}</p>`,
@@ -142,6 +152,15 @@ describe("field descriptions guard", () => {
           <span className="text-sm text-muted-foreground">%</span>
         </div>
       </FormItem>`,
+    ],
+    [
+      "a hidden loader icon inside a busy input",
+      `<BetterInput role="combobox" aria-busy={loading || undefined} />
+      {loading && (
+        <span aria-hidden="true" className="pointer-events-none absolute end-2 text-muted-foreground">
+          <Spinner />
+        </span>
+      )}`,
     ],
     [
       "an empty state after a component whose name ends in Field",

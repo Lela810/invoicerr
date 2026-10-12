@@ -30,3 +30,12 @@ files, and two pages already say it without anyone retyping it:
 To widen that coverage, or to add a country of your own, see [Adding a
 country](../adding-a-country.md): the catalogue files listed on every other page in this directory
 are the ones Portugal already has.
+
+## Fallback payment term
+
+The `paymentTerms.fallbackTerm` entry of `countries/data/pt.json` is the 30 days an invoice's due
+date falls back to when the company has no default term of its own (see [Payment
+terms](../../user-guide/settings/payment-terms.md)). Decreto-Lei n.º 62/2013, art. 4.º, n.º 3,
+alínea a) makes late-payment interest due 30 days after the debtor receives the invoice when the
+contract sets no date (`basis: "latePaymentThreshold"`). It sets no payment term. The application
+counts the 30 days from the invoice date, not from receipt of the invoice.

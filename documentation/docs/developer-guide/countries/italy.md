@@ -55,3 +55,12 @@ files, and two pages already say it without anyone retyping it:
 To widen that coverage, or to add a country of your own, see [Adding a
 country](../adding-a-country.md): the catalogue files listed on every other page in this directory
 are the ones Italy already has.
+
+## Fallback payment term
+
+The `paymentTerms.fallbackTerm` entry of `countries/data/it.json` is the 30 days an invoice's due
+date falls back to when the company has no default term of its own (see [Payment
+terms](../../user-guide/settings/payment-terms.md)). D.Lgs. 231/2002, art. 4, comma 2, lettera a)
+caps the payment period at 30 days from the debtor's receipt of the invoice, unless the parties
+agree otherwise (`basis: "maximumWhenNotAgreed"`). The application counts the 30 days from the
+invoice date, not from receipt of the invoice.

@@ -1,4 +1,8 @@
-import { SUGGESTED_UNIT_CODES, SUGGESTED_UNIT_LABELS } from '../../formats/semantic/unit-code';
+import {
+  SUGGESTED_UNIT_CODES,
+  SUGGESTED_UNIT_LABELS,
+  SuggestedUnitCode,
+} from '../../formats/semantic/unit-code';
 import { RenderLanguage } from './supported-languages';
 
 /**
@@ -99,9 +103,17 @@ export interface PdfChromeStrings {
   exchangeRate(rate: string, date: string): string;
 }
 
-/** Labels listed in `SUGGESTED_UNIT_CODES` order. */
-const unitLabels = (labels: readonly string[]): Record<string, string> =>
-  Object.fromEntries(SUGGESTED_UNIT_CODES.map((code, index) => [code, labels[index]]));
+type StringTuple<N extends number, R extends string[] = []> = R['length'] extends N
+  ? R
+  : StringTuple<N, [...R, string]>;
+type UnitLabelList = Readonly<StringTuple<(typeof SUGGESTED_UNIT_CODES)['length']>>;
+
+/** Labels in `SUGGESTED_UNIT_CODES` order; the tuple type refuses a list with an entry missing or extra. */
+const unitLabels = (labels: UnitLabelList): Record<SuggestedUnitCode, string> =>
+  Object.fromEntries(SUGGESTED_UNIT_CODES.map((code, index) => [code, labels[index]])) as Record<
+    SuggestedUnitCode,
+    string
+  >;
 
 const EN: PdfChromeStrings = {
   status: 'Status',
@@ -138,6 +150,7 @@ const FR: PdfChromeStrings = {
   no: 'Non',
   suggestedValueLabels: unitLabels([
     'Pièce',
+    'Unité',
     'Heure',
     'Jour',
     'Semaine',
@@ -176,6 +189,7 @@ const IT: PdfChromeStrings = {
   no: 'No',
   suggestedValueLabels: unitLabels([
     'Pezzo',
+    'Unità',
     'Ora',
     'Giorno',
     'Settimana',
@@ -214,6 +228,7 @@ const PL: PdfChromeStrings = {
   no: 'Nie',
   suggestedValueLabels: unitLabels([
     'Sztuka',
+    'Jednostka',
     'Godzina',
     'Dzień',
     'Tydzień',
@@ -252,6 +267,7 @@ const DE: PdfChromeStrings = {
   no: 'Nein',
   suggestedValueLabels: unitLabels([
     'Stück',
+    'Einheit',
     'Stunde',
     'Tag',
     'Woche',
@@ -290,6 +306,7 @@ const PT: PdfChromeStrings = {
   no: 'Não',
   suggestedValueLabels: unitLabels([
     'Peça',
+    'Unidade',
     'Hora',
     'Dia',
     'Semana',
