@@ -1,7 +1,12 @@
 import type { TFunction } from "i18next"
 import { describe, expect, it } from "vitest"
 
-import { actionAssignsNumber, actionLocksDocument, saveDraftLockNotice } from "./action-presentation"
+import {
+  actionAssignsNumber,
+  actionLocksDocument,
+  canCreateDocument,
+  saveDraftLockNotice,
+} from "./action-presentation"
 import type { DocumentActionDescriptor, DocumentTypeDescriptor } from "./types"
 
 /**
@@ -204,5 +209,42 @@ describe("saveDraftLockNotice", () => {
     // and NO `lockedStatuses` at all - the France invoice shape this notice already had to cover.
     const invoiceDescriptor = descriptor([saveDraft, send, cancel])
     expect(saveDraftLockNotice(echoT, invoiceDescriptor, "sending")).toBe("documents.form.saveLocked.invoice")
+  })
+})
+
+describe("canCreateDocument", () => {
+  it("is false when only a draft's delete is left unblocked: deleting never creates anything", () => {
+    const blocked = "Forbidden for this country"
+    const type = {
+      initialStatus: "draft",
+      actions: [
+        { id: "save-draft", label: "Save draft", availableWhen: "always", policyBlockedReason: blocked },
+        { id: "send", label: "Send", availableWhen: ["draft"], policyBlockedReason: blocked },
+        { id: "delete", label: "Delete", availableWhen: ["draft"] },
+      ],
+    } as Pick<DocumentTypeDescriptor, "actions" | "initialStatus">
+    expect(canCreateDocument(type)).toBe(false)
+  })
+})
+
+describe("canCreateDocument, evaluated like the create dialog (a record with no status yet)", () => {
+  it("is false when save-draft is blocked even though a draft-only send is not", () => {
+    const type = {
+      initialStatus: "draft",
+      actions: [
+        { id: "save-draft", label: "Save draft", availableWhen: "always", policyBlockedReason: "Forbidden" },
+        { id: "send", label: "Send", availableWhen: ["draft", "send_failed"] },
+        { id: "validate", label: "Validate", availableWhen: ["draft"] },
+      ],
+    } as Pick<DocumentTypeDescriptor, "actions" | "initialStatus">
+    expect(canCreateDocument(type)).toBe(false)
+  })
+
+  it("is true when save-draft itself is allowed", () => {
+    const type = {
+      initialStatus: "draft",
+      actions: [{ id: "save-draft", label: "Save draft", availableWhen: "always" }],
+    } as Pick<DocumentTypeDescriptor, "actions" | "initialStatus">
+    expect(canCreateDocument(type)).toBe(true)
   })
 })

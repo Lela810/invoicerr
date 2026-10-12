@@ -161,7 +161,12 @@ function buildActionRegistry(/* deps */): ActionRegistry {
 For the common cases (`save-draft`, `delete`), `actions/generic-actions.ts` already has a
 type-agnostic implementation — `registerSaveDraftAction(registry, typeId, webhooks?)` and
 `registerDeleteAction(registry, typeId, webhooks?)` cover any type whose handler doesn't need to
-read a single field of `data`. A type whose behavior genuinely depends on country/channel/settlement
+read a single field of `data`. The generic `delete` refuses (409, with a stable `code`) a record
+that has ever held a number (`number`, `displayNumber` or `atcud`), one another document's `data`
+still names, and one a recurrence uses as its template; this holds for every type that registers it,
+expenses, goods receipts and received invoices included. It locks the row for the delete, and a
+`save-draft` locks the documents its reference fields name, so neither can leave a dangling link.
+`runAction` skips data validation for `delete`, which persists nothing. A type whose behavior genuinely depends on country/channel/settlement
 logic (the invoice's own "send") needs its own `<type>-actions.ts` with a bespoke `ActionHandler` —
 `invoice-actions.ts` is the template to read for that shape. An action declared on the descriptor
 with **no** handler registered here is not a bug: `DocumentsService.runAction` turns that into the

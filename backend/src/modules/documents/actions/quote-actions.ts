@@ -11,7 +11,11 @@ import { SigningCredentialsPort } from '../signing/signing-credentials-port';
 import { decrementsStockOnIssuance } from '../stock/apply-stock-on-issuance';
 import { runAsyncSendAction } from './async-send';
 import { ActionRegistry } from './action-registry';
-import { registerEmailRecipientDefaultFromClient, registerSaveDraftAction } from './generic-actions';
+import {
+  registerDeleteAction,
+  registerEmailRecipientDefaultFromClient,
+  registerSaveDraftAction,
+} from './generic-actions';
 import { sendDocumentInstanceEmail } from './send-document-email';
 
 export interface QuoteActionDeps {
@@ -64,6 +68,7 @@ const QUOTE_DECREMENTS_STOCK = decrementsStockOnIssuance(QUOTE_DESCRIPTOR);
  */
 export function registerQuoteActions(registry: ActionRegistry, deps: QuoteActionDeps): void {
   registerSaveDraftAction(registry, 'quote', deps.webhooks);
+  registerDeleteAction(registry, 'quote', deps.webhooks);
   registerEmailRecipientDefaultFromClient(registry, 'quote', deps.clientsService);
 
   registry.register('quote', 'send', async ({ companyId, documentId, data, params }) =>

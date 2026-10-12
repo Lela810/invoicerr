@@ -215,14 +215,20 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
     );
   });
 
-  it('declares exactly four actions: "save-draft", "send", "download-xml" and "share-link" - nothing more', () => {
+  it('declares exactly five actions: "save-draft", "send", "download-xml", "share-link" and "delete"', () => {
     // "share-link" joined "save-draft"/"send" here — see
     // credit-note.descriptor.ts's own comment on that action for why it is declared at all despite
     // never running through ActionRegistry.
     const descriptor = buildService().service.getType('credit-note');
     // "download-xml" (issue #472) is declared for the same reason, and never runs through
     // ActionRegistry either (documents.service.ts#downloadDocumentFormat).
-    expect(descriptor.actions.map((a) => a.id)).toEqual(['save-draft', 'send', 'download-xml', 'share-link']);
+    expect(descriptor.actions.map((a) => a.id)).toEqual([
+      'save-draft',
+      'send',
+      'download-xml',
+      'share-link',
+      'delete',
+    ]);
   });
 
   it('"send" (phase 1): draft -> sending, enqueued — no params, no email, no delivery yet', async () => {
@@ -633,6 +639,8 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
       // The CAS argument (issue #468 reviewer finding #1) - `documents.service.ts#runAction`'s own
       // `allowedFromStatuses`: CREDIT_NOTE_STATUSES minus SAVE_DRAFT_LOCKED_STATUSES = ['draft'].
       ['draft'],
+      // The invoice it corrects, locked for the write so a concurrent delete cannot orphan it.
+      { referencedDocumentIds: [validCreditNoteData.invoice] },
     );
   });
 
@@ -728,6 +736,7 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
         'draft',
         validCreditNoteData,
         ['draft'], // the CAS argument - see this file's own earlier comment on it.
+        { referencedDocumentIds: [validCreditNoteData.invoice] },
       );
     });
 

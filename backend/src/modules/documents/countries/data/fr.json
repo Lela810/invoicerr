@@ -143,6 +143,16 @@
         }
       },
       {
+        "typeId": "quote",
+        "actionId": "delete",
+        "allowed": true,
+        "statuses": ["draft"],
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a quote draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (a quote edited back to draft after a failed send). A draft has not been sent to the client, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
+        }
+      },
+      {
         "typeId": "invoice",
         "actionId": "record-payment",
         "allowed": true,
@@ -185,6 +195,16 @@
         "notes": "Regulation (EU) 2016/679 (GDPR), art. 4, 2) and art. 32, 1 — same texts as quote.share-link above, read on 2026-09-12 on EUR-Lex, French version, https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:32016R0679 . An invoice names and describes natural persons: publishing an unauthenticated link that exposes it is a « mise à disposition » within the meaning of art. 4, 2), hence processing that art. 32, 1 subjects to security measures appropriate to the risk — which the token discipline achieves (high entropy, hashed, never logged in clear, expiring, revocable: share-links/share-links.service.ts), now grounded in its text rather than presented as a mere technical safeguard. EXACT SCOPE: the GDPR conditions this sharing, it does not prohibit it. SOURCED ABSENCE ON THE TAX SIDE, the point to be distinguished from the preceding one: no invoicing text reaches this additional mode of making available. Read in the CGI (edition 2026-09-01, codes.droit.org, Légifrance mirror, https://codes.droit.org/PDF/Code%20g%C3%A9n%C3%A9ral%20des%20imp%C3%B4ts.pdf): art. 289, VI, whose making-available is that of the invoice TO ITS RECIPIENT (« Leur transmission et mise à disposition sont soumises à l'acceptation du destinataire »), and art. 289 bis, I, which mandates a channel — the accredited platform — for issuance, transmission, and receipt, never for sharing a document already communicated. In the LPF (edition 2026-09-01, https://codes.droit.org/PDF/Livre%20des%20proc%C3%A9dures%20fiscales.pdf), art. L. 102 C governs only the storage LOCATION of invoices and the administration's online access, not their communication to a third party. Légifrance again 403 to automated requests (2026-09-12)."
       },
       {
+        "typeId": "invoice",
+        "actionId": "delete",
+        "allowed": true,
+        "statuses": ["draft"],
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting an invoice draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number, so the invoice sequence never loses a number once taken. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
+      },
+      {
         "typeId": "credit-note",
         "actionId": "save-draft",
         "allowed": true,
@@ -225,6 +245,16 @@
           "sourceCheckedAt": "2026-09-26"
         },
         "notes": "Issue #472. CGI art. 289, I, 5 - the same text, same read and same date as this file's own credit-note `numbering` fact (reused, not re-read by this task). A credit note is an invoice in law, so the structured-message form invoice.download-xml above already rests on (CGI art. 289, VII, 3°) applies to it as much as to the invoice it corrects. The export carries what this text asks of a correcting document: EN 16931 type code 381 and BG-3 (BT-25, the corrected invoice's own number; BT-26, its issue date) - the reference « de façon spécifique et non équivoque ». Same limits as invoice.download-xml: a voluntary export whose form is legally recognized, never an act of transmission through the accredited platform art. 289 bis requires. A FREE credit note (no invoice) is refused an export (documents.service.ts#downloadDocumentFormat, formats/credit-note-source.ts): it has no buyer to put in the file."
+      },
+      {
+        "typeId": "credit-note",
+        "actionId": "delete",
+        "allowed": true,
+        "statuses": ["draft"],
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a credit note draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number. A draft has not been issued to anyone, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a text is found that treats an unissued draft as a document to retain."
+        }
       },
       {
         "typeId": "expense",
@@ -317,6 +347,16 @@
         "provenance": {
           "kind": "unverified",
           "resolutionNote": "Cancelling a purchase order sent to a supplier is a purely commercial act (the company gives up its own order), never the correction of an already-transmitted tax document — this is NOT a correction path within the meaning of correction-routes/ (CANCEL_AND_REPLACE and the other routes of that module concern only a tax document ALREADY ISSUED to a third party whose correction the law governs, which a purchase order is not — see purchase-order-actions.ts's own header). The contractual consequences of such a cancellation vis-à-vis the supplier fall under general contract law, outside the scope of this rule (which only says whether THIS TOOL can record the entry, never whether the cancellation is enforceable against the supplier). No dedicated research conducted for this type/action (2026-09-15) — to be revisited if a real need arises."
+        }
+      },
+      {
+        "typeId": "purchase-order",
+        "actionId": "delete",
+        "allowed": true,
+        "statuses": ["draft"],
+        "provenance": {
+          "kind": "unverified",
+          "resolutionNote": "Deleting a purchase order draft before any number is assigned: the descriptor offers it only in 'draft', and the handler also refuses a draft that already carries a number (an order edited back to draft after a failed send). A draft purchase order is an internal document never sent to the supplier, and no text identified governs discarding one. Research not specifically conducted for this type/action; to revisit if a real need arises."
         }
       },
       {

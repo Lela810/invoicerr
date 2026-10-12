@@ -9,6 +9,8 @@ import { NotFoundException } from '@nestjs/common';
 import { Prisma } from '../../../../prisma/generated/prisma/client';
 import prisma from '@/prisma/prisma.service';
 
+import { lockReferencedDocuments } from '../persistence';
+
 export interface DocumentScheduleRecord {
   id: string;
   companyId: string;
@@ -36,8 +38,20 @@ export interface CreateDocumentScheduleInput {
   params?: Record<string, unknown> | null;
 }
 
+/** Locks the source document for the insert, so a concurrent delete either waits and sees this
+ *  schedule or has already removed the source and this insert is refused. */
 export async function createSchedule(input: CreateDocumentScheduleInput): Promise<DocumentScheduleRecord> {
-  return prisma.documentSchedule.create({
+  return prisma.$transaction(async (tx) => {
+    await lockReferencedDocuments(tx, input.companyId, [input.sourceDocumentId]);
+    return insertSchedule(tx, input);
+  });
+}
+
+function insertSchedule(
+  tx: Prisma.TransactionClient,
+  input: CreateDocumentScheduleInput,
+): Promise<DocumentScheduleRecord> {
+  return tx.documentSchedule.create({
     data: {
       companyId: input.companyId,
       typeId: input.typeId,

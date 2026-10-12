@@ -31,6 +31,7 @@ import {
 } from "@/components/documents/document-downloads"
 import {
   DocumentActionButton,
+  DocumentActionDeleteConfirmHost,
   DocumentActionLockConfirmHost,
   DocumentActionParamsHost,
   DocumentFormFields,
@@ -154,6 +155,7 @@ export function DocumentDetail({ descriptor, instance }: DocumentDetailProps) {
         setSnapshot(result.data)
       }
     },
+    onDeleted: () => navigate(`/documents/${descriptor.id}`),
   })
 
   return (
@@ -167,6 +169,7 @@ export function DocumentDetail({ descriptor, instance }: DocumentDetailProps) {
       />
       <DocumentActionParamsHost state={state} />
       <DocumentActionLockConfirmHost state={state} />
+      <DocumentActionDeleteConfirmHost state={state} />
     </Form>
   )
 }

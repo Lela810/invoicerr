@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { dropEmptyRows } from "@/components/documents/empty-rows"
 import { buildZodSchema, defaultValuesFor } from "@/components/documents/schema"
 import type { DocumentInstance, DocumentTypeDescriptor } from "@/components/documents/types"
+import { isOfferedOnRecord } from "@/components/documents/action-presentation"
 import { isActionAvailable } from "@/components/documents/types"
 import { useDueDateDefault } from "@/components/documents/use-due-date-default"
 import { useDocumentActionRunner } from "@/components/documents/use-document-action-runner"
@@ -52,6 +53,8 @@ export interface UseDocumentFormOptions {
    *  or "follow" the document once it exists (a fresh draft is created on the first save). Not
    *  called for an action whose result carries no document (see ActionResult on the backend). */
   onActionSuccess?: (result: DocumentInstance, actionId: string) => void
+  /** Fires once "delete" has removed the record this form shows. */
+  onDeleted?: () => void
 }
 
 /**
@@ -74,6 +77,7 @@ export function useDocumentForm({
   status,
   displayNumber,
   onActionSuccess,
+  onDeleted,
 }: UseDocumentFormOptions) {
   const [currentDocumentId, setCurrentDocumentId] = useState(documentId)
   const [currentStatus, setCurrentStatus] = useState(status)
@@ -316,6 +320,7 @@ export function useDocumentForm({
       setCurrentStatus(nextStatus)
       setCurrentDisplayNumber(nextDisplayNumber ?? null)
     },
+    onDeleted,
   })
 
   // The STATUS gate (isActionAvailable) is unchanged: an action outside its `availableWhen` for the
@@ -341,6 +346,7 @@ export function useDocumentForm({
       action.id !== "download-xml" &&
       action.id !== "share-link" &&
       action.id !== "accept-manually" &&
+      isOfferedOnRecord(action, currentDisplayNumber) &&
       isActionAvailable(action, currentStatus),
   )
 

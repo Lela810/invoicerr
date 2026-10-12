@@ -533,6 +533,11 @@ export function buildQuoteDescriptor(): DocumentTypeDescriptor {
         // still in "draft" has no number and nothing worth handing a stranger a link to.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

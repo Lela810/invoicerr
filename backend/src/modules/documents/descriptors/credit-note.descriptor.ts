@@ -441,6 +441,11 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         // more", the same status set as before.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

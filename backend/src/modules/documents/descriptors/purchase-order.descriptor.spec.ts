@@ -56,9 +56,11 @@ describe('purchase-order.descriptor — passes validateLifecycle and has the dec
     expect(buildPurchaseOrderDescriptor().numbering).toEqual({ onEnterStatus: 'sending' });
   });
 
-  it('declares exactly three actions: save-draft, send, cancel-order — deliberately NOT "cancel"', () => {
+  it('declares exactly four actions: save-draft, send, cancel-order, delete, and deliberately NOT "cancel"', () => {
     const descriptor = buildPurchaseOrderDescriptor();
-    expect(descriptor.actions.map((a) => a.id).sort()).toEqual(['save-draft', 'send', 'cancel-order'].sort());
+    expect(descriptor.actions.map((a) => a.id).sort()).toEqual(
+      ['save-draft', 'send', 'cancel-order', 'delete'].sort(),
+    );
     // See this descriptor's own header: naming this action "cancel" would make it silently
     // unreachable from the generic action-button row (document-form.tsx/document-list.tsx both
     // filter out `action.id === "cancel"` unconditionally, on the assumption of a dedicated

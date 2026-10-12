@@ -829,6 +829,11 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         // hand a stranger a link to yet.
         availableWhen: ['sending', 'sent', 'send_failed'],
       },
+      {
+        id: 'delete',
+        label: 'Delete',
+        availableWhen: ['draft'],
+      },
     ],
   };
 }

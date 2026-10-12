@@ -13,7 +13,11 @@ import { EntityReferenceRegistry } from '../references/reference-registry';
 import { SigningCredentialsPort } from '../signing/signing-credentials-port';
 import { runAsyncSendAction } from './async-send';
 import { ActionRegistry } from './action-registry';
-import { registerEmailRecipientDefaultFromClient, registerSaveDraftAction } from './generic-actions';
+import {
+  registerDeleteAction,
+  registerEmailRecipientDefaultFromClient,
+  registerSaveDraftAction,
+} from './generic-actions';
 import { sendDocumentInstanceEmail } from './send-document-email';
 
 export interface PurchaseOrderActionDeps {
@@ -54,6 +58,7 @@ export interface PurchaseOrderActionDeps {
  */
 export function registerPurchaseOrderActions(registry: ActionRegistry, deps: PurchaseOrderActionDeps): void {
   registerSaveDraftAction(registry, 'purchase-order', deps.webhooks);
+  registerDeleteAction(registry, 'purchase-order', deps.webhooks);
   registerEmailRecipientDefaultFromClient(registry, 'purchase-order', deps.clientsService, 'supplier');
 
   registry.register('purchase-order', 'send', async ({ companyId, documentId, data, params }) =>

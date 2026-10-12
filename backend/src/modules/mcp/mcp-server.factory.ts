@@ -30,6 +30,7 @@ export function createMcpServerForRequest(ctx: ToolContext) {
         tool.name,
         {
           description: tool.description,
+          annotations: tool.annotations,
           inputSchema: tool.inputSchema,
           outputSchema: tool.outputSchema,
         },

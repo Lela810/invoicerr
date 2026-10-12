@@ -49,6 +49,8 @@ export interface ToolResult {
 export interface ToolDescriptor<Input extends z.ZodRawShape = z.ZodRawShape> {
   name: string;
   description: string;
+  /** MCP behaviour hints shown to the client, e.g. that a call may destroy data. */
+  annotations?: { destructiveHint?: boolean };
   /**
    * Whether this tool is registered at all for the caller's scopes — tools/list VISIBILITY (see
    * mcp-server.factory.ts's own header: a tool the caller's scopes don't cover never appears in

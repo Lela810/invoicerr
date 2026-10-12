@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
+import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -36,6 +37,29 @@ interface DomesticInvoiceCurrencyMismatchParams {
 function apiErrorCode(error: unknown): string | undefined {
   if (!(error instanceof ApiError)) return undefined
   return (error.body as { code?: string } | undefined)?.code
+}
+
+/** The server's coded refusals of a delete, re-worded in the reader's language with the linked
+ *  document's own type label instead of its raw id. */
+const DELETE_REFUSAL_KEYS: Record<string, string> = {
+  DOCUMENT_HAS_DEPENDENTS: "documents.form.deleteRefused.hasDependents",
+  DOCUMENT_IS_RECURRENCE_TEMPLATE: "documents.form.deleteRefused.recurrenceTemplate",
+  DOCUMENT_NUMBERED: "documents.form.deleteRefused.numbered",
+  DOCUMENT_CHANGED: "documents.form.deleteRefused.changed",
+  DOCUMENT_LINK_GONE: "documents.form.deleteRefused.linkGone",
+}
+
+function deleteRefusalMessage(t: TFunction, error: unknown): string | undefined {
+  const code = apiErrorCode(error)
+  const key = code ? DELETE_REFUSAL_KEYS[code] : undefined
+  if (!key) return undefined
+  const params = apiErrorParams<{ typeId?: string; displayNumber?: string | null }>(error) ?? {}
+  return t(key, {
+    type: params.typeId
+      ? t(`documents.descriptors.${params.typeId}.label`, { defaultValue: params.typeId })
+      : "",
+    number: params.displayNumber ?? t("documents.form.deleteRefused.unnumbered"),
+  })
 }
 
 function apiErrorParams<T>(error: unknown): T | undefined {
@@ -95,6 +119,8 @@ interface UseDocumentActionRunnerOptions {
     number: number | null | undefined,
     displayNumber: string | null | undefined,
   ) => void
+  /** Fired once "delete" has removed this record, so a screen showing it can leave. */
+  onDeleted?: () => void
 }
 
 /**
@@ -115,6 +141,7 @@ export function useDocumentActionRunner({
   validate,
   onActionSuccess,
   onDocumentUpdate,
+  onDeleted,
 }: UseDocumentActionRunnerOptions) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -125,6 +152,7 @@ export function useDocumentActionRunner({
   // declares `params` still gets both, in order (lock confirmation, then the params dialog), never
   // the two conflated into one step.
   const [pendingLockConfirm, setPendingLockConfirm] = useState<DocumentActionDescriptor | undefined>()
+  const [pendingDeleteConfirm, setPendingDeleteConfirm] = useState<DocumentActionDescriptor | undefined>()
 
   const runAction = useRunDocumentAction()
   const resolveDefaults = useResolveActionParamsDefaults()
@@ -154,6 +182,9 @@ export function useDocumentActionRunner({
       setPendingAction(undefined)
       if (result.changed && result.document) {
         onActionSuccess?.(result.document, actionId)
+      }
+      if (result.changed && actionId === "delete") {
+        onDeleted?.()
       }
     } catch (error) {
       // #566 review: the backend's own message for this one code carries a raw legal quote, a
@@ -203,6 +234,11 @@ export function useDocumentActionRunner({
         )
         return
       }
+      const deleteRefusal = deleteRefusalMessage(t, error)
+      if (deleteRefusal) {
+        toast.error(deleteRefusal)
+        return
+      }
       // The message IS the point here: a 501 means the action is declared on this document type but
       // nobody registered an implementation for it yet — say exactly that, never fail silently.
       const message = error instanceof ApiError ? error.message : t("documents.form.messages.actionError")
@@ -237,6 +273,12 @@ export function useDocumentActionRunner({
   }
 
   const handleAction = async (action: DocumentActionDescriptor) => {
+    // Before validation: a draft is often deleted precisely because its form is not valid.
+    if (action.id === "delete") {
+      setPendingDeleteConfirm(action)
+      return
+    }
+
     const valid = validate ? await validate() : true
     if (!valid) {
       toast.error(t("documents.form.messages.invalid"))
@@ -262,15 +304,25 @@ export function useDocumentActionRunner({
     await runOrCollectParams(action)
   }
 
+  const confirmPendingDelete = async () => {
+    const action = pendingDeleteConfirm
+    if (!action) return
+    await executeAction(action.id, {})
+    setPendingDeleteConfirm(undefined)
+  }
+
   return {
     pendingAction,
     pendingDefaults,
     pendingLockConfirm,
+    pendingDeleteConfirm,
     isRunning: runAction.isPending,
     handleAction,
     executeAction,
     confirmPendingLock,
+    confirmPendingDelete,
     cancelPendingAction: () => setPendingAction(undefined),
     cancelPendingLockConfirm: () => setPendingLockConfirm(undefined),
+    cancelPendingDeleteConfirm: () => setPendingDeleteConfirm(undefined),
   }
 }

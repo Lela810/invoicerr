@@ -26,7 +26,7 @@ import { ArchivedArtifactInput } from '../archive/hashing';
 import { runAsyncSendAction } from './async-send';
 import { attachAtcudToNumberedDocument, runAtcudPreflight } from './atcud-issuance';
 import { ActionRegistry, DocumentInstanceResult } from './action-registry';
-import { performSaveDraft } from './generic-actions';
+import { performSaveDraft, registerDeleteAction } from './generic-actions';
 import {
   ResolvedInvoiceTransport,
   resolveInvoiceTransport,
@@ -385,6 +385,7 @@ function registerCreditNoteSaveDraftAction(
       // header (generic-actions.ts) and `documents.service.ts#runAction`'s `allowedFromStatuses`
       // comment.
       ctx.allowedFromStatuses,
+      ctx.referencedDocumentIds,
     );
   });
 }
@@ -521,6 +522,7 @@ async function deliverCreditNote(
 
 export function registerCreditNoteActions(registry: ActionRegistry, deps: CreditNoteActionDeps): void {
   registerCreditNoteSaveDraftAction(registry, deps.webhooks);
+  registerDeleteAction(registry, 'credit-note', deps.webhooks);
 
   registry.register('credit-note', 'send', async ({ companyId, documentId, data, params }) => {
     const result = await runAsyncSendAction({

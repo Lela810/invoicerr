@@ -49,6 +49,9 @@ export interface ActionContext {
    * to know who ran it (every one before this issue) simply never reads this field.
    */
   actor?: { id: string; name: string; email: string };
+  /** Other documents `data` references (a credit note's invoice, an invoice's origin quote). A write
+   *  locks them so a concurrent delete cannot leave the reference dangling. */
+  referencedDocumentIds?: string[];
 }
 
 export interface DocumentInstanceResult {
