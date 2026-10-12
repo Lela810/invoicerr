@@ -105,7 +105,7 @@ jobs:
           # `npm run start:test` doesn't call syncDatabaseSchema() (production-only) either — without
           # this, the document country-action policy table stays empty and every document action
           # 403s for the whole scenario.
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma db seed
+          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # See the same step in cypress.yml's `cypress-run` job: `full-lifecycle.cy.ts` sends real
       # documents, so this job renders real PDFs and needs a real Chromium — `ubuntu-latest` shipping

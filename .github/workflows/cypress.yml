@@ -184,7 +184,7 @@ jobs:
       # the country-policy table being empty makes every document action 403 -- the same gotcha
       # `queue-integration` and `scenarios.yml` both already document at their own seed step.
       - name: Apply migrations and seed reference data
-        run: cd backend && ./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed
+        run: cd backend && ./node_modules/.bin/prisma migrate deploy && PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # Vitest is the sole runner now (the Jest -> Vitest migration that used to split this into two
       # steps -- one runner each, coordinated by `vitest-migrated.json` -- is over; every spec
@@ -275,7 +275,7 @@ jobs:
       # below 403s before ever reaching the queue (country-policy.ts blocks everything for a country
       # with no rows). Same gotcha the cypress-run job's own install step already documents.
       - name: Seed reference data (country policy, ...)
-        run: cd backend && ./node_modules/.bin/prisma db seed
+        run: cd backend && PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # The document-action queue's real end-to-end proof: enqueue -> a REAL BullMQ
       # worker consumes -> the email genuinely lands in Mailpit -> the document reaches "sent"; a
@@ -492,7 +492,7 @@ jobs:
           # EMPTY and every document action 403s in every spec below (country-policy.ts blocks
           # everything for a country with no rows). `npm run start:test` doesn't call
           # syncDatabaseSchema() either (production-only, see main.ts), so nothing else seeds it here.
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma db seed
+          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # This job renders REAL PDFs (documents.controller -> render-instance-pdf -> render-pdf.ts),
       # exercised by the e2e specs that send a document — e.g. 23-document-email.cy.ts. Unlike the
@@ -657,7 +657,7 @@ jobs:
           npm ci --ignore-scripts
           DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma generate
           DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma migrate deploy
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" ./node_modules/.bin/prisma db seed
+          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       - name: Cache Playwright Chromium
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
