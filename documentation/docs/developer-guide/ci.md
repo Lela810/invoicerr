@@ -49,6 +49,19 @@ above (or leave it unlabeled for "Other") before it merges if you want it to sho
 right heading in the next release's notes.
 :::
 
+## Documentation build
+
+The changelog at `/changelog` is generated at build time: `documentation/scripts/fetch-changelog.mjs`
+fetches every published release and writes one post per release into `documentation/changelog/`.
+Docusaurus compiles those posts as MDX, so `documentation/scripts/changelog-post.mjs` makes each
+release body MDX-safe first: HTML comments (GitHub's generated notes open with one) are dropped, and
+`{`, `}` and `<` outside code are escaped. Its tests run with `npm test` in `documentation/`.
+
+`docs.yml` runs those tests and the full site build on every pull request to `dev` or `main` that
+touches `documentation/`. `docs-deploy.yml` builds and publishes the site after a push to `dev`.
+A release body is not part of any pull request, so a new kind of breakage in release notes still
+shows up first on the next deploy or the next documentation pull request.
+
 ## DCO check
 
 `dco.yml` runs on every pull request targeting `dev` or `main`. It reads the pull request's commits

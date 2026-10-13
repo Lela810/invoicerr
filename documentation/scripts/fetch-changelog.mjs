@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, unlinkSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { generatePost } from './changelog-post.mjs';
 
 const OWNER = 'invoicerr-app';
 const REPO = 'invoicerr';
@@ -34,40 +35,6 @@ async function fetchAllReleases() {
   }
 
   return allReleases.filter((r) => !r.draft);
-}
-
-// Release notes are GitHub markdown written by humans and PR titles, but the blog compiles them
-// as MDX: a title such as "series without {year}" became a JSX expression and failed the whole
-// build (ReferenceError: year is not defined, v2.0.0-alpha.2). Braces are escaped everywhere
-// except inside code, where MDX already treats them literally.
-function escapeMdxBraces(markdown) {
-  return markdown
-    .split(/(```[\s\S]*?```|`[^`\n]*`)/g)
-    .map((part, i) => (i % 2 === 1 ? part : part.replace(/[{}]/g, (c) => `\\${c}`)))
-    .join('');
-}
-
-function generatePost(release) {
-  const date = release.published_at?.split('T')[0] ?? 'Unknown date';
-  const raw = (release.body ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-  const body = escapeMdxBraces(raw);
-
-  const frontmatter = [
-    '---',
-    `title: ${release.tag_name}`,
-    `date: ${date}`,
-    'tags: [release]',
-    '---',
-  ].join('\n');
-
-  const lines = body.split('\n');
-  if (lines.length <= 10) {
-    return `${frontmatter}\n\n${body}\n`;
-  }
-
-  const before = lines.slice(0, 10).join('\n');
-  const after = lines.slice(10).join('\n');
-  return `${frontmatter}\n\n${before}\n\n{/* truncate */}\n\n${after}\n`;
 }
 
 function existingTags() {
