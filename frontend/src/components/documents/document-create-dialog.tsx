@@ -74,7 +74,7 @@ function isLinesKind(field: DocumentFieldDescriptor): boolean {
  * step; `received-invoice` declares every field `required: false`: no Details step).
  */
 function buildFieldGroups(fields: DocumentFieldDescriptor[]) {
-  const sourceKeys = new Set(
+  const sourceAndLockedKeys = new Set(
     fields
       .filter((field): field is DocumentFieldDescriptor & { sourceField: string } => {
         return field.kind === "rowSelection" && !!field.sourceField
@@ -83,7 +83,7 @@ function buildFieldGroups(fields: DocumentFieldDescriptor[]) {
   )
   for (const field of fields) {
     const followedKey = field.lockedFromReference?.field
-    if (followedKey && sourceKeys.has(followedKey)) sourceKeys.add(field.key)
+    if (followedKey && sourceAndLockedKeys.has(followedKey)) sourceAndLockedKeys.add(field.key)
   }
 
   const lineFields: DocumentFieldDescriptor[] = []
@@ -91,7 +91,7 @@ function buildFieldGroups(fields: DocumentFieldDescriptor[]) {
   const optionsFields: DocumentFieldDescriptor[] = []
   for (const field of fields) {
     if (isLinesKind(field)) lineFields.push(field)
-    else if (field.required || sourceKeys.has(field.key)) detailsFields.push(field)
+    else if (field.required || sourceAndLockedKeys.has(field.key)) detailsFields.push(field)
     else optionsFields.push(field)
   }
   return { detailsFields, lineFields, optionsFields }
