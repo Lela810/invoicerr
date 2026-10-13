@@ -1,0 +1,39 @@
+name: Documentation
+
+# Builds the site on pull requests that touch it, so a page or a generated changelog post that
+# breaks MDX fails here instead of on the deploy after merge.
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "documentation/**"
+      - ".github/workflows/docs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
+
+      - name: Install dependencies
+        run: cd documentation && npm ci --ignore-scripts
+
+      - name: Test the changelog generator
+        run: cd documentation && npm test
+
+      # The build fetches every published release and compiles it as a changelog post.
+      - name: Build documentation site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: cd documentation && npm run build
