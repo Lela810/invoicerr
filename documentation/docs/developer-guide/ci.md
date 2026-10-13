@@ -74,12 +74,14 @@ started from `e2e/cypress.config.ts` instead:
 - a URL stored on a row (PDP, SdI, the Portuguese AT webservice) is written by the spec itself,
   toward a fake on an ephemeral port;
 - a URL the backend reads from its environment at boot uses a fixed port and a variable set for the
-  e2e stack: `ADDRESS_AUTOCOMPLETE_URL` (Photon, port 19876, set in `cypress.yml`) and
-  `KSEF_TEST_API_URL` (KSeF test API, port 19877, set in `backend/.env.test`).
+  e2e stack: `ADDRESS_AUTOCOMPLETE_URL` (Photon, port 19876, set in `cypress.yml`),
+  `KSEF_TEST_API_URL` (KSeF test API, port 19877, set in `backend/.env.test`) and
+  `CHORUS_PRO_SANDBOX_URL` (both PISTE sandbox hosts, port 19878, set in `backend/.env.test`).
 
+The KSeF and Chorus Pro variables only repoint the test or sandbox environment: a channel connected
+in production always talks to the real authority, and a unit test next to each client guards that.
 The real round trip with each authority belongs in a `*.live.spec.ts` run by `compliance-live.yml`
-(see [Live Testing](./live-testing.md)). The Chorus Pro send test in `31-national-channels.cy.ts`
-still reaches the public PISTE sandbox and is the remaining exception.
+(see [Live Testing](./live-testing.md)).
 
 ## Release notes and the Discord announcement
 

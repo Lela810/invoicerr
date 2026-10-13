@@ -306,6 +306,38 @@ function startFakeKsefServer(): Promise<string> {
 }
 
 /**
+ * Stands in for the PISTE sandbox (`sandbox-oauth.piste.gouv.fr` and `sandbox-api.piste.gouv.fr`) so
+ * the Chorus Pro send tests never depend on a public government sandbox in the required CI lane. It
+ * answers the OAuth token request the way the real sandbox answers fake client credentials:
+ * HTTP 400 `invalid_client`. Fixed port, read by the backend at boot as `CHORUS_PRO_SANDBOX_URL`
+ * (`backend/.env.test`). The real round trip is proven by `choruspro.live.spec.ts` in
+ * `compliance-live.yml`.
+ */
+const FAKE_CHORUS_PRO_PORT = 19878;
+let fakeChorusProServerUrl: string | null = null;
+const fakeChorusProRequests: string[] = [];
+
+function startFakeChorusProServer(): Promise<string> {
+  if (fakeChorusProServerUrl) return Promise.resolve(fakeChorusProServerUrl);
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      req.resume();
+      const path = (req.url ?? "/").split("?")[0];
+      fakeChorusProRequests.push(`${req.method} ${path}`);
+      res.writeHead(req.method === "POST" && path === "/api/oauth/token" ? 400 : 404, {
+        "Content-Type": "application/json",
+      });
+      res.end(JSON.stringify({ error: "invalid_client", error_description: "Client authentication failed" }));
+    });
+    server.on("error", reject);
+    server.listen(FAKE_CHORUS_PRO_PORT, "127.0.0.1", () => {
+      fakeChorusProServerUrl = `http://127.0.0.1:${FAKE_CHORUS_PRO_PORT}`;
+      resolve(fakeChorusProServerUrl);
+    });
+  });
+}
+
+/**
  * The "AT webservice" side for `107-pt-at-declaration-payload.cy.ts` (issue #501): a local HTTPS
  * server standing in for the Portuguese AT's `fatcorews` endpoint, started once for the run, for the
  * same reason as the two fakes above. The backend's `pt-at` provider posts its SOAP
@@ -861,6 +893,12 @@ export default defineConfig({
         },
         getFakeKsefRequests() {
           return [...fakeKsefRequests];
+        },
+        startFakeChorusProServer() {
+          return startFakeChorusProServer();
+        },
+        getFakeChorusProRequests() {
+          return [...fakeChorusProRequests];
         },
 
         /**

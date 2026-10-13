@@ -40,9 +40,11 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *
  * Wave 3 (Chorus Pro/FR, B2G) — the same pattern again, with the SAME assumed difference as KSeF
  * (point 2 above), for the SAME reason: the PISTE OAuth/API hosts are FIXED per environment
- * (`chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`), never a configuration field. The test
- * therefore sends fake PISTE credentials to the REAL public sandbox `sandbox-oauth.piste.gouv.fr`,
- * which really rejects them (a genuine 4xx auth failure, never a network block). No
+ * (`chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`), never a configuration field. The sandbox
+ * hosts are read from `CHORUS_PRO_SANDBOX_URL` (`backend/.env.test`), which points at the local fake
+ * PISTE server (`startFakeChorusProServer`, `cypress.config.ts`): it rejects the fake credentials
+ * with the real sandbox's own HTTP 400 `invalid_client`. The real round trip is
+ * `choruspro.live.spec.ts`, in `compliance-live.yml`. No
  * `country-policy` rule is needed here (France already has one) — this wave picks "chorus-pro" as
  * the company's FREE transport for an ordinary BUSINESS client, never through B2G routing (see
  * `40-b2g-routing.cy.ts` for the FR B2G path itself, with a GOVERNMENT client).
@@ -86,9 +88,7 @@ const FAKE_SDI = {
 };
 
 /** Chorus Pro (FR, B2G) - see this file's own header, "Wave 3": both PISTE OAuth2 fields, garbage on
- *  purpose, sent to the REAL public sandbox (`sandbox-oauth.piste.gouv.fr`), which rejects them for
- *  real (a 4xx `invalid_client` auth failure), never a closed port - these hosts are fixed by
- *  environment, not user-editable (see `chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`). The
+ *  purpose, rejected by the fake PISTE server with HTTP 400 `invalid_client`. The
  *  technical-account pair's own CONTENT is irrelevant (never reached - PISTE auth fails first); only
  *  its PRESENCE matters, exactly like `FAKE_SDI`'s own certificate fields above. */
 const FAKE_CHORUS_PRO = {
@@ -680,8 +680,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 	});
 
 	// ── Wave 3: Chorus Pro (France, B2G) — see this file's own header for the assumed difference
-	// (fixed PISTE hosts, never a configuration field → fake credentials sent to the REAL public
-	// sandbox, which really rejects them) ──
+	// (fixed PISTE hosts, never a configuration field; the sandbox ones point at the fake PISTE server) ──
 
 	it('connects the chorus-pro channel via the screen with fake credentials — status "Connected"', () => {
 		// Chorus Pro is the FRENCH B2G channel: the company must be in France for the rest of the
@@ -715,8 +714,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		cy.get('[data-cy="channel-chorus-pro-technicalaccountpassword-input"]')
 			.clear()
 			.type(FAKE_CHORUS_PRO.technicalAccountPassword);
-		// Environment left on "Test (sandbox)" — that is precisely what points to the REAL
-		// sandbox-oauth.piste.gouv.fr (see this file's own header, Wave 3).
+		// Environment left on "Test (sandbox)", the one `CHORUS_PRO_SANDBOX_URL` points at the fake (header, Wave 3).
 		cy.get('[data-cy="channel-chorus-pro-connect-button"]').click();
 
 		cy.get("[data-sonner-toast]", { timeout: 10000 }).should(
@@ -781,11 +779,11 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			});
 	});
 
-	it('sends an invoice via chorus-pro → the queue really fails (fake PISTE credentials rejected by the real sandbox-oauth.piste.gouv.fr) and "send_failed" names the channel', () => {
+	it('sends an invoice via chorus-pro → the queue really fails (fake PISTE credentials rejected by the local fake PISTE server) and "send_failed" names the channel', () => {
 		// `chorus-pro-transport.ts` refuses BEFORE ever reaching PISTE when the RECIPIENT has no
 		// SIRET/SIREN on file (it identifies every Chorus Pro recipient by that number) — the seeded
 		// baseline client (`support/commands.ts#resetAndSeed`) has none. Setting one here is what lets
-		// this test actually reach the real PISTE rejection it claims to prove, rather than stopping one
+		// this test actually reach the PISTE rejection it claims to prove, rather than stopping one
 		// gate earlier at a DIFFERENT, generic-sounding 400 that the OLD, loose `/Chorus Pro/` match
 		// would have hidden.
 		cy.request({ url: `${api}/api/documents/references/client/search` })
@@ -810,27 +808,9 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			body: { enabled: true, config: { iban: "FR1420041010050500013M02606" } },
 		}).then((res) => expect(res.status, "moyen de paiement bank_transfer activé").to.be.oneOf([200, 201]));
 
+		cy.task("startFakeChorusProServer");
 		createInvoiceDraft().then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as `sendFromListUntilFailed` above, for the same reason: it is
-			// 90000ms, not 40000ms. The real PISTE rejection is in practice near-instant (probed by
-			// hand: well under a second) — that part holds — but 40-b2g-routing.cy.ts's own
-			// chorus-pro test measured ~11-12s of preamble before each of the 3 attempts even reaches
-			// PISTE on CI, pushing the total to 42s (over the old 40000ms budget) on 2026-09-14.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"Chorus Pro",
-			);
+			sendFromListUntilFailed(invoiceId, "Chorus Pro");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -839,17 +819,19 @@ describe("National transports — the PDP channel, connected/disconnected via th
 						doc.status,
 						'la facture est réellement "send_failed" en base',
 					).to.eq("send_failed");
-					// Any 4xx counts: PISTE's exact status code varies by environment.
-					if (!/Chorus Pro PISTE authentication failed \(HTTP 4\d\d\)/.test(doc.lastActionError)) {
-						throw new Error(
-							"l'erreur enregistrée n'est pas le vrai rejet PISTE (4xx) : " + doc.lastActionError,
-						);
-					}
+					// Every failure names the channel, so `/Chorus Pro/` alone would also pass on a network error:
+					// "HTTP 400" only comes from a token request actually answered by PISTE.
+					expect(
+						doc.lastActionError,
+						"l'erreur enregistrée est le vrai rejet PISTE (HTTP 400), pas un message générique",
+					).to.match(/Chorus Pro PISTE authentication failed \(HTTP 400\)/);
 					expect(
 						doc.transportRef,
 						"aucun numeroFluxDepot sans dépôt accepté",
 					).to.not.be.a("string");
 				});
+
+			cy.task<string[]>("getFakeChorusProRequests").should("include", "POST /api/oauth/token");
 		});
 	});
 
