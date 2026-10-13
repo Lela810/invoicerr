@@ -148,8 +148,8 @@ nothing stood between writing it into a file and pushing it.
 - **No floating promises.** Biome's `noFloatingPromises` fails lint on a promise that is neither
   awaited nor handled. Await it, or handle its rejection where the failure means something. Use
   `void` only when the promise cannot reject, and say why in one line; react-router's `navigate` is
-  the one exception that needs no comment. The backend `logger` methods return nothing, so they are
-  never awaited.
+  the one exception that needs no comment. The backend `logger` methods return nothing and are never
+  awaited, except `logger.audit()`, awaited where the row must exist before the caller continues.
 
 - **Backend layering: Controller → Service → Prisma.** Controllers never touch Prisma directly and
   never use `any`; they declare Swagger metadata and delegate to a service. There is no global
