@@ -375,8 +375,9 @@ export async function seedCountryCompany(
         bump('credit-note');
       }
     } catch (error) {
-      // A country can forbid the action outright (Poland, above); either way, whatever credit notes were already created before the failure (`bump`
-      // already ran for them) stand; this only stops trying further ones for this company.
+      // A country can forbid the action outright (Poland, above): whatever credit notes were already
+      // created before the failure (`bump` already ran for them) stand; this only stops trying further
+      // ones for this company.
       const detail = (error as { getResponse?: () => unknown })?.getResponse?.();
       loggerForSeed.warn(
         `credit-note seeding stopped early for ${countryCode}: ${

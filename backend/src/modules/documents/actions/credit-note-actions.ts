@@ -165,7 +165,7 @@ async function checkAndEmitInvoiceSettledFromCreditNote(
 }
 
 /** Whether this credit note corrects an invoice at all — the fork `credit-note.descriptor.ts`'s own
- *  "Two shapes, one type" header describes. Pulled out as its own predicate since three separate
+ *  "Two shapes, one type" header describes. Pulled out as its own predicate since several
  *  guards below all need the identical "linked or free" read of the same field. */
 function hasOriginInvoice(data: Record<string, unknown>): boolean {
   return typeof data.invoice === 'string' && data.invoice.length > 0;
@@ -486,8 +486,8 @@ async function renderCreditNoteDeliveryPdf(
  *    channel.
  *  - FREE (no invoice): refused. This type has no client field (`credit-note.descriptor.ts`, "Two
  *    shapes, one type"), so a free credit note has no recipient, and reporting it "sent" would claim a
- *    delivery that never happened. `assertCreditNoteHasRecipient` stops it in phase 1; repeated here
- *    for a job already queued before that guard existed.
+ *    delivery that never happened. `assertCreditNoteHasRecipient` stops it in phase 1, and again here
+ *    so a job already queued cannot reach "sent" either.
  *
  * The archive always holds the credit note's own rendered PDF (`renderCreditNoteDeliveryPdf`): for
  * email it IS the attachment the client received (`send-document-email.ts` hands those exact bytes
