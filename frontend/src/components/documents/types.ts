@@ -28,6 +28,11 @@ export interface DocumentFieldDescriptor {
    *  "screen convenience only" posture. */
   requiredIfAbsent?: string
   helpText?: string
+  /** Translation key for `label` when the text depends on data (a country overlay); otherwise the key
+   *  is derived from the type id and field path (lib/descriptor-i18n.ts). */
+  labelKey?: string
+  /** Same as `labelKey`, for `helpText`. */
+  helpTextKey?: string
   /** Mirrors the backend's `DocumentFieldDescriptor.hideWhenEmpty` (descriptors/types.ts) — skips this
    *  field entirely (no label, no "—" placeholder) wherever a consumer honors the hint and its value
    *  is unset on this instance, instead of the otherwise-universal "always show the row" rule every

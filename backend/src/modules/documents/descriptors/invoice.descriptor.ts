@@ -541,9 +541,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         label: 'Corrects invoice',
         required: false,
         entity: 'invoice',
-        helpText:
-          "The invoice this one corrects, if any — a post-clearance correction (e.g. Poland's " +
-          'faktura korygująca). Leave empty for an ordinary invoice.',
+        helpText: 'The invoice this one corrects, if any. Leave empty for an ordinary invoice.',
       },
       {
         key: 'issueDate',

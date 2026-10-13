@@ -70,7 +70,8 @@ function countryOverlayFields(): CountryFieldText[] {
   return defaultComposedCountryCatalog.countries().flatMap((countryCode) =>
     (defaultComposedCountryCatalog.get(countryCode)?.countryFields?.overlays ?? []).flatMap((overlay) =>
       overlay.operations.flatMap((operation) => {
-        const field = operation.op === 'add' ? operation.field : operation.op === 'modify' ? operation.patch : null;
+        const field =
+          operation.op === 'add' ? operation.field : operation.op === 'modify' ? operation.patch : null;
         if (!field) return [];
         const where = `${countryCode} ${overlay.typeId} ${operation.op} ${operation.path || '(root)'}.${field.key ?? operation.key}`;
         return collect(where, field as DocumentFieldDescriptor);

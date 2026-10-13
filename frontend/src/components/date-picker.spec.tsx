@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { useForm } from "react-hook-form"
 
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import i18n from "i18next"
+
 import { DatePicker } from "./date-picker"
 
 // Frozen so year-range assertions below ("current year +/- 10") don't drift with the calendar.
@@ -132,5 +134,20 @@ describe('<DatePicker> — "Today" hands back the same shape as clicking a day i
     // A time of day is what makes a value an instant rather than a calendar day; every day in the
     // grid arrives at local midnight, and this must be indistinguishable from one of them.
     expect([picked.getHours(), picked.getMinutes(), picked.getSeconds()]).toEqual([0, 0, 0])
+  })
+})
+
+describe("<DatePicker> placeholder", () => {
+  afterEach(async () => {
+    await i18n.changeLanguage("en")
+  })
+
+  it("shows the translated placeholder when the caller passes none", async () => {
+    i18n.addResource("fr", "translation", "component.date-picker.placeholder", "Choisir une date")
+    await i18n.changeLanguage("fr")
+
+    render(<DatePicker value={null} onChange={vi.fn()} data-cy="placeholder-date" />)
+
+    expect(screen.getByTestId("placeholder-date")).toHaveTextContent("Choisir une date")
   })
 })
