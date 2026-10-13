@@ -432,8 +432,11 @@ As of 2026-09-20 both print the same `Digest: sha256:615f4cec…`, while `:v1.4.
 one. This is the concrete reason the guide says to pin: on this repository `latest` means "newest
 full release", not "newest thing published", and the two have differed since July 2026.
 
-Left empty, `image.tag` defaults to `v` followed by the chart's `appVersion` (`Chart.yaml`), the
-release the chart was written against, never `latest`.
+The chart's default `image.tag` is `v1.4.5c`, the latest stable release, the same image `:latest`
+resolves to, pinned so that it never moves on its own. Version 2 is published as pre-releases
+(`v2.0.0-alpha.N`); to run one, set `image.tag` to it, as the example above does. Setting
+`image.tag: ""` selects `v` followed by the chart's `appVersion` (`Chart.yaml`), the 2.x release
+the chart was written against.
 
 Pinning a digest is stronger still: set `image.digest: "sha256:…"` next to the tag, and the
 templates render `repository:tag@sha256:…`, which the container runtime pulls by digest. A
@@ -501,10 +504,10 @@ cert-manager has issued the certificate (`kubectl get certificate`), the app is 
 The chart's defaults now follow the Kubernetes rules SonarCloud checks. On `helm upgrade`, with
 your own values file unchanged:
 
-- **`image.tag` no longer defaults to `latest`** but to `v<appVersion>`. If your values file sets
-  no tag, you were running whatever `:latest` pointed to (the newest full release, see "Which tag?"
-  above) and the upgrade switches you to the chart's release. Set `image.tag` explicitly before
-  upgrading if you do not want to change versions in the same step.
+- **`image.tag` no longer defaults to `latest`** but to `v1.4.5c`, the image `:latest` resolves
+  to. A values file that sets no tag keeps running the same image, now pinned: the upgrade does not
+  move you to 2.x. To opt into a 2.x pre-release, set `image.tag` (for example `v2.0.0-alpha.5`).
+  If you also set `image.digest`, change it in the same edit: the digest decides what is pulled.
 - **The service account token is no longer mounted** in any pod
   (`automountServiceAccountToken: false`). Invoicerr never calls the Kubernetes API. Set
   `serviceAccount.automount: true` only if something you add to the api or worker pods needs it.
