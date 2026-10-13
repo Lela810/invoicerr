@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import type { ShortListItem, ShortListWidget } from "@/components/widgets/types"
+import { WidgetValue } from "@/components/widgets/widget-value"
 import { AmountBasisCaption } from "./amount-basis"
 import type { WidgetRendererProps } from "./registry"
 
@@ -87,12 +88,16 @@ export function ShortListWidgetRenderer({ widget }: WidgetRendererProps) {
       </CardHeader>
       <CardContent>
         {shortList.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("widgets.shortList.empty")}</p>
+          <WidgetValue>
+            <p className="text-sm text-muted-foreground">{t("widgets.shortList.empty")}</p>
+          </WidgetValue>
         ) : (
           <ul className="divide-y" data-cy={`widget-${shortList.id}-items`}>
             {shortList.items.map((item) => (
               <li key={item.id}>
-                <ShortListRow item={item} documentTypeId={shortList.documentTypeId} />
+                <WidgetValue>
+                  <ShortListRow item={item} documentTypeId={shortList.documentTypeId} />
+                </WidgetValue>
               </li>
             ))}
           </ul>
@@ -101,13 +106,15 @@ export function ShortListWidgetRenderer({ widget }: WidgetRendererProps) {
             (metric-widget.tsx) - e.g. the dashboard's active period not applying to this particular
             list (schedules/schedule-widgets.ts's "upcoming recurrences"). */}
         {shortList.warnings?.length ? (
-          <ul className="mt-2 space-y-0.5" data-cy={`widget-${shortList.id}-warnings`}>
-            {shortList.warnings.map((warning) => (
-              <li key={warning} className="text-xs text-muted-foreground">
-                {warning}
-              </li>
-            ))}
-          </ul>
+          <WidgetValue className="mt-2">
+            <ul className="space-y-0.5" data-cy={`widget-${shortList.id}-warnings`}>
+              {shortList.warnings.map((warning) => (
+                <li key={warning} className="text-xs text-muted-foreground">
+                  {warning}
+                </li>
+              ))}
+            </ul>
+          </WidgetValue>
         ) : null}
       </CardContent>
     </Card>

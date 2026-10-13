@@ -1,4 +1,4 @@
-import { LayoutDashboard, Loader2 } from "lucide-react"
+import { LayoutDashboard } from "lucide-react"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
 import { readWidgetLayout, saveWidgetLayout, type WidgetLayout } from "@/components/widgets/widget-layout"
+import { WidgetReloadingProvider } from "@/components/widgets/widget-value"
 
 import type { Widget } from "@/components/widgets/types"
 
@@ -148,47 +149,30 @@ export function WidgetGrid({
 
   return (
     <div className="relative" aria-busy={busy} data-cy={`${location}-widgets`}>
-      {isRefreshing && !isLoading && (
-        // A veil rather than lowered opacity: it dims the stale cards and takes their clicks, while
-        // the text underneath keeps the contrast the accessibility checks measure.
-        <div className="absolute inset-0 z-10 rounded-xl bg-background/50" />
-      )}
-      <div className="pointer-events-none absolute inset-x-0 top-2 z-20 flex justify-center">
-        <span
-          role="status"
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs text-foreground shadow-sm",
-            (isLoading || !isRefreshing) && "sr-only",
-          )}
-          data-cy={`${location}-widgets-refreshing`}
-        >
-          {busy && (
-            <>
-              <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-              {t("widgets.loading")}
-            </>
-          )}
-        </span>
-      </div>
+      <span role="status" className="sr-only">
+        {busy ? t("widgets.loading") : ""}
+      </span>
       {isLoading ? (
         <WidgetGridSkeleton layout={skeletonLayout} />
       ) : (
-        <div className="flex flex-col gap-4">
-          {metrics.length > 0 && (
-            <div ref={metricsRef} className={METRICS_GRID}>
-              {metrics.map((widget) => (
-                <WidgetComponent key={widget.id} widget={widget} />
-              ))}
-            </div>
-          )}
-          {rest.length > 0 && (
-            <div ref={restRef} className={REST_GRID}>
-              {rest.map((widget) => (
-                <WidgetComponent key={widget.id} widget={widget} />
-              ))}
-            </div>
-          )}
-        </div>
+        <WidgetReloadingProvider value={isRefreshing}>
+          <div className="flex flex-col gap-4">
+            {metrics.length > 0 && (
+              <div ref={metricsRef} className={METRICS_GRID}>
+                {metrics.map((widget) => (
+                  <WidgetComponent key={widget.id} widget={widget} />
+                ))}
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div ref={restRef} className={REST_GRID}>
+                {rest.map((widget) => (
+                  <WidgetComponent key={widget.id} widget={widget} />
+                ))}
+              </div>
+            )}
+          </div>
+        </WidgetReloadingProvider>
       )}
     </div>
   )

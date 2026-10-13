@@ -1,9 +1,9 @@
 export {}; // makes this spec a module, not a global script -- see tsconfig.json
 
 /**
- * Changing the dashboard period must never resize a card: the cards already on screen stay where
- * they are (dimmed) while the new period loads, and the very first load shows skeletons with the
- * dimensions of the cards they stand for. Sizes are compared through bounding boxes, which every
+ * Changing the dashboard period must never resize a card: while the new period loads each card keeps
+ * its size and title, its figures replaced by skeletons, and the very first load shows skeletons with
+ * the dimensions of the cards they stand for. Sizes are compared through bounding boxes, which every
  * browser reports; the `layout-shift` score is logged on top where the browser exposes it (Chromium).
  */
 
@@ -97,6 +97,21 @@ function expectSameBoxes(actual: Box[], expected: Box[], what: string) {
 	if (!same) expect(shape(actual), what).to.deep.equal(shape(expected));
 }
 
+/** While a period loads, every card keeps its title but none of the previous period's figures: each
+ *  value area is a skeleton of the same size. */
+function expectOnlyTitlesVisible() {
+	// Computed styles, not `be.visible`: cards below the fold are clipped by the app's scroll area.
+	cy.get('[data-cy="dashboard-widgets"] [data-slot="card-title"]').each(($title) => {
+		cy.wrap($title).should("have.css", "visibility", "visible").and("not.be.empty");
+	});
+	cy.get('[data-cy="dashboard-widgets"] .amount').each(($amount) => {
+		cy.wrap($amount).should("have.css", "visibility", "hidden");
+	});
+	cy.get('[data-cy="dashboard-widgets"] [data-slot="widget-value"]').each(($value) => {
+		cy.wrap($value).children('[data-slot="skeleton"]').should("have.length", 1);
+	});
+}
+
 function trackLayoutShifts(win: Window) {
 	const shifts: { value: number; at: number }[] = [];
 	(win as Window & { __layoutShifts?: typeof shifts }).__layoutShifts = shifts;
@@ -164,7 +179,8 @@ describe("Dashboard keeps its layout while a period loads", () => {
 
 				cardBoxes().then((during) => expectSameBoxes(during, before, "cards while the new period loads"));
 				cy.get('[data-cy="dashboard-widgets"]').should("have.attr", "aria-busy", "true");
-				cy.get('[data-cy="dashboard-widgets-refreshing"]').should("be.visible");
+				cy.get('[data-cy="dashboard-widgets"] [role="status"]').should("contain.text", "Loading");
+				expectOnlyTitlesVisible();
 				cy.assertAccessible();
 
 				cy.wait("@dashboard", { timeout: RESPONSE_DELAY_MS + 20000 });

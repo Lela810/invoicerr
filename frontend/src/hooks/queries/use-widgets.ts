@@ -22,8 +22,8 @@ import type { Widget } from "@/components/widgets/types"
  * whatever the caller already resolved. `undefined` (the default) is the pre-#418 request shape,
  * byte-identical: no query string appended at all. The range is part of the query KEY too, so
  * picking a different period is a genuinely different query. While it loads, the previous period's
- * widgets stay as placeholder data (`isPlaceholderData`), which the grid shows dimmed and busy so the
- * cards keep their size instead of collapsing into skeletons.
+ * widgets stay as placeholder data (`isPlaceholderData`): the grid keeps their cards and titles, at
+ * their size, and replaces every figure with a skeleton.
  */
 export function useDashboardWidgets(range?: DashboardPeriodRange) {
   const { t } = useTranslation()

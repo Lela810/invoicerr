@@ -83,9 +83,12 @@ lock belongs behind the label's lock instead.
 
 ## Loading states
 
-Loading never moves or resizes what is already on screen. When a filter or a period changes, the
-previous results stay in place, veiled and marked `aria-busy`, with a small "Loading…" status, until
-the new ones arrive (`placeholderData: keepPreviousData` on the query). A first load shows skeletons
+Loading never moves or resizes what is already on screen, and never shows figures that no longer
+apply. When a filter or a period changes, each card keeps its size, its title and its caption, and
+only its figures (a value, list rows, a chart, table rows) turn into skeletons of the same size until
+the new ones arrive: the query keeps the previous result as `placeholderData: keepPreviousData`, and
+the widget renderers wrap every figure in `WidgetValue`, which hides it behind a skeleton while the
+grid reloads. The grid carries `aria-busy` and a screen-reader-only "Loading…" status. A first load shows skeletons
 with the dimensions of the content they stand for: the widget grid reuses the card heights it last
 measured at the same window width. `e2e/cypress/e2e/124-dashboard-stable-loading.cy.ts` compares
 card bounding boxes before and during a load, the pattern to follow for another screen.

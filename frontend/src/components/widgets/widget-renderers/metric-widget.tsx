@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import { buildMetricLinkHref } from "@/components/widgets/metric-link"
+import { useWidgetReloading, WidgetValue } from "@/components/widgets/widget-value"
 import { AmountBasisCaption } from "./amount-basis"
 import type { MetricWidget } from "@/components/widgets/types"
 import type { WidgetRendererProps } from "./registry"
@@ -117,6 +118,7 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
   // Safe: this component is only ever registered for, and therefore only ever looked up under,
   // kind "metric" — see registry.ts's own comment on this trust boundary.
   const metric = widget as MetricWidget
+  const reloading = useWidgetReloading()
   const tone = metricTone(metric.id, metric.label)
 
   const cardBody = (
@@ -140,32 +142,35 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4">
-        <p className="amount text-2xl font-semibold text-foreground sm:text-3xl">
-          {metric.approx ? "≈ " : ""}
-          {metric.value.toLocaleString()}
-          {metric.unit ? (
-            <span className="ms-1 text-sm font-normal text-muted-foreground">{metric.unit}</span>
+        <WidgetValue>
+          <p className="amount text-2xl font-semibold text-foreground sm:text-3xl">
+            {metric.approx ? "≈ " : ""}
+            {metric.value.toLocaleString()}
+            {metric.unit ? (
+              <span className="ms-1 text-sm font-normal text-muted-foreground">{metric.unit}</span>
+            ) : null}
+          </p>
+          {metric.previousValue !== undefined && (
+            <div className="mt-1.5">
+              <VariationChip value={metric.value} previousValue={metric.previousValue} unit={metric.unit} />
+            </div>
+          )}
+          {metric.warnings?.length ? (
+            <ul className="mt-2 space-y-0.5" data-cy={`widget-${metric.id}-warnings`}>
+              {metric.warnings.map((warning) => (
+                <li key={warning} className="text-xs text-muted-foreground">
+                  {warning}
+                </li>
+              ))}
+            </ul>
           ) : null}
-        </p>
-        {metric.previousValue !== undefined && (
-          <div className="mt-1.5">
-            <VariationChip value={metric.value} previousValue={metric.previousValue} unit={metric.unit} />
-          </div>
-        )}
-        {metric.warnings?.length ? (
-          <ul className="mt-2 space-y-0.5" data-cy={`widget-${metric.id}-warnings`}>
-            {metric.warnings.map((warning) => (
-              <li key={warning} className="text-xs text-muted-foreground">
-                {warning}
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        </WidgetValue>
       </CardContent>
     </>
   )
 
-  if (metric.link) {
+  // A tile reloading for another period must not open the list of the previous one.
+  if (metric.link && !reloading) {
     return (
       <Link
         to={buildMetricLinkHref(metric.link)}
