@@ -82,5 +82,5 @@ async function bootstrap() {
   )
 }
 
-// loadRuntimeConfig falls back to an empty config on every failure, so this cannot reject.
+// loadRuntimeConfig never throws; only a missing #root could, and nothing would recover from that.
 void bootstrap()
