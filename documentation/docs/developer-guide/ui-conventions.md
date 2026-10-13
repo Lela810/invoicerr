@@ -106,7 +106,9 @@ cy.assertAccessible({ rules: ["heading-order"] }) // only these rules, at every 
 ```
 
 Call it once the screen has settled, after the element the test waits for, and again after a dialog
-opens or a step changes. To run it locally, start the e2e stack and run one spec:
+opens or a step changes. It first waits until no finite CSS animation or transition is running on
+the page, since a menu, dialog or toast measured mid-fade reads as low contrast; infinite ones, such
+as spinners, are ignored. To run it locally, start the e2e stack and run one spec:
 
 ```bash
 cd e2e
