@@ -58,6 +58,10 @@ sidebar_position: 0
 
    Make sure you have a `.env.test` file in each directory.
 
+   For a one-off run rather than a watch session, boot the backend the way CI does:
+   `npm run build && npm run start:test:built`. Watch mode can start the app before the `data/*.json`
+   catalogues are copied into `dist/`.
+
 2. In another terminal, run Cypress:
 
    ```bash

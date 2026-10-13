@@ -376,7 +376,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5, 6]
     env:
-      # `npm run start:test` loads backend/.env.test, which pins REDIS_URL to 6399 -- the port the
+      # `npm run start:test:built` loads backend/.env.test, which pins REDIS_URL to 6399 -- the port the
       # LOCAL dev container publishes. Nothing listens there on a runner, and the backend refuses to
       # boot without Redis, so without this override the whole job dies waiting on /api/health. That
       # is exactly what killed every Business Scenarios leg from 2026-08-29 until 486aab6a; the same
@@ -492,7 +492,7 @@ jobs:
           # `migrate deploy` does NOT run the seed hook (only `migrate dev`/`migrate reset`/`db seed`
           # do — see prisma.config.ts) — without this, the document country-action policy table stays
           # EMPTY and every document action 403s in every spec below (country-policy.ts blocks
-          # everything for a country with no rows). `npm run start:test` doesn't call
+          # everything for a country with no rows). `npm run start:test:built` doesn't call
           # syncDatabaseSchema() either (production-only, see main.ts), so nothing else seeds it here.
           PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
@@ -550,7 +550,10 @@ jobs:
           # against this same database. `migrate dev` used to run again here — it is a
           # developer-machine command that can prompt or fail without a TTY as soon as
           # the migrations drift from schema.prisma.
-          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test > "$GITHUB_WORKSPACE/logs/backend-shard-$SHARD.log" 2>&1 &)
+          # Boot from a finished `nest build`: `nest start --watch` can start the app before it has
+          # copied `data/*.json` into dist, and the app then boots with an empty country catalogue.
+          (cd "$GITHUB_WORKSPACE/backend" && npm run build)
+          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test:built > "$GITHUB_WORKSPACE/logs/backend-shard-$SHARD.log" 2>&1 &)
           (cd "$GITHUB_WORKSPACE/frontend" && npm run start:test > /dev/null 2>&1 &)
           # wait-on above only checked the DB/mail/Redis ports were open, not that the
           # Nest app itself finished booting — a slow boot or a startup crash used to
@@ -689,7 +692,9 @@ jobs:
       - name: Run backend, frontend & the SaaS-only specs
         run: |
           mkdir -p "$GITHUB_WORKSPACE/logs"
-          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test > "$GITHUB_WORKSPACE/logs/backend.log" 2>&1 &)
+          # Built first, same reason as `cypress-run` above.
+          (cd "$GITHUB_WORKSPACE/backend" && npm run build)
+          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test:built > "$GITHUB_WORKSPACE/logs/backend.log" 2>&1 &)
           (cd "$GITHUB_WORKSPACE/frontend" && npm run start:test > /dev/null 2>&1 &)
           "$GITHUB_WORKSPACE/e2e/node_modules/.bin/wait-on" http-get://localhost:4000/api/health --timeout 120000
           # Same Firefox-over-Electron reasoning as `cypress-run` above. `CYPRESS_expectSaas=1` makes
@@ -813,7 +818,8 @@ jobs:
       - name: Run backend, frontend & the demo-mode spec
         run: |
           mkdir -p "$GITHUB_WORKSPACE/logs"
-          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test > "$GITHUB_WORKSPACE/logs/backend.log" 2>&1 &)
+          # The previous step already ran `nest build`; boot that build, same reason as `cypress-run` above.
+          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test:built > "$GITHUB_WORKSPACE/logs/backend.log" 2>&1 &)
           (cd "$GITHUB_WORKSPACE/frontend" && npm run start:test > /dev/null 2>&1 &)
           "$GITHUB_WORKSPACE/e2e/node_modules/.bin/wait-on" http-get://localhost:4000/api/health --timeout 120000
           # Same Firefox-over-Electron reasoning as `cypress-run` above.

@@ -60,6 +60,13 @@ the existing ones:
   shell parses the line, so a branch name or a tag containing shell syntax would run as code. The
   rule applies to every expression, not only attacker-controlled ones, so a reviewer never has to
   decide which values are safe.
+- **The backend boots from a finished build.** A job that needs a running backend runs
+  `npm run build`, then starts it with `npm run start:test:built` (`node dist/src/main` with
+  `.env.test`). Never `npm run start:test` in CI: `nest start --watch` copies the `data/*.json`
+  catalogues into `dist/` asynchronously and can start the app before they land, which boots it with
+  an empty country catalogue and fails specs far from the cause. The country loader refuses an empty
+  catalogue directory, so if the files are ever missing the backend exits at boot instead of
+  reseeding every country away.
 - **CI Postgres runs with trust auth.** Service containers set `POSTGRES_HOST_AUTH_METHOD: trust`
   and connection strings carry no password. The database is reachable only from the runner and is
   thrown away with the job.
