@@ -68,7 +68,7 @@ const FAKE_PDP = {
 
 /** A structurally valid NIP (the well-known test NIP from the Polish Ministry of Finance — see
  *  `fa3-provider.spec.ts`'s own fixture) but a FAKE token: the fake KSeF API
- *  rejects it (code 450) — see this file's own header, point 2. */
+ *  rejects it (code 450), see this file's own header, point 2. */
 const FAKE_KSEF = {
 	nip: "5260001246",
 	ksefToken: "e2e-fake-ksef-token",
