@@ -55,6 +55,15 @@ export const SAMPLE_PREVIEW_INSTANCE = {
   },
 };
 
+export const SAMPLE_PREVIEW_RECIPIENT = {
+  fieldKey: 'client',
+  name: SAMPLE_PREVIEW_INSTANCE.data.client,
+  address: '8 Market Street',
+  postalCode: '1000',
+  city: 'Sampletown',
+  country: 'Sampleland',
+};
+
 /** 4×450 + 1×1200 = 3000.00 EUR net, at a flat 20% — hand-computed here rather than run through
  *  `computeDocumentTotals` (which would need the descriptor's generic array-field detection to agree
  *  with itself): a FIXED preview has no reason to depend on that machinery at all. */

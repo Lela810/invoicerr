@@ -149,7 +149,7 @@ export async function sendDocumentInstanceEmail(
 
   const companyTemplates = await getCompanyDocumentEmailTemplates(companyId);
   // `rendered.language` — per-recipient document language: the SAME recipient language the PDF this email
-  // attaches was just rendered in (`rendering/render-instance-pdf.ts`'s own `recipientLanguageFor`),
+  // attaches was just rendered in (`rendering/render-instance-pdf.ts`'s own `recipientClientFor`),
   // never a second, independently-resolved value — the PDF and its covering email must never disagree
   // about which language they went out in.
   const template = resolveEmailTemplate(descriptor, companyTemplates, rendered.language);
