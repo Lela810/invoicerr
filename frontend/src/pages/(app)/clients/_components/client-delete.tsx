@@ -31,7 +31,8 @@ export function ClientDeleteDialog({ client, onOpenChange }: ClientDeleteDialogP
   const handleDelete = () => {
     if (!client) return
 
-    trigger().then((result) => {
+    // trigger toasts its own failure and resolves null, so this cannot reject.
+    void trigger().then((result) => {
       if (!result) return
       queryClient.invalidateQueries({ queryKey: queryKeys.clients.listsAll() })
       onOpenChange(false)

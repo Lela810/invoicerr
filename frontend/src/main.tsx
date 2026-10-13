@@ -82,4 +82,5 @@ async function bootstrap() {
   )
 }
 
-bootstrap()
+// loadRuntimeConfig falls back to an empty config on every failure, so this cannot reject.
+void bootstrap()

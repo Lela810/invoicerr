@@ -209,7 +209,8 @@ export default function WebhooksSettings() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleCreate()
+            // createWebhook toasts its own failure and resolves null.
+            void handleCreate()
           }}
         >
           <SettingsSection

@@ -157,7 +157,7 @@ export default function DangerZoneSettings() {
           refetchSession().finally(() => afterCompanyGone())
         } else {
           refetchPreflight()
-          navigate("/dashboard")
+          void navigate("/dashboard")
         }
         setCurrentAction(null)
       })

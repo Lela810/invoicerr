@@ -96,7 +96,8 @@ export default function SignupPage() {
       }
     }
 
-    checkRegistrationStatus()
+    // Catches every failure itself and falls back to the server-unavailable banner.
+    void checkRegistrationStatus()
   }, [backendUrl])
 
   const validateInvitationCode = async (code: string, email: string): Promise<boolean> => {
@@ -192,7 +193,7 @@ export default function SignupPage() {
     if (result.data?.user.createdAt) {
       toast.success(t("auth.signup.messages.accountCreated"))
       setTimeout(() => {
-        navigate("/auth/sign-in")
+        void navigate("/auth/sign-in")
       }, 1000)
     }
   }

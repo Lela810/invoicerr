@@ -84,7 +84,7 @@ export default function AccountTransfersPage() {
             error instanceof ApiError ? (error.body as { code?: string } | undefined)?.code : undefined
           if (code === LEGAL_ACCEPTANCE_REQUIRED_CODE) {
             toast.info(t("account.transfers.messages.legalAcceptanceRequired"))
-            navigate("/legal/accept")
+            void navigate("/legal/accept")
             return
           }
           toast.error(error instanceof ApiError ? error.message : t("account.transfers.messages.acceptError"))

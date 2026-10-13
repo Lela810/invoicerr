@@ -1558,7 +1558,8 @@ export function ClientUpsert({ client, open, onOpenChange, onCreate, quick }: Re
     const trigger = isEditing ? updateClient : createClient
     const payload = buildClientPayload(data)
 
-    trigger(payload).then((createdClient) => {
+    // trigger toasts its own failure and resolves null, so this cannot reject.
+    void trigger(payload).then((createdClient) => {
       if (!createdClient) return
       queryClient.invalidateQueries({ queryKey: queryKeys.clients.listsAll() })
       if (!isEditing && onCreate) {
