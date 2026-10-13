@@ -1,14 +1,22 @@
 // Release notes are GitHub markdown, but the blog compiles them as MDX, where `{`, `<` and HTML
 // comments are syntax. Outside code they are made literal (comments dropped, as GitHub hides
 // them anyway); inside code MDX already treats them literally.
+function dropHtmlComments(text) {
+  let out = '';
+  let from = 0;
+  for (;;) {
+    const start = text.indexOf('<!--', from);
+    const end = start === -1 ? -1 : text.indexOf('-->', start + 4);
+    if (end === -1) return out + text.slice(from);
+    out += text.slice(from, start);
+    from = text[end + 3] === '\n' ? end + 4 : end + 3;
+  }
+}
+
 export function toMdxSafe(markdown) {
   return markdown
     .split(/(```[\s\S]*?```|`[^`\n]*`)/g)
-    .map((part, i) =>
-      i % 2 === 1
-        ? part
-        : part.replace(/<!--[\s\S]*?-->\n?/g, '').replace(/[{}<]/g, (c) => `\\${c}`),
-    )
+    .map((part, i) => (i % 2 === 1 ? part : dropHtmlComments(part).replace(/[{}<]/g, (c) => `\\${c}`)))
     .join('');
 }
 

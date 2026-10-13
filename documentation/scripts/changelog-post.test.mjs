@@ -48,6 +48,11 @@ test('a multi-line HTML comment is removed', async () => {
   assert.doesNotMatch(post, /hidden/);
 });
 
+test('a comment nested to survive one removal pass stays literal', async () => {
+  const post = await assertCompiles('a <!<!-- x -->-- y --> b');
+  assert.match(post, /a \\<!-- y --> b/);
+});
+
 test('the truncate marker never lands inside a code block', async () => {
   const lines = ['intro', '', '```', ...Array.from({ length: 12 }, (_, i) => `line ${i}`), '```', '', 'outro'];
   const post = await assertCompiles(lines.join('\n'));
