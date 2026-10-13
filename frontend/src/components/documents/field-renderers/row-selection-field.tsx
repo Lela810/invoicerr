@@ -22,6 +22,18 @@ function sourceIdFrom(value: unknown): string | undefined {
   return undefined
 }
 
+// Survives an unmount: the wizard can show the source and the selection on different steps.
+const lastSourceByForm = new WeakMap<object, Map<string, string | undefined>>()
+
+function lastSourcesOf(control: object): Map<string, string | undefined> {
+  let sources = lastSourceByForm.get(control)
+  if (!sources) {
+    sources = new Map()
+    lastSourceByForm.set(control, sources)
+  }
+  return sources
+}
+
 function hasSelection(value: unknown): boolean {
   return Array.isArray(value) && value.length > 0
 }
@@ -61,13 +73,15 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
   const rows = data?.rows ?? []
 
   // Every row of a newly picked source starts checked; a selection that came with the form is kept.
-  const lastSourceId = useRef(sourceId)
+  const lastSources = lastSourcesOf(control)
+  const lastSourceId = useRef(lastSources.has(name) ? lastSources.get(name) : sourceId)
   const selectAllFor = useRef(sourceId && !hasSelection(getValues(name)) ? sourceId : undefined)
   useEffect(() => {
     if (sourceId !== lastSourceId.current) {
       lastSourceId.current = sourceId
       selectAllFor.current = sourceId
     }
+    lastSources.set(name, sourceId)
     if (!sourceId || selectAllFor.current !== sourceId || !data) return
     selectAllFor.current = undefined
     setValue(
@@ -75,7 +89,7 @@ export function RowSelectionField({ field, name, documentTypeId }: FieldRenderer
       data.rows.map((row) => row.id),
       { shouldDirty: true, shouldValidate: true },
     )
-  }, [sourceId, data, name, setValue])
+  }, [sourceId, data, name, setValue, lastSources])
 
   return (
     <FormField
