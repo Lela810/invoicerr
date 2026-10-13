@@ -25,7 +25,7 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *     guarantee (descriptors/types.ts) - it stays "Issued without a number" even once "sent" again.
  */
 import { FRENCH_BUYER_IDENTIFIERS } from "../fixtures/identifiers";
-import { issueCreditNote, issueCreditNoteFor } from "../support/credit-notes";
+import { issueCreditNote, issueCreditNoteFor, sentInvoice } from "../support/credit-notes";
 
 const api = Cypress.env("apiUrl");
 const appOrigin = Cypress.config("baseUrl");
@@ -105,12 +105,8 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 				});
 				cy.waitForDocumentStatus(`${api}/api/documents/${invoiceId}?typeId=invoice`, ["sent"]);
 
-				cy.request(`${api}/api/documents/${invoiceId}?typeId=invoice`)
-					.then((invoice) => ({
-						invoiceId,
-						rowIds: (invoice.body.data.lines as { $rowId: string }[]).map((line) => line.$rowId),
-					}))
-					.then((sentInvoice) => issueCreditNoteFor(sentInvoice))
+				sentInvoice(invoiceId)
+					.then((invoice) => issueCreditNoteFor(invoice))
 					.then((creditNoteId) => {
 					cy.request({ url: `${api}/api/documents/${creditNoteId}?typeId=credit-note` })
 						.its("body")

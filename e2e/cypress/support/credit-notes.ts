@@ -23,6 +23,14 @@ function sendAndWait(typeId: string, id: string, data: Record<string, unknown>) 
 	cy.waitForDocumentStatus(`${api()}/api/documents/${id}?typeId=${typeId}`, ["sent"]);
 }
 
+/** An invoice already sent, with the row ids a credit note's `correctedLines` points at. */
+export function sentInvoice(invoiceId: string): Cypress.Chainable<SentInvoice> {
+	return cy.request(`${api()}/api/documents/${invoiceId}?typeId=invoice`).then((invoice) => ({
+		invoiceId,
+		rowIds: (invoice.body.data.lines as { $rowId: string }[]).map((line) => line.$rowId),
+	}));
+}
+
 /** An invoice (two lines by default) sent by email to a client of its own: what a credit note corrects. */
 export function sendInvoiceToCredit(
 	label: string,
@@ -65,10 +73,7 @@ export function sendInvoiceToCredit(
 				.then((saved) => {
 					const invoiceId = saved.body.document.id as string;
 					sendAndWait("invoice", invoiceId, saved.body.document.data);
-					return cy.request(`${api()}/api/documents/${invoiceId}?typeId=invoice`).then((invoice) => ({
-						invoiceId,
-						rowIds: (invoice.body.data.lines as { $rowId: string }[]).map((line) => line.$rowId),
-					}));
+					return sentInvoice(invoiceId);
 				});
 		});
 }

@@ -62,7 +62,7 @@ Before any number is spent, a credit note is refused rather than issued half-way
 | The invoice's channel has no lawful way to carry a credit note (for example a French domestic credit note by email after the e-invoicing mandate date) | Refused, naming the channel and the reason |
 | The invoice you're correcting has no number of its own | Refused: nothing to correct yet |
 | Your country gives sellers no credit-note instrument at all (Poland) | Refused: use a corrective invoice instead |
-| A linked credit note has no corrected lines selected, or a free one has no lines | Refused: nothing to credit |
+| A linked credit note has no corrected lines selected | Refused: nothing to credit |
 | A free credit note (no **Invoice**) | Refused: it has no client to send it to |
 
 ## Statuses
@@ -73,6 +73,10 @@ Before any number is spent, a credit note is refused rather than issued half-way
 | **Sending** | Send in progress |
 | **Sent** | Delivered and archived. Also when it is settled against the invoice's own balance |
 | **Send failed** | The last delivery attempt failed |
+
+:::info[Free credit notes sent by an earlier version]
+Before free credit notes were refused at **Send**, sending one marked it **Sent** although it was delivered to nobody. If you self-host and sent free credit notes on an earlier version, download each one's PDF and send it to the client yourself.
+:::
 
 ## First use
 

@@ -191,6 +191,9 @@ describe('Issue #468 - "save-draft" refuses to rewrite an issued document', () =
 				// Point 3 - see the invoice test's own comment just above for the full "why".
 				cy.get('[data-cy="document-form-readonly"]').should("exist");
 				cy.get('[data-cy="document-field-issueDate-input"]').should("be.disabled");
+				cy.get('[data-cy^="document-field-correctedLines-row-"][data-cy$="-checkbox"]')
+					.should("have.length.at.least", 1)
+					.each(($checkbox) => cy.wrap($checkbox).should("be.disabled"));
 			});
 		});
 	});
