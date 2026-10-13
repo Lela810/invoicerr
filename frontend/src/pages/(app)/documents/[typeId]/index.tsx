@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDocumentInstances, useDocumentType } from "@/hooks/queries"
 import { usePageHeader } from "@/hooks/use-page-header"
+import { createPendingEchoes } from "@/lib/pending-echoes"
 
 /** Default page size for `GET /documents` — mirrors the backend's own default
  *  (`dto/list-documents.dto.ts#DOCUMENT_LIST_DEFAULT_PAGE_SIZE`). */
@@ -104,15 +105,10 @@ export default function DocumentTypePage() {
   // skipped, since keystrokes typed while that URL update was committing would otherwise be wiped.
   const [searchInput, setSearchInput] = useState(q ?? "")
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pushedQRef = useRef<string | undefined | null>(null)
+  const [searchEchoes] = useState(() => createPendingEchoes<string | undefined>())
   useEffect(() => {
-    if (pushedQRef.current !== null && pushedQRef.current === q) {
-      pushedQRef.current = null
-      return
-    }
-    pushedQRef.current = null
-    setSearchInput(q ?? "")
-  }, [q])
+    if (!searchEchoes.isEcho(q)) setSearchInput(q ?? "")
+  }, [q, searchEchoes])
   useEffect(
     () => () => {
       if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
@@ -126,12 +122,12 @@ export default function DocumentTypePage() {
     // Clearing the box is an explicit intent, not a keystroke to smooth over — applied immediately,
     // never left waiting out the same debounce a fresh search term gets.
     if (value.trim() === "") {
-      pushedQRef.current = undefined
+      searchEchoes.sent(undefined)
       applyParams({ q: undefined })
       return
     }
     searchDebounceRef.current = setTimeout(() => {
-      pushedQRef.current = value
+      searchEchoes.sent(value)
       applyParams({ q: value })
     }, SEARCH_DEBOUNCE_MS)
   }
