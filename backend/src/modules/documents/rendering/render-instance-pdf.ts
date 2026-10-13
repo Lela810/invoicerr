@@ -218,7 +218,7 @@ async function companyCustomFieldsFor(
  *
  * A dangling/unresolvable client id (the same defensive case the `referenceLabels` loop above already
  * tolerates) is read the same way: a scoped lookup returning `null` is not an error here, just "no
- * client-level preference available" — this function must never THROW over a language or an address, the
+ * client-level preference available": this function must never THROW over a language or an address, the
  * same "a rendering gap must never block issuing/sending the document itself" discipline that loop's
  * own comment states. Scoped by `companyId` for the SAME reason `referenceLabels`' own lookup above
  * goes through the company-scoped `EntityReferenceRegistry` rather than a bare Prisma call: `clientId`
@@ -385,7 +385,7 @@ export async function renderDocumentInstance(
     where: { id: companyId },
     // `iban: true` — "QR SEPA / GiroCode": read here for `sepaPaymentQrFor`
     // below, never rendered directly in the company header block (`render-html.ts` has no field for
-    // it there). `language: true` — the FALLBACK layer for `recipientClientFor` below, read
+    // it there). `language: true`: the FALLBACK layer for `recipientClientFor` below, read
     // unconditionally (it's one column on a row this function fetches anyway). The three
     // `branding*` columns (chantier B) feed `render-html.ts`'s own `branding` input below.
     // `exemptVat: true` — read here for `computeDocumentTotals`'s own `sellerExemptVat` option below
