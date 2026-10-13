@@ -371,7 +371,7 @@ kubectl rollout restart deployment/invoicerr-api deployment/invoicerr-worker
 ```yaml title="values.prod.yaml"
 image:
   repository: ghcr.io/invoicerr-app/invoicerr
-  tag: "v1.4.5c" # pin an EXISTING tag — see "Which tag?" below; never "latest" for anything you operate
+  tag: "v2.0.0-alpha.5" # pin an EXISTING tag, see "Which tag?" below; never "latest" for anything you operate
 
 existingSecret: invoicerr-secrets
 
@@ -432,9 +432,13 @@ As of 2026-09-20 both print the same `Digest: sha256:615f4cec…`, while `:v1.4.
 one. This is the concrete reason the guide says to pin: on this repository `latest` means "newest
 full release", not "newest thing published", and the two have differed since July 2026.
 
-Pinning a digest is stronger still, and the chart supports it: put the digest on the repository and
-leave the tag empty (`repository: ghcr.io/invoicerr-app/invoicerr@sha256:…`, `tag: ""`), which the
-templates render correctly — the `:{{ tag }}` suffix is emitted only when `image.tag` is non-empty.
+Left empty, `image.tag` defaults to `v` followed by the chart's `appVersion` (`Chart.yaml`), the
+release the chart was written against, never `latest`.
+
+Pinning a digest is stronger still: set `image.digest: "sha256:…"` next to the tag, and the
+templates render `repository:tag@sha256:…`, which the container runtime pulls by digest. A
+repository that already carries the digest (`repository: ghcr.io/invoicerr-app/invoicerr@sha256:…`)
+is used as is, with no tag appended.
 
 ## 7. Verify
 
@@ -491,6 +495,30 @@ cert-manager has issued the certificate (`kubectl get certificate`), the app is 
 5. `helm rollback invoicerr` reverts the Kubernetes objects to the previous revision if something
    goes wrong — it does **not** revert a database migration or catalog purge that already ran; check
    the release notes for the version you are rolling back from before relying on it for either.
+
+### Upgrading from a chart that pulled `latest`
+
+The chart's defaults now follow the Kubernetes rules SonarCloud checks. On `helm upgrade`, with
+your own values file unchanged:
+
+- **`image.tag` no longer defaults to `latest`** but to `v<appVersion>`. If your values file sets
+  no tag, you were running whatever `:latest` pointed to (the newest full release, see "Which tag?"
+  above) and the upgrade switches you to the chart's release. Set `image.tag` explicitly before
+  upgrading if you do not want to change versions in the same step.
+- **The service account token is no longer mounted** in any pod
+  (`automountServiceAccountToken: false`). Invoicerr never calls the Kubernetes API. Set
+  `serviceAccount.automount: true` only if something you add to the api or worker pods needs it.
+- **Every application container carries CPU, memory and ephemeral-storage requests and
+  limits.** Values you set under `*.resources` are merged over these defaults, so a values file that only sets memory
+  still gets the ephemeral-storage defaults. The kubelet evicts a pod that writes more than its
+  ephemeral-storage limit to its own filesystem: api and worker (4Gi) write billing exports under
+  `/tmp`, and documents too when `documents.persistence.enabled` is `false`; the bundled Redis
+  (2Gi) and Postgres (4Gi) write their data there when their own `persistence.enabled` is `false`.
+  Raise the limit if one of those holds more than that.
+- **The bundled Redis now has a 1Gi memory limit** (it had none) and **the bundled Postgres 1Gi**.
+- **Images that only had a moving tag are pinned**: `redis.image` by digest (`bitnami/redis`
+  publishes only `latest`), `ocr.image` by commit tag. The Redis pod is recreated on the upgrade;
+  with `redis.persistence.enabled: false` that empties the queues.
 
 ## Operational notes from a real install
 

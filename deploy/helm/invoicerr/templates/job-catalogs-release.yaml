@@ -75,6 +75,7 @@ spec:
         {{- include "invoicerr.componentSelectorLabels" (dict "context" . "component" "catalogs-release") | nindent 8 }}
     spec:
       restartPolicy: Never
+      automountServiceAccountToken: false
       {{- if .Values.postgresql.enabled }}
       # `post-install` (see the annotation above) only guarantees the bundled Postgres
       # Deployment/Service EXIST by the time this Job's pod is created — not that `postgres` inside
@@ -122,7 +123,7 @@ spec:
       {{- end }}
       containers:
         - name: catalogs-release
-          image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{ end }}"
+          image: {{ include "invoicerr.appImage" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           workingDir: /usr/share/nginx/backend
           command:
@@ -165,5 +166,7 @@ spec:
             requests:
               cpu: 100m
               memory: 192Mi
+              ephemeral-storage: 128Mi
             limits:
               memory: 512Mi
+              ephemeral-storage: 1Gi

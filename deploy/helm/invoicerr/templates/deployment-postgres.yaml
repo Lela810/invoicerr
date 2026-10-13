@@ -25,9 +25,10 @@ spec:
       labels:
         {{- include "invoicerr.componentSelectorLabels" (dict "context" . "component" "postgres") | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
-          image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+          image: {{ include "invoicerr.image" (dict "image" .Values.postgresql.image) | quote }}
           ports:
             - name: postgres
               containerPort: 5432

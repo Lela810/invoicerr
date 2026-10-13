@@ -28,6 +28,7 @@ spec:
       labels:
         {{- include "invoicerr.componentSelectorLabels" (dict "context" . "component" "redis") | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       # bitnami/redis's entrypoint runs as uid 1001 (never root, `id` inside the image gives
       # `uid=1001 gid=0(root)`) and does `mkdir -p /bitnami/redis` on every boot. HIT FOR REAL on a
       # Scaleway Kapsule cluster, 2026-09-22: `mkdir: cannot create directory '/bitnami/redis':
@@ -40,7 +41,7 @@ spec:
         fsGroup: 1001
       containers:
         - name: redis
-          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          image: {{ include "invoicerr.image" (dict "image" .Values.redis.image) | quote }}
           ports:
             - name: redis
               containerPort: 6379
