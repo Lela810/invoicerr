@@ -17,11 +17,14 @@ function printViolations(violations: Result[]) {
 }
 
 Cypress.Commands.add("assertAccessible", (options: Cypress.AssertAccessibleOptions = {}) => {
-    // A toast fading in or out is measured at partial opacity, which axe reports as low contrast.
-    cy.get("body", { log: false }).should(($body) => {
-        $body.find('[data-sonner-toast][data-visible="true"]').each((_, toast) => {
-            expect(toast.ownerDocument.defaultView?.getComputedStyle(toast).opacity, "toast opacity").to.eq("1")
-        })
+    // An element fading in or out (menu, dialog, toast) is measured at partial opacity, which axe
+    // reports as low contrast. Infinite animations (spinners, skeletons) never settle and are skipped.
+    cy.document({ log: false }).should((doc) => {
+        const settling = doc
+            .getAnimations()
+            .filter((animation) => animation.playState === "running")
+            .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+        expect(settling.length, "running animations").to.eq(0)
     })
     cy.injectAxe()
     cy.checkA11y(
