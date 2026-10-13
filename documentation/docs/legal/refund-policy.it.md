@@ -7,115 +7,106 @@ language: it
 Bozza — non ancora verificata da un legale.
 :::
 
-La presente Politica di Rimborso e Disdetta spiega cosa accade al Suo denaro quando sottoscrive,
-modifica o disdice un abbonamento all'**offerta ospitata** di Invoicerr, e afferma chiaramente, prima
-che Lei paghi, i due fatti che un abbonamento comporta: si **rinnova automaticamente**, e la parte non
-utilizzata di un periodo disdetto non viene **mai rimborsata né riconosciuta in proporzione**. Integra i
-[Termini di Servizio](./terms-of-service.md) — in particolare la Sezione 12 (Durata, Disdetta e
-Cessazione da Parte Sua) e la Sezione 13 (Sospensione per Mancato Pagamento, Fine dell'Abbonamento,
-Archiviazione e Cancellazione dei Dati) — e non ripete tutto quanto quelle sezioni già stabiliscono. In
-caso di lettura divergente tra la presente Politica e i Termini di Servizio, questi ultimi prevalgono.
+La presente Politica di Rimborso e Disdetta riguarda l'**offerta ospitata** di Invoicerr. **I rimborsi
+spettano a Polar.** L'abbonamento Le è venduto da **Polar Software, Inc.** ("Polar"), che agisce come
+rivenditore (*merchant of record*) (Termini di Servizio, Sezioni 1.5 e 7.1): il pagamento, ogni rimborso
+e ogni storno (*chargeback*) sono quindi disciplinati dai [Buyer Terms and
+Conditions](https://polar.sh/legal/checkout-buyer-terms) di Polar, e non dalla presente Politica. Quanto
+segue riguarda solo ciò che spetta a noi: come la disdetta pone fine al Suo uso del Servizio e che cosa
+accade ai Suoi dati. Integra i [Termini di Servizio](./terms-of-service.md), in particolare le Sezioni
+8, 9, 12 e 13; ove i due testi possano essere letti in modo diverso, prevalgono i Termini di Servizio.
 
-## 1. Ambito di Applicazione
+## 1. Ambito di applicazione
 
-La presente Politica copre solo l'**offerta ospitata** — l'abbonamento a pagamento gestito sul/i
-nostro/i dominio/i. Non si applica al software **self-hosted**: il codice sorgente di Invoicerr è e
-rimane libero e open source, secondo la licenza pubblicata nel file `LICENSE` alla radice del
-[repository](https://github.com/invoicerr-app/invoicerr). Eseguirlo sulla Sua infrastruttura non
-comporta alcun pagamento a nostro favore, per cui non si pone alcuna questione di rimborso.
+La presente Politica riguarda solo l'**offerta ospitata**, l'abbonamento a pagamento gestito sul nostro
+(sui nostri) dominio(i). Non si applica al software **auto-ospitato**: il codice sorgente di Invoicerr è
+e resta libero e open source, con la licenza pubblicata nel file `LICENSE` alla radice del
+[repository](https://github.com/invoicerr-app/invoicerr). Eseguirlo sulla propria infrastruttura non
+comporta alcun pagamento a nessuno, quindi non si pone alcuna questione di rimborso.
 
-## 2. Chi La Addebita
+## 2. Rimborsi
 
-I pagamenti dell'abbonamento sono elaborati da **Polar Software Inc.** ("Polar"), che agisce in
-qualità di *merchant of record* per il Suo abbonamento (Termini di Servizio, Sezione 7.1). In pratica,
-questo significa che:
+Polar vende l'abbonamento e decide sui rimborsi, secondo i propri Buyer Terms and Conditions (in
+particolare le sezioni "Refund Policy" e "Subscriptions"). Per chiedere un rimborso, contatti Polar
+all'indirizzo **support@polar.sh**, oppure scriva a noi all'indirizzo **contact@invoicerr.app** e
+inoltreremo la Sua richiesta. Non paghiamo mai un rimborso direttamente: quando ne accettiamo uno, è
+pagato tramite Polar.
 
-- l'addebito compare sul Suo estratto conto bancario o della carta a nome di Polar, non nostro;
-- Polar emette la fattura relativa alla Sua Tariffa di abbonamento e calcola, riscuote e riversa
-  qualunque IVA o imposta simile dovuta al momento del pagamento; e
-- l'utilizzo da parte Sua del portale di pagamento e fatturazione di Polar è anch'esso soggetto alle
-  condizioni proprie di Polar.
+## 3. Rinnovo automatico
 
-Noi siamo il fornitore del Servizio — vedi le [Note Legali](./legal-notice.md) per la nostra identità —
-ma è Polar a incassare effettivamente il pagamento.
+**Il Suo abbonamento si rinnova automaticamente**, ogni mese o ogni anno secondo il ciclo scelto, alla
+tariffa per posto allora in vigore, finché non lo disdice (Termini di Servizio, Sezioni 6 e 12.1). Polar
+presenta il prezzo, la frequenza di rinnovo e la procedura di disdetta prima del pagamento, e invia
+promemoria di rinnovo ove la legge lo richieda.
 
-## 3. Rinnovo Automatico
-
-**Il Suo abbonamento si rinnova automaticamente.** Che Lei abbia scelto il ciclo di fatturazione
-mensile o annuale, esso si rinnova alla fine di ogni periodo, per lo stesso ciclo, alla tariffa per
-posto allora in vigore, finché non lo disdice (Termini di Servizio, Sezioni 6.1, 6.4 e 12.1). Non
-inviamo un avviso individuale prima di ciascun addebito di rinnovo — disdire prima di una data di
-rinnovo è il modo per fermarlo; vedi la sezione seguente.
-
-## 4. Come Disdire, e Quando la Disdetta Ha Effetto
+## 4. Disdire
 
 Può disdire in qualsiasi momento, dal portale clienti di Polar (Impostazioni > Abbonamento > Gestisci
-abbonamento) oppure scrivendo a **contact@invoicerr.app**. La disdetta ha effetto alla **fine del
-periodo già pagato** — la fine del mese o dell'anno in corso — e Lei mantiene pieno accesso alle
-funzionalità a pagamento fino a quel momento (Termini di Servizio, Sezione 12.2). Trascorso tale
-termine, la Sua Azienda entra nella sospensione in sola lettura descritta alla Sezione 13.1 dei Termini
-di Servizio.
+abbonamento) o scrivendo a **contact@invoicerr.app**. La disdetta ha effetto alla **fine del periodo già
+pagato**, fine del mese o dell'anno in corso, e Lei conserva pieno accesso alle funzionalità a pagamento
+fino a quella data (Termini di Servizio, Sezione 12.2). Da parte nostra, non si applica alcun pro rata
+per la parte non utilizzata di tale periodo; ciò non limita alcun rimborso che Polar conceda secondo le
+proprie condizioni.
 
-## 5. Nessun Rimborso, Nessun Riconoscimento Proporzionale
+## 5. Modifiche dei posti durante il ciclo
 
-**La disdetta non dà diritto ad alcun rimborso, totale o parziale, per il periodo già pagato, e non
-riconosciamo alcun importo in proporzione per un periodo parziale.** Se disdice a metà di un mese o di
-un anno, l'abbonamento continua a funzionare fino alla data di fine di quel periodo; nulla viene
-accreditato per il tempo che non utilizza più (Termini di Servizio, Sezione 12.2). Questo vale allo
-stesso modo per un abbonamento mensile e per uno annuale, indipendentemente dal momento del periodo in
-cui disdice.
+Il prezzo dell'abbonamento è calcolato **per posto** (Termini di Servizio, Sezione 6). Il numero di
+posti segue la composizione effettiva della Sua Azienda, e una modifica si riflette su quanto Polar
+addebita per il Suo **prossimo** ciclo di fatturazione, salvo che la fatturazione di Polar la applichi
+prima (Termini di Servizio, Sezione 7.3).
 
-## 6. Variazione del Numero di Posti a Metà Ciclo
+## 6. La prova gratuita
 
-L'offerta ospitata è fatturata **per posto** (Termini di Servizio, Sezione 6). Il Suo numero di posti è
-mantenuto allineato alla composizione reale della Sua Azienda per tutta la durata del periodo di
-fatturazione, e una variazione di tale numero si riflette sulle Tariffe addebitate a partire dal Suo
-**prossimo** ciclo di fatturazione, salvo che i meccanismi di fatturazione di Polar applichino la
-variazione prima (Termini di Servizio, Sezione 7.3). In pratica: aggiungere un posto a metà ciclo può
-far scattare presso Polar un addebito immediato e proporzionale per quel posto, fatturato nel momento
-stesso in cui viene aggiunto; rimuovere un posto a metà ciclo non genera alcun credito né rimborso per
-il resto del periodo di fatturazione in corso — il numero di posti inferiore riduce quanto paga solo a
-partire dalla Sua prossima fattura.
+Le nuove Aziende ricevono una **prova gratuita di quattordici (14) giorni**, senza carta di pagamento:
+la prova non dà luogo ad **alcun pagamento di alcun tipo**, quindi non può sorgerne alcuna questione di
+rimborso (Termini di Servizio, Sezione 3.2). Se nessun abbonamento a pagamento è attivato prima della
+fine della prova, la Sua Azienda entra nella sospensione in sola lettura descritta alla Sezione 7 qui
+sotto.
 
-## 7. La Prova Gratuita
+## 7. Che cosa accade alla fine dell'abbonamento
 
-Le nuove Aziende ricevono una **prova gratuita di quattordici (14) giorni**, senza che sia richiesta
-alcuna carta di pagamento — la prova stessa non dà luogo ad **alcun pagamento di alcun tipo**, per cui
-non può derivarne alcuna questione di rimborso (Termini di Servizio, Sezione 3.2). Durante la prova,
-tutte le funzionalità del Servizio sono disponibili, ad eccezione della possibilità di inviare o
-emettere documenti. Se nessun abbonamento a pagamento viene attivato prima della fine della prova, la
-Sua Azienda entra nella stessa sospensione in sola lettura descritta alla Sezione 4 sopra (Termini di
-Servizio, Sezione 13.1).
+Quando il Suo abbonamento termina, perché lo ha disdetto, non è stato rinnovato o un mancato pagamento
+non è stato risolto, si applica la Sezione 13 dei Termini di Servizio:
 
-## 8. Nessun Diritto di Recesso
+- **Sola lettura per quattordici (14) giorni.** I Suoi Dati restano consultabili ed esportabili, ma ogni
+  azione di scrittura, compreso l'invio o l'emissione di un documento, è disattivata (Sezione 13.1).
+- **Archivio inviato al Proprietario.** Al termine di questi quattordici giorni, inviamo per e-mail al
+  Proprietario della Sua Azienda un archivio che contiene, per ogni documento della Sua Azienda, i dati
+  memorizzati e, se rappresentabile, una copia (Sezione 13.2).
+- **Cancellazione.** La Sua Azienda e i suoi dati sono cancellati non prima di **trenta (30) giorni**
+  dall'invio di tale archivio se non ha mai avuto un abbonamento a pagamento, e non prima di
+  **centottanta (180) giorni** se lo ha avuto; fino ad allora può abbonarsi di nuovo (Sezione 13.3). I
+  documenti archiviati ancora soggetti a un periodo legale di conservazione sono conservati fino alla
+  sua scadenza (Informativa sulla Privacy, Sezione 6).
+- **La Sua conservazione legale.** Una volta inviato l'archivio, la conservazione delle Sue fatture per
+  ogni periodo legale di conservazione è di Sua responsabilità (Sezione 13.4).
 
-Il Servizio è offerto esclusivamente in ambito interaziendale (B2B). Sottoscrivendo, Lei dichiara di
-agire per finalità che rientrano nella Sua attività commerciale, industriale, artigianale o
-professionale, e non come consumatore (Termini di Servizio, Sezione 1.2). Di conseguenza, le
-disposizioni a tutela del consumatore previste dal *Code de la consommation* (Codice del Consumo)
-francese non si applicano al Suo abbonamento, e in particolare Lei non dispone, a tale titolo, di
-alcun diritto legale di recesso.
+## 8. Esportare i Suoi dati
 
-## 9. Cosa la Presente Politica Non Limita
+Non deve attendere la fine dell'abbonamento. In qualsiasi momento, in modalità self-service, può
+esportare tutti i Suoi Dati, il Suo libro contabile in CSV e ogni documento in PDF o, per una fattura,
+in XML EN 16931, dal Servizio o tramite l'API (Termini di Servizio, Sezioni 8.2 e 10). Se passa a un
+altro fornitore, la Sezione 9 dei Termini di Servizio descrive il processo di passaggio, il suo periodo
+transitorio e il fatto che non addebitiamo alcuna commissione di passaggio.
 
-Nulla nella presente Politica limita un diritto di cui Lei disponga in forza di una norma imperativa
-che la presente Politica non potrebbe legittimamente escludere, né la nostra responsabilità per un
-inadempimento dei nostri obblighi ai sensi dei Termini di Servizio.
+## 9. Pagamenti non riusciti e storni
 
-## 10. Pagamenti Non Andati a Buon Fine e Storni (Chargeback)
+I pagamenti non riusciti, le contestazioni e gli storni sono gestiti da Polar. Se un rinnovo o un
+addebito per un posto non va a buon fine, aggiorni il metodo di pagamento dal portale clienti di Polar;
+se il problema non è risolto, la Sua Azienda può passare allo stato **Pagamento non riuscito** e poi
+alla sospensione in sola lettura descritta alla Sezione 7 qui sopra.
 
-Se un addebito di rinnovo o relativo a un posto non va a buon fine, la Sua Azienda può passare allo
-stato **"Pagamento non riuscito"** e, se il problema non viene risolto, raggiungere la sospensione in
-sola lettura descritta alla Sezione 13.1 dei Termini di Servizio — aggiorni il Suo metodo di pagamento
-dal portale clienti di Polar per risolvere il problema. Se ritiene di essere stato addebitato per
-errore, **ci contatti prima** all'indirizzo **contact@invoicerr.app**, prima di avviare uno storno
-(chargeback) presso la Sua banca o l'emittente della Sua carta: la maggior parte delle questioni di
-fatturazione si risolve direttamente, e più rapidamente, in questo modo.
+## 10. Che cosa la presente Politica non limita
+
+Nulla nella presente Politica limita un diritto che Le spetta in virtù di una norma imperativa, un
+diritto che Le spetta nei confronti di Polar secondo le sue condizioni, o la nostra responsabilità per
+l'inadempimento dei nostri obblighi ai sensi dei Termini di Servizio.
 
 ## 11. Domande
 
-Le domande relative alla presente Politica, a un addebito o a una disdetta possono essere inviate a
-**contact@invoicerr.app**.
+Le domande sulla presente Politica o su una disdetta possono essere inviate a **contact@invoicerr.app**.
+Le domande su un addebito o un rimborso possono essere inviate anche direttamente a Polar all'indirizzo
+**support@polar.sh**.
 
 ## 12. Lingua Facente Fede
 

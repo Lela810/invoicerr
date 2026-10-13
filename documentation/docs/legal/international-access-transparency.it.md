@@ -39,7 +39,7 @@ europeo, come qualunque gestore del Servizio. Né l'uno né l'altro ambiente, n�
 di essi, sono ospitati, replicati (mirror) o sottoposti a backup al di fuori di Francia/UE. Laddove un
 sub-responsabile del trattamento indicato
 nell'[Informativa sulla Privacy](./privacy-policy.md), Sezione 4, e nell'
-[Accordo sul Trattamento dei Dati](./data-processing-agreement.md), Sezione 7 (Polar per la fatturazione
+[Accordo sul Trattamento dei Dati](./data-processing-agreement.md), allegato IV (Polar per la fatturazione
 dell'abbonamento, Resend per le e-mail transazionali, Cloudflare e Google LLC per la corrispondenza di
 supporto in entrata) sia un'entità extra-UE o possa trattare dati al di fuori dello SEE, tale
 trattamento è limitato ai dati di account/fatturazione o alla corrispondenza di supporto — mai ai Suoi
@@ -73,18 +73,18 @@ nell'ambito di applicazione dell'articolo 28.
   `backend/src/utils/secret-crypto.ts` — cosicché una semplice copia del database non li espone.
 - **Cifratura dei backup.** Le copie di backup dei documenti e dei file conservati dal Servizio sono
   cifrate (AES-256-GCM) prima di lasciare la nostra infrastruttura, con una chiave che il fornitore di
-  storage non detiene mai — vedere l'Accordo sul Trattamento dei Dati, Sezione 9 — cosicché una
+  storage non detiene mai — vedere l'Accordo sul Trattamento dei Dati, allegato III — cosicché una
   richiesta rivolta direttamente a tale fornitore, o una copia del bucket di backup stesso, raggiunge
   solo testo cifrato, mai i documenti.
 - **Controllo degli accessi.** L'accesso ai dati di un'Azienda all'interno del Servizio è delimitato dai
   ruoli propri di tale Azienda (proprietario/amministratore/membro); l'accesso all'infrastruttura e ai
   dati di produzione all'interno della nostra organizzazione è limitato a quanto necessario per gestire
   e supportare il Servizio, come descritto nell'Informativa sulla Privacy, Sezione 7, e nell'Accordo sul
-  Trattamento dei Dati, Sezione 9.
+  Trattamento dei Dati, allegato III.
 - **Garanzie contrattuali con i sub-responsabili del trattamento.** Ciascun sub-responsabile del
   trattamento è vincolato, per contratto, a obblighi di protezione dei dati sostanzialmente equivalenti
   all'Accordo sul Trattamento dei Dati (art. 28, par. 4, del GDPR) — vedere l'Accordo sul
-  Trattamento dei Dati, Sezione 7 — e, laddove un sub-responsabile possa trattare dati al di fuori dello
+  Trattamento dei Dati, clausola 7.7 e allegato IV — e, laddove un sub-responsabile possa trattare dati al di fuori dello
   SEE, alle Clausole Contrattuali Standard della Commissione Europea o a un'altra garanzia prevista dal
   Capo V del GDPR.
 - **Nessun accesso permanente o automatizzato per un'autorità straniera.** Non concediamo ad alcun

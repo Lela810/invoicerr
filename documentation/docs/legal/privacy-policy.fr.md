@@ -9,7 +9,7 @@ Brouillon — non encore validé par un avocat.
 
 La présente Politique de Confidentialité explique comment les données personnelles sont traitées dans le
 cadre de l'**offre hébergée** d'Invoicerr — la version du Service exploitée sur notre (nos) propre(s)
-domaine(s), telle que définie dans les [Conditions Générales de Vente](./terms-of-service.md). **Elle ne
+domaine(s), telle que définie dans les [Conditions Générales d'Utilisation](./terms-of-service.md). **Elle ne
 s'applique pas au logiciel auto-hébergé.** Lorsque vous exécutez Invoicerr sur votre propre
 infrastructure, nous ne recevons, ne voyons ni ne traitons jamais aucune de vos données — il n'y a rien
 dont nous puissions être responsable de traitement ou sous-traitant, et la présente Politique ne décrit
@@ -28,7 +28,7 @@ question ou demande au titre de la présente Politique.
 
 ## 2. Deux Rôles, Deux Types de Données
 
-Comme les Conditions Générales de Vente (Section 15.1), la présente Politique distingue deux rôles :
+Comme les Conditions Générales d'Utilisation (Section 15.1), la présente Politique distingue deux rôles :
 
 - **Nous sommes le responsable de traitement** pour vos propres **données de compte** — les informations
   vous concernant, vous et votre Société, nécessaires à l'exploitation de votre abonnement (Section 3
@@ -91,7 +91,7 @@ Nous partageons les données de compte et de facturation ci-dessus avec les sous
 chacun engagé selon ses propres conditions de traitement des données :
 
 - **Polar Software Inc.** — traitement des paiements et facturation ; agit en qualité de
-  **merchant of record** pour votre abonnement (Conditions Générales de Vente, Section 7.1) et est
+  **merchant of record** pour votre abonnement (Conditions Générales d'Utilisation, Section 7.1) et est
   lui-même responsable de traitement pour les informations de paiement qu'il collecte directement
   auprès de vous.
 - **Resend** — envoi des e-mails transactionnels du Service (liens de connexion, notifications), et
@@ -129,7 +129,7 @@ aucun document n'est envoyé à un fournisseur d'OCR tiers.**
 
 **Ne sont pas nos sous-traitants :** les prestataires de paiement que vous connectez pour permettre à
 **vos propres clients** de payer les factures que **vous** émettez — Stripe, Mollie, PayPal — sont
-**vos propres comptes**, contractés directement entre vous et eux (Conditions Générales de Vente,
+**vos propres comptes**, contractés directement entre vous et eux (Conditions Générales d'Utilisation,
 Section 14.3). Les **plateformes nationales de facturation électronique et plateformes
 gouvernementales** que vous choisissez de connecter (la PDP française, le KSeF polonais, le SdI italien,
 l'AT portugaise, Chorus Pro en France) agissent sur vos propres instructions et mandat pour transmettre
@@ -154,7 +154,7 @@ et de base de données de votre Société, n'implique d'entité hors UE.
 ## 6. Conservation
 
 - **Les données de compte et de Société** sont conservées aussi longtemps que votre Société existe sur
-  le Service, puis traitées exactement comme le décrit la Section 13 des Conditions Générales de Vente :
+  le Service, puis traitées exactement comme le décrit la Section 13 des Conditions Générales d'Utilisation :
   une Société qui ne convertit jamais son essai est supprimée **au plus tôt 30 jours** après l'envoi de
   son archive de fin d'essai (Section 13.3, premier point — la constante `MIN_RETRIEVAL_DAYS` de
   `billing/lifecycle.ts`) ; une Société ayant eu un abonnement payant est supprimée **au plus tôt
@@ -216,7 +216,7 @@ et de base de données de votre Société, n'implique d'entité hors UE.
 Les identifiants et jetons utilisés pour connecter votre Société à des canaux et plateformes tiers sont
 chiffrés au repos (AES-256-GCM) ; l'ensemble du trafic à destination et en provenance du Service est
 chiffré en transit (TLS) — les mêmes mesures que celles décrites à la Section 15.3 des Conditions
-Générales de Vente. L'accès à vos données au sein de notre propre organisation est limité à ce qui est
+Générales d'Utilisation. L'accès à vos données au sein de notre propre organisation est limité à ce qui est
 nécessaire pour exploiter et assurer le support du Service.
 
 ## 8. Vos Droits
@@ -246,8 +246,7 @@ décision automatisée, y compris de profilage, produisant des effets juridiques
 manière significative de façon similaire.
 
 Pour l'export complet des données en libre-service, l'export du journal comptable et l'export
-automatique des données de fin d'abonnement, voir les Sections 8.2 et 13.2 des Conditions Générales de
-Vente — ces trois moyens constituent également, en pratique, la façon d'exercer votre droit à la
+automatique des données de fin d'abonnement, voir les Sections 8.2 et 13.2 des Conditions Générales d'Utilisation — ces trois moyens constituent également, en pratique, la façon d'exercer votre droit à la
 portabilité.
 
 ## 9. Cookies et Autres Stockages dans le Navigateur
@@ -302,7 +301,7 @@ la même garantie du Chapitre V que celle visée à la Section 5 pour nos autres
 
 ## 11. Mineurs
 
-Le Service est proposé exclusivement dans un cadre interentreprises (Conditions Générales de Vente,
+Le Service est proposé exclusivement dans un cadre interentreprises (Conditions Générales d'Utilisation,
 Section 1.2) et ne s'adresse pas, et n'est pas sciemment utilisé par, des personnes agissant en dehors
 d'un cadre professionnel.
 
@@ -311,7 +310,7 @@ d'un cadre professionnel.
 Nous pouvons mettre à jour la présente Politique de temps à autre ; la version et la date d'effet en
 haut de cette page identifient la version en vigueur. Lorsqu'une modification est substantielle, nous
 vous en informerons par e-mail avant qu'elle ne prenne effet, de la même manière que le décrit la
-Section 20.1 des Conditions Générales de Vente pour ce document.
+Section 20.1 des Conditions Générales d'Utilisation pour ce document.
 
 ## 13. Contact
 

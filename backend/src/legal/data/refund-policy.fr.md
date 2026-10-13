@@ -7,115 +7,110 @@ language: fr
 Brouillon — non encore validé par un avocat.
 :::
 
-La présente Politique de Remboursement et de Résiliation explique ce qu'il advient de votre argent
-lorsque vous souscrivez, modifiez ou résiliez un abonnement à l'**offre hébergée** d'Invoicerr, et
-énonce clairement, avant que vous ne payiez, les deux faits que porte un abonnement : il se
-**renouvelle automatiquement**, et la partie non utilisée d'une période résiliée n'est **jamais
-remboursée ni proratisée**. Elle complète les [Conditions Générales de Vente](./terms-of-service.md) —
-en particulier la Section 12 (Durée, Résiliation et Fin du Contrat par Vous) et la Section 13
-(Suspension pour Non-Paiement, Fin d'Abonnement, Archivage et Suppression des Données) — et ne reprend
-pas tout ce que ces sections énoncent déjà. En cas de divergence entre la présente Politique et les
-Conditions Générales de Vente, ces dernières prévalent.
+La présente Politique de Remboursement et de Résiliation concerne l'**offre hébergée** d'Invoicerr.
+**Les remboursements relèvent de Polar.** L'abonnement vous est vendu par **Polar Software, Inc.** («
+Polar »), qui agit en qualité de revendeur (*merchant of record*) (Conditions Générales d'Utilisation,
+Sections 1.5 et 7.1) : le paiement, tout remboursement et toute rétrofacturation (*chargeback*) sont
+donc régis par les [Buyer Terms and Conditions](https://polar.sh/legal/checkout-buyer-terms) de Polar,
+et non par la présente Politique. Ce qui suit ne porte que sur ce qui nous revient : comment la
+résiliation met fin à votre utilisation du Service, et ce que deviennent vos données. Elle complète les
+[Conditions Générales d'Utilisation](./terms-of-service.md), en particulier leurs Sections 8, 9, 12 et
+13 ; en cas de lecture divergente, les Conditions Générales d'Utilisation prévalent.
 
-## 1. Champ d'Application
+## 1. Champ d'application
 
-La présente Politique ne couvre que l'**offre hébergée** — l'abonnement payant exploité sur notre (nos)
+La présente Politique ne couvre que l'**offre hébergée**, l'abonnement payant exploité sur notre (nos)
 propre(s) domaine(s). Elle ne s'applique pas au logiciel **auto-hébergé** : le code source d'Invoicerr
 est et demeure libre et open source, sous la licence publiée dans le fichier `LICENSE` à la racine du
 [dépôt](https://github.com/invoicerr-app/invoicerr). L'exécuter sur votre propre infrastructure
-n'implique aucun paiement envers nous, de sorte qu'aucune question de remboursement ne se pose.
+n'implique aucun paiement à quiconque ; aucune question de remboursement ne se pose donc.
 
-## 2. Qui Vous Facture
+## 2. Remboursements
 
-Les paiements d'abonnement sont traités par **Polar Software Inc.** (« Polar »), qui agit en qualité de
-*merchant of record* pour votre abonnement (Conditions Générales de Vente, Section 7.1). En pratique,
-cela signifie que :
+Polar vend l'abonnement et décide des remboursements, selon ses Buyer Terms and Conditions (en
+particulier leurs sections « Refund Policy » et « Subscriptions »). Pour demander un remboursement,
+contactez Polar à **support@polar.sh**, ou écrivez-nous à **contact@invoicerr.app** et nous
+transmettrons votre demande. Nous ne versons jamais de remboursement nous-mêmes : lorsque nous en
+acceptons un, il est payé par Polar.
 
-- le prélèvement apparaît sur votre relevé bancaire ou de carte sous le nom de Polar, et non le nôtre ;
-- Polar émet la facture correspondant à vos Frais d'abonnement, et calcule, collecte et reverse toute
-  TVA ou taxe similaire due lors du paiement ; et
-- votre utilisation du portail de paiement et de facturation de Polar est également soumise aux
-  conditions propres de Polar.
+## 3. Renouvellement automatique
 
-Nous sommes le prestataire du Service — voir les [Mentions Légales](./legal-notice.md) pour notre
-identité — mais c'est Polar qui encaisse effectivement le paiement.
+**Votre abonnement se renouvelle automatiquement**, chaque mois ou chaque année selon le cycle choisi,
+au tarif par Siège alors en vigueur, jusqu'à ce que vous le résiliiez (Conditions Générales
+d'Utilisation, Sections 6 et 12.1). Polar présente le prix, la fréquence de renouvellement et la
+procédure de résiliation avant le paiement, et envoie des rappels de renouvellement lorsque la loi
+l'exige.
 
-## 3. Renouvellement Automatique
+## 4. Résilier
 
-**Votre abonnement se renouvelle automatiquement.** Que vous ayez choisi le cycle de facturation mensuel
-ou annuel, il se renouvelle à la fin de chaque période, pour le même cycle, au tarif par Siège alors en
-vigueur, jusqu'à ce que vous le résiliez (Conditions Générales de Vente, Sections 6.1, 6.4 et 12.1).
-Nous n'envoyons pas d'avertissement individuel avant chaque prélèvement de renouvellement — résilier
-avant une date de renouvellement est le moyen de l'arrêter ; voir la section suivante.
-
-## 4. Comment Résilier, et Quand la Résiliation Prend Effet
-
-Vous pouvez résilier à tout moment, depuis le portail client Polar (Paramètres > Abonnement > Gérer
+Vous pouvez résilier à tout moment, depuis le portail client de Polar (Paramètres > Abonnement > Gérer
 l'abonnement) ou en écrivant à **contact@invoicerr.app**. La résiliation prend effet à la **fin de la
-période déjà payée** — la fin du mois ou de l'année en cours — et vous conservez un accès complet aux
-fonctionnalités payantes jusqu'à cette date (Conditions Générales de Vente, Section 12.2). Passé ce
-délai, votre Société entre dans la suspension en lecture seule décrite à la Section 13.1 des Conditions
-Générales de Vente.
+période déjà payée**, fin du mois ou de l'année en cours, et vous conservez un accès complet aux
+fonctionnalités payantes jusqu'à cette date (Conditions Générales d'Utilisation, Section 12.2). De notre
+côté, aucun prorata n'est appliqué pour la partie non utilisée de cette période ; cela ne limite aucun
+remboursement que Polar accorde selon ses propres conditions.
 
-## 5. Aucun Remboursement, Aucun Prorata
+## 5. Changement du nombre de Sièges en cours de cycle
 
-**Résilier ne vous donne droit à aucun remboursement, total ou partiel, pour la période déjà payée, et
-nous ne proratisons pas une période partielle.** Si vous résiliez en cours de mois ou d'année,
-l'abonnement continue de fonctionner jusqu'à la date de fin de cette période ; rien n'est crédité pour
-le temps que vous n'utilisez plus (Conditions Générales de Vente, Section 12.2). Cela s'applique aussi
-bien à un abonnement mensuel qu'annuel, quel que soit le moment de la période où vous résiliez.
+Le prix de l'abonnement est calculé **par Siège** (Conditions Générales d'Utilisation, Section 6). Votre
+nombre de Sièges suit la composition réelle de votre Société, et un changement est répercuté sur ce que
+Polar facture pour votre **prochain** cycle de facturation, sauf si la facturation de Polar l'applique
+plus tôt (Conditions Générales d'Utilisation, Section 7.3).
 
-## 6. Modification du Nombre de Sièges en Cours de Cycle
-
-L'offre hébergée est facturée **par Siège** (Conditions Générales de Vente, Section 6). Votre nombre de
-Sièges est maintenu en cohérence avec la composition réelle de votre Société tout au long de la période
-de facturation, et une modification de ce nombre est répercutée sur les Frais facturés lors de votre
-**prochain** cycle de facturation, sauf si les mécanismes de facturation de Polar appliquent le
-changement plus tôt (Conditions Générales de Vente, Section 7.3). En pratique : ajouter un Siège en
-cours de cycle peut déclencher chez Polar un prélèvement immédiat et proratisé pour ce Siège, facturé
-au moment même où il est ajouté ; retirer un Siège en cours de cycle ne génère aucun crédit ni
-remboursement pour le reste de la période de facturation en cours — la baisse du nombre de Sièges ne
-réduit ce que vous payez qu'à compter de votre prochaine facture.
-
-## 7. L'Essai Gratuit
+## 6. L'essai gratuit
 
 Les nouvelles Sociétés bénéficient d'un **essai gratuit de quatorze (14) jours**, sans carte de paiement
-requise — l'essai lui-même ne donne lieu à **aucun paiement, de quelque nature que ce soit**, de sorte
-qu'aucune question de remboursement ne peut en découler (Conditions Générales de Vente, Section 3.2).
-Pendant l'essai, toutes les fonctionnalités du Service sont disponibles, à l'exception de la possibilité
-d'envoyer ou d'émettre des documents. Si aucun abonnement payant n'est activé avant la fin de l'essai,
-votre Société entre dans la même suspension en lecture seule décrite à la Section 4 ci-dessus
-(Conditions Générales de Vente, Section 13.1).
+: l'essai ne donne lieu à **aucun paiement d'aucune sorte**, aucune question de remboursement ne peut
+donc en découler (Conditions Générales d'Utilisation, Section 3.2). Si aucun abonnement payant n'est
+activé avant la fin de l'essai, votre Société entre dans la suspension en lecture seule décrite à la
+Section 7 ci-dessous.
 
-## 8. Aucun Droit de Rétractation
+## 7. Ce qui se passe à la fin de votre abonnement
 
-Le Service est proposé exclusivement dans un cadre interentreprises. En souscrivant, vous déclarez agir
-à des fins entrant dans le cadre de votre activité commerciale, industrielle, artisanale ou
-professionnelle, et non en tant que consommateur (Conditions Générales de Vente, Section 1.2). En
-conséquence, les dispositions protectrices du consommateur prévues par le *Code de la consommation*
-français ne s'appliquent pas à votre abonnement, et en particulier vous ne disposez d'aucun droit légal
-de rétractation à son titre.
+Lorsque votre abonnement prend fin, que vous l'ayez résilié, qu'il n'ait pas été renouvelé ou qu'un
+échec de paiement n'ait pas été résolu, la Section 13 des Conditions Générales d'Utilisation s'applique
+:
 
-## 9. Ce que la Présente Politique ne Restreint pas
+- **Lecture seule pendant quatorze (14) jours.** Vos Données restent consultables et exportables, mais
+  toute action d'écriture, y compris l'envoi ou l'émission d'un document, est désactivée (Section 13.1).
+- **Archive envoyée à votre Propriétaire.** À l'issue de ces quatorze jours, nous envoyons par e-mail au
+  Propriétaire de votre Société une archive contenant, pour chaque document de votre Société, ses
+  données enregistrées et, lorsqu'il peut être rendu, une copie de celui-ci (Section 13.2).
+- **Suppression.** Votre Société et ses données sont supprimées au plus tôt **trente (30) jours** après
+  l'envoi de cette archive si elle n'a jamais eu d'abonnement payant, et au plus tôt **cent
+  quatre-vingts (180) jours** après si elle en a eu un ; d'ici là, vous pouvez vous réabonner (Section
+  13.3). Les documents archivés encore soumis à une durée légale de conservation sont conservés jusqu'à
+  son terme (Politique de Confidentialité, Section 6).
+- **Votre conservation légale.** Une fois l'archive envoyée, la conservation de vos factures pendant
+  toute durée légale de conservation relève de votre responsabilité (Section 13.4).
 
-Rien dans la présente Politique ne restreint un droit dont vous disposez au titre d'une règle
-impérative que la présente Politique ne pourrait légalement exclure, ni notre propre responsabilité en
-cas de manquement à nos obligations au titre des Conditions Générales de Vente.
+## 8. Exporter vos données
 
-## 10. Échecs de Paiement et Rétrofacturations
+Vous n'avez pas à attendre la fin de votre abonnement. À tout moment, en libre-service, vous pouvez
+exporter l'ensemble de Vos Données, votre grand livre comptable en CSV, et chaque document en PDF ou,
+pour une facture, en XML EN 16931, depuis le Service ou par l'API (Conditions Générales d'Utilisation,
+Sections 8.2 et 10). Si vous changez de prestataire, la Section 9 des Conditions Générales d'Utilisation
+décrit le processus de changement, sa période de transition, et le fait que nous ne facturons aucuns
+frais de changement.
 
-Si un prélèvement de renouvellement ou de Siège échoue, votre Société peut passer au statut **Paiement
-échoué** et, si l'échec n'est pas résolu, entrer dans la suspension en lecture seule décrite à la
-Section 13.1 des Conditions Générales de Vente — mettez à jour votre moyen de paiement depuis le
-portail client Polar pour y remédier. Si vous estimez avoir été prélevé à tort, **contactez-nous
-d'abord** à l'adresse **contact@invoicerr.app** avant d'engager une rétrofacturation (chargeback)
-auprès de votre banque ou de l'émetteur de votre carte : la plupart des questions de facturation se
-résolvent directement, et plus rapidement, de cette façon.
+## 9. Échecs de paiement et rétrofacturations
+
+Les échecs de paiement, les litiges et les rétrofacturations sont gérés par Polar. Si un renouvellement
+ou un paiement de Siège échoue, mettez à jour votre moyen de paiement depuis le portail client de Polar
+; si l'échec n'est pas résolu, votre Société peut passer au statut **Paiement échoué**, puis dans la
+suspension en lecture seule décrite à la Section 7 ci-dessus.
+
+## 10. Ce que la présente Politique ne limite pas
+
+Rien dans la présente Politique ne limite un droit que vous tenez d'une règle de droit impérative, un
+droit que vous détenez envers Polar selon ses propres conditions, ni notre propre responsabilité en cas
+de manquement à nos obligations au titre des Conditions Générales d'Utilisation.
 
 ## 11. Questions
 
-Toute question relative à la présente Politique, à un prélèvement ou à une résiliation peut être
-adressée à **contact@invoicerr.app**.
+Les questions relatives à la présente Politique ou à une résiliation peuvent être adressées à
+**contact@invoicerr.app**. Les questions relatives à un prélèvement ou à un remboursement peuvent aussi
+être adressées directement à Polar à **support@polar.sh**.
 
 ## 12. Langue faisant foi
 

@@ -7,112 +7,106 @@ language: pl
 Wersja robocza — jeszcze niezweryfikowana przez prawnika.
 :::
 
-Niniejsza Polityka Zwrotów i Anulowania wyjaśnia, co dzieje się z Twoimi pieniędzmi, gdy subskrybujesz,
-zmieniasz lub anulujesz subskrypcję **oferty hostowanej** Invoicerr, i jasno stwierdza, zanim
-zapłacisz, dwa fakty, jakie niesie ze sobą subskrypcja: **odnawia się ona automatycznie**, a za
-niewykorzystaną część anulowanego okresu **nigdy nie przysługuje zwrot ani rozliczenie proporcjonalne**.
-Uzupełnia ona [Regulamin Świadczenia Usług](./terms-of-service.md) — w szczególności sekcję 12 (Okres
-Obowiązywania, Anulowanie i Rozwiązanie Umowy przez Ciebie) oraz sekcję 13 (Zawieszenie za Brak
-Płatności, Zakończenie Subskrypcji, Archiwizacja i Usunięcie Danych) — i nie powtarza wszystkiego, co
-te sekcje już określają. W razie rozbieżnej interpretacji niniejszej Polityki i Regulaminu, Regulamin
-ma pierwszeństwo.
+Niniejsza Polityka Zwrotów i Anulowania dotyczy **oferty hostowanej** Invoicerr. **Zwroty należą do
+Polar.** Subskrypcję sprzedaje Ci **Polar Software, Inc.** („Polar”), która działa jako sprzedawca
+(*merchant of record*) (Regulamin Świadczenia Usług, sekcje 1.5 i 7.1), więc płatność, każdy zwrot i
+każde obciążenie zwrotne (*chargeback*) podlegają [Buyer Terms and
+Conditions](https://polar.sh/legal/checkout-buyer-terms) Polar, a nie niniejszej Polityce. Dalsza część
+dotyczy wyłącznie tego, co należy do nas: jak anulowanie kończy korzystanie z Usługi i co dzieje się
+wtedy z Twoimi danymi. Uzupełnia ona [Regulamin Świadczenia Usług](./terms-of-service.md), w
+szczególności jego sekcje 8, 9, 12 i 13; jeżeli oba dokumenty można odczytać różnie, pierwszeństwo ma
+Regulamin Świadczenia Usług.
 
 ## 1. Zakres Zastosowania
 
-Niniejsza Polityka obejmuje wyłącznie **ofertę hostowaną** — płatną subskrypcję obsługiwaną w naszej
-własnej domenie (domenach). Nie ma ona zastosowania do oprogramowania **self-hosted**: kod źródłowy
-Invoicerr jest i pozostaje wolny oraz open source, na licencji opublikowanej w pliku `LICENSE` w
-katalogu głównym [repozytorium](https://github.com/invoicerr-app/invoicerr). Uruchomienie go na
-własnej infrastrukturze nie wiąże się z żadną płatnością na naszą rzecz, więc kwestia zwrotu w ogóle
-się nie pojawia.
+Niniejsza Polityka obejmuje wyłącznie **ofertę hostowaną**, czyli płatną subskrypcję prowadzoną w naszej
+(naszych) domenie (domenach). Nie dotyczy oprogramowania **hostowanego samodzielnie**: kod źródłowy
+Invoicerr jest i pozostaje wolny i otwarty, na licencji opublikowanej w pliku `LICENSE` w katalogu
+głównym [repozytorium](https://github.com/invoicerr-app/invoicerr). Uruchomienie go na własnej
+infrastrukturze nie wiąże się z żadną płatnością na rzecz kogokolwiek, więc kwestia zwrotu nie powstaje.
 
-## 2. Kto Cię Obciąża
+## 2. Zwroty
 
-Płatności z tytułu subskrypcji są przetwarzane przez **Polar Software Inc.** ("Polar"), który działa
-jako sprzedawca formalny (**merchant of record**) w odniesieniu do Twojej subskrypcji (Regulamin,
-sekcja 7.1). W praktyce oznacza to, że:
-
-- obciążenie pojawia się na Twoim wyciągu bankowym lub kartowym pod nazwą Polar, a nie naszą;
-- Polar wystawia fakturę za Twoją Opłatę subskrypcyjną oraz oblicza, pobiera i odprowadza wszelki VAT
-  lub podobny podatek należny w momencie płatności; oraz
-- korzystanie przez Ciebie z portalu płatności i rozliczeń Polar podlega również własnym warunkom
-  Polar.
-
-Jesteśmy dostawcą Usługi — naszą tożsamość znajdziesz w [Informacjach Prawnych](./legal-notice.md) —
-ale to Polar faktycznie pobiera płatność.
+Polar sprzedaje subskrypcję i decyduje o zwrotach, zgodnie ze swoimi Buyer Terms and Conditions (w
+szczególności sekcjami „Refund Policy” i „Subscriptions”). Aby poprosić o zwrot, skontaktuj się z Polar
+pod adresem **support@polar.sh** albo napisz do nas na **contact@invoicerr.app**, a przekażemy Twoją
+prośbę. Nigdy nie wypłacamy zwrotu sami: gdy się na niego zgadzamy, jest on wypłacany za pośrednictwem
+Polar.
 
 ## 3. Automatyczne Odnowienie
 
-**Twoja subskrypcja odnawia się automatycznie.** Niezależnie od tego, czy wybrałeś(-aś) miesięczny czy
-roczny cykl rozliczeniowy, odnawia się ona na koniec każdego okresu, na ten sam cykl, według stawki za
-miejsce obowiązującej w danym momencie, dopóki jej nie anulujesz (Regulamin, sekcje 6.1, 6.4 i 12.1).
-Nie wysyłamy indywidualnego ostrzeżenia przed każdym obciążeniem odnowieniowym — anulowanie przed datą
-odnowienia jest sposobem, by je zatrzymać; zob. kolejną sekcję.
+**Twoja subskrypcja odnawia się automatycznie**, co miesiąc lub co rok zależnie od wybranego cyklu,
+według obowiązującej wówczas stawki za miejsce, dopóki jej nie anulujesz (Regulamin Świadczenia Usług,
+sekcje 6 i 12.1). Polar przedstawia cenę, częstotliwość odnowienia i sposób anulowania przed płatnością
+oraz wysyła przypomnienia o odnowieniu, gdy wymaga tego prawo.
 
-## 4. Jak Anulować i Kiedy Anulowanie Wywołuje Skutek
+## 4. Anulowanie
 
-Możesz anulować w dowolnym momencie z poziomu portalu klienta Polar (Ustawienia > Subskrypcja > Zarządzaj
-subskrypcją) albo pisząc na adres **contact@invoicerr.app**. Anulowanie wywołuje skutek na **koniec już
-opłaconego okresu** — koniec bieżącego miesiąca lub roku — a do tego czasu zachowujesz pełny dostęp do
-płatnych funkcji (Regulamin, sekcja 12.2). Po tym terminie Twoja Firma przechodzi w tryb zawieszenia
-tylko do odczytu, opisany w sekcji 13.1 Regulaminu.
+Możesz anulować w dowolnym momencie, w portalu klienta Polar (Ustawienia > Subskrypcja > Zarządzaj
+subskrypcją) lub pisząc na **contact@invoicerr.app**. Anulowanie wywołuje skutek z **końcem już
+opłaconego okresu**, czyli z końcem bieżącego miesiąca lub roku, a do tego czasu zachowujesz pełny
+dostęp do płatnych funkcji (Regulamin Świadczenia Usług, sekcja 12.2). Z naszej strony niewykorzystana
+część tego okresu nie jest rozliczana proporcjonalnie; nie ogranicza to żadnego zwrotu, którego Polar
+udzieli na własnych warunkach.
 
-## 5. Brak Zwrotu, Brak Rozliczenia Proporcjonalnego
+## 5. Zmiana Liczby Miejsc w Trakcie Cyklu
 
-**Anulowanie nie uprawnia Cię do żadnego zwrotu, w całości ani w części, za już opłacony okres, a
-niewykorzystanego okresu nie rozliczamy proporcjonalnie.** Jeśli anulujesz w trakcie miesiąca lub roku,
-subskrypcja działa dalej do końca tego okresu; nic nie jest Ci zwracane za czas, z którego już nie
-korzystasz (Regulamin, sekcja 12.2). Dotyczy to w równym stopniu subskrypcji miesięcznej i rocznej,
-niezależnie od momentu okresu, w którym anulujesz.
+Cena subskrypcji jest ustalana **za miejsce** (Regulamin Świadczenia Usług, sekcja 6). Liczba miejsc
+odpowiada faktycznemu składowi Twojej Firmy, a zmiana wpływa na kwotę, którą Polar pobiera za
+**następny** cykl rozliczeniowy, chyba że rozliczenia Polar uwzględnią ją wcześniej (Regulamin
+Świadczenia Usług, sekcja 7.3).
 
-## 6. Zmiana Liczby Miejsc w Trakcie Cyklu
+## 6. Bezpłatny Okres Próbny
 
-Oferta hostowana jest rozliczana **za miejsce** (Regulamin, sekcja 6). Liczba Twoich miejsc jest
-utrzymywana w zgodności z rzeczywistym składem Twojej Firmy przez cały okres rozliczeniowy, a zmiana
-tej liczby znajduje odzwierciedlenie w Opłatach naliczanych od Twojego **kolejnego** cyklu
-rozliczeniowego, chyba że własne mechanizmy rozliczeniowe Polar wprowadzą zmianę wcześniej (Regulamin,
-sekcja 7.3). W praktyce: dodanie miejsca w trakcie cyklu może wywołać u Polar natychmiastowe, rozliczone
-proporcjonalnie obciążenie za to miejsce, naliczone w chwili jego dodania; usunięcie miejsca w trakcie
-cyklu nie generuje żadnego kredytu ani zwrotu za pozostałą część bieżącego okresu rozliczeniowego —
-niższa liczba miejsc obniża Twoje opłaty dopiero od Twojej kolejnej faktury.
+Nowe Firmy otrzymują **czternastodniowy (14) bezpłatny okres próbny**, bez karty płatniczej: okres
+próbny nie wiąże się z **żadną płatnością**, więc nie może z niego wyniknąć kwestia zwrotu (Regulamin
+Świadczenia Usług, sekcja 3.2). Jeżeli przed końcem okresu próbnego nie zostanie aktywowana płatna
+subskrypcja, Twoja Firma przechodzi w zawieszenie w trybie tylko do odczytu opisane w sekcji 7 poniżej.
 
-## 7. Bezpłatny Okres Próbny
+## 7. Co Dzieje Się po Zakończeniu Subskrypcji
 
-Nowe Firmy otrzymują **bezpłatny okres próbny wynoszący czternaście (14) dni**, bez wymogu podania
-karty płatniczej — sam okres próbny nie wiąże się z **żadną płatnością jakiegokolwiek rodzaju**, więc
-nie może z niego wyniknąć żadna kwestia zwrotu (Regulamin, sekcja 3.2). W trakcie okresu próbnego
-dostępne są wszystkie funkcje Usługi, z wyjątkiem możliwości wysyłania lub wystawiania dokumentów.
-Jeśli przed końcem okresu próbnego nie zostanie aktywowana płatna subskrypcja, Twoja Firma przechodzi w
-to samo zawieszenie tylko do odczytu opisane w sekcji 4 powyżej (Regulamin, sekcja 13.1).
+Gdy Twoja subskrypcja się kończy, czy to z powodu anulowania, braku odnowienia, czy nierozwiązanego
+niepowodzenia płatności, zastosowanie ma sekcja 13 Regulaminu Świadczenia Usług:
 
-## 8. Brak Prawa Odstąpienia od Umowy
+- **Tylko do odczytu przez czternaście (14) dni.** Twoje Dane pozostają dostępne do odczytu i eksportu,
+  ale każda czynność zapisu, w tym wysłanie lub wystawienie dokumentu, jest wyłączona (sekcja 13.1).
+- **Archiwum wysłane do Właściciela.** Po upływie tych czternastu dni wysyłamy e-mailem Właścicielowi
+  Twojej Firmy archiwum zawierające, dla każdego dokumentu Twojej Firmy, jego zapisane dane oraz, jeżeli
+  można go wygenerować, jego kopię (sekcja 13.2).
+- **Usunięcie.** Twoja Firma i jej dane są usuwane nie wcześniej niż **trzydzieści (30) dni** po
+  wysłaniu tego archiwum, jeżeli nigdy nie miała płatnej subskrypcji, i nie wcześniej niż **sto
+  osiemdziesiąt (180) dni** po nim, jeżeli ją miała; do tego czasu możesz ponownie wykupić subskrypcję
+  (sekcja 13.3). Zarchiwizowane dokumenty, dla których nadal biegnie ustawowy okres przechowywania, są
+  przechowywane do jego upływu (Polityka Prywatności, sekcja 6).
+- **Twoje ustawowe przechowywanie.** Po wysłaniu archiwum przechowywanie Twoich faktur przez każdy
+  ustawowy okres przechowywania należy do Ciebie (sekcja 13.4).
 
-Usługa jest oferowana wyłącznie w relacjach między przedsiębiorcami (B2B). Subskrybując, oświadczasz,
-że działasz w celach mieszczących się w zakresie Twojej działalności handlowej, gospodarczej, rzemieślniczej
-lub zawodowej, a nie jako konsument (Regulamin, sekcja 1.2). W związku z tym przepisy chroniące
-konsumentów przewidziane we francuskim *Code de la consommation* (kodeksie konsumenckim) nie mają
-zastosowania do Twojej subskrypcji, a w szczególności nie przysługuje Ci w związku z nią żadne ustawowe
-prawo odstąpienia od umowy.
+## 8. Eksport Danych
 
-## 9. Czego Niniejsza Polityka Nie Ogranicza
+Nie musisz czekać do końca subskrypcji. W dowolnym momencie, samodzielnie, możesz wyeksportować
+wszystkie swoje Dane, księgę rachunkową w formacie CSV oraz każdy dokument jako PDF lub, w przypadku
+faktury, jako XML zgodny z EN 16931, w Usłudze lub przez API (Regulamin Świadczenia Usług, sekcje 8.2 i
+10). Jeżeli przechodzisz do innego dostawcy, sekcja 9 Regulaminu Świadczenia Usług opisuje proces
+zmiany, jego okres przejściowy oraz to, że nie pobieramy żadnych opłat za zmianę.
 
-Nic w niniejszej Polityce nie ogranicza żadnego prawa przysługującego Ci na mocy bezwzględnie
-obowiązującego przepisu prawa, którego niniejsza Polityka nie mogłaby zgodnie z prawem wyłączyć, ani
-naszej własnej odpowiedzialności za niewykonanie naszych obowiązków wynikających z Regulaminu.
+## 9. Nieudane Płatności i Obciążenia Zwrotne (Chargeback)
 
-## 10. Nieudane Płatności i Obciążenia Zwrotne (Chargeback)
+Nieudane płatności, spory i obciążenia zwrotne obsługuje Polar. Jeżeli odnowienie lub opłata za miejsce
+się nie powiedzie, zaktualizuj metodę płatności w portalu klienta Polar; jeżeli problem nie zostanie
+rozwiązany, Twoja Firma może przejść w status **Płatność nieudana**, a następnie w zawieszenie w trybie
+tylko do odczytu opisane w sekcji 7 powyżej.
 
-Jeśli obciążenie odnowieniowe lub związane z miejscem się nie powiedzie, Twoja Firma może przejść w
-status **"Płatność nieudana"** i, jeśli problem nie zostanie rozwiązany, w zawieszenie tylko do odczytu
-opisane w sekcji 13.1 Regulaminu — zaktualizuj swoją metodę płatności w portalu klienta Polar, aby to
-naprawić. Jeśli uważasz, że zostałeś(-aś) obciążony(-a) błędnie, **najpierw skontaktuj się z nami** pod
-adresem **contact@invoicerr.app**, zanim zgłosisz obciążenie zwrotne (chargeback) w swoim banku lub u
-wystawcy karty: większość kwestii rozliczeniowych da się rozwiązać bezpośrednio i szybciej w ten sposób.
+## 10. Czego Niniejsza Polityka Nie Ogranicza
+
+Nic w niniejszej Polityce nie ogranicza prawa przysługującego Ci na podstawie bezwzględnie
+obowiązującego przepisu, prawa przysługującego Ci wobec Polar na jej własnych warunkach ani naszej
+odpowiedzialności za niewykonanie zobowiązań wynikających z Regulaminu Świadczenia Usług.
 
 ## 11. Pytania
 
-Pytania dotyczące niniejszej Polityki, obciążenia lub anulowania można kierować na adres
-**contact@invoicerr.app**.
+Pytania dotyczące niniejszej Polityki lub anulowania można kierować na adres **contact@invoicerr.app**.
+Pytania dotyczące obciążenia lub zwrotu można też kierować bezpośrednio do Polar na adres
+**support@polar.sh**.
 
 ## 12. Język Rozstrzygający
 

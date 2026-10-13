@@ -1,238 +1,587 @@
 ---
 title: Data Processing Agreement
 sidebar_position: 3
-version: 2026-09-21
-effectiveDate: 2026-09-21
+version: 2026-10-13
+effectiveDate: 2026-10-13
 ---
 
 :::warning[Draft]
 Draft — not yet reviewed by counsel.
 :::
 
-This Data Processing Agreement ("**DPA**") supplements the [Terms of Service](./terms-of-service.md)
-for the **hosted offering** of Invoicerr and implements **GDPR Article 28**. **It does not apply to
-the self-hosted software** — see the Terms of Service's own scope clause and the
-[Privacy Policy](./privacy-policy.md), Preamble: a self-hosted deployment never sends us any data, so
-there is no processing for this DPA to govern.
+This Data Processing Agreement ("**DPA**") governs the personal data the hosted offering of Invoicerr
+processes on behalf of its Customers. It consists of the **standard contractual clauses between
+controllers and processors** adopted by the European Commission under Article 28(7) of Regulation (EU)
+2016/679 (the GDPR), reproduced word for word below, followed by their four Annexes, completed for the
+hosted Service.
 
-## 1. Parties and Scope
+**Source of the Clauses.** Commission Implementing Decision (EU) 2021/915 of 4 June 2021 on standard
+contractual clauses between controllers and processors under Article 28(7) of Regulation (EU) 2016/679
+of the European Parliament and of the Council and Article 29(7) of Regulation (EU) 2018/1725 of the
+European Parliament and of the Council, Annex (OJ L 199, 7.6.2021, p. 18). CELEX number: 32021D0915.
+Official text: [EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32021D0915)
+(https://eur-lex.europa.eu/eli/dec_impl/2021/915/oj).
 
-**You** ("**the Customer**") are the **data controller** for the personal data contained in the
-documents you create or receive through the Service — in particular your own customers' and
-contacts' names, addresses, and other details on an invoice, quote, or related record ("**Customer
-Personal Data**"). **We** ("**the Processor**", defined as in Terms of Service Section 1.1) process
-Customer Personal Data **solely on your documented instructions**, as described in this DPA. This is
-the exact duality the Terms of Service, Section 15.1 already states; this DPA is the detail Article
-28(3) requires for it.
+**How the Clauses are completed.** As Clause 2(a) allows, nothing in the Clauses is changed except the
+choices they leave open: the Clauses apply under Regulation (EU) 2016/679 (Option 1 wherever the text
+offers one; Regulation (EU) 2018/1725 only governs EU institutions and bodies); the optional docking
+clause (Clause 5) is not used; sub-processors are engaged under a general written authorisation (Clause
+7.7(a), Option 2) with 30 days' notice of any change; and Annexes I to IV are filled in.
 
-## 2. Definitions
+**Scope.** This DPA covers only the **hosted offering**. It does not apply to the self-hosted software:
+a self-hosted deployment never sends us any data, so there is no processing for it to govern. This DPA
+forms part of the Agreement defined in the [Terms of Service](./terms-of-service.md), Section 2.
 
-"Personal Data", "Processing", "Data Subject", "Controller", "Processor", and "Personal Data Breach"
-have the meanings given in **GDPR Article 4**.
+## Standard contractual clauses
 
-## 3. Subject-Matter, Duration, Nature and Purpose
+### SECTION I
 
-- **Subject-matter**: hosting, storing, rendering, and — where you choose to send a document through
-  a transmission channel or government platform — transmitting the documents you create through the
-  Service.
-- **Duration**: for as long as your Company subscribes to the Service, plus the retention window
-  described in Section 10 below.
-- **Nature and purpose**: automated storage and processing needed to provide the Service's core
-  function — creating, issuing, and archiving business documents — exactly as configured by you.
-- **Categories of Data Subjects**: your own customers, suppliers, and contacts named on the documents
-  you create.
-- **Categories of Personal Data**: names, postal and email addresses, phone numbers, and any other
-  personal data you choose to enter into a document's fields (e.g. a contact person's name on an
-  invoice). We do not require or expect special categories of data (GDPR Art. 9) and you should not
-  enter any into the Service.
+#### Clause 1: Purpose and scope
 
-## 4. Processor Obligations (GDPR Art. 28(3))
+(a) The purpose of these Standard Contractual Clauses (the Clauses) is to ensure compliance with Article
+28(3) and (4) of Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016
+on the protection of natural persons with regard to the processing of personal data and on the free
+movement of such data, and repealing Directive 95/46/EC (General Data Protection Regulation).
 
-We:
+(b) The controllers and processors listed in Annex I have agreed to these Clauses in order to ensure
+compliance with Article 28(3) and (4) of Regulation (EU) 2016/679 and/or Article 29(3) and (4) of
+Regulation (EU) 2018/1725.
 
-1. process Customer Personal Data **only on your documented instructions** — this DPA, together with
-   your own configuration of the Service (which company, which channels, which documents you send),
-   constitutes those instructions, including with regard to transfers, unless required otherwise by
-   EU or Member State law, in which case we will inform you before processing, unless that law
-   prohibits it on important grounds of public interest;
-2. ensure that persons authorized to process Customer Personal Data are bound by confidentiality,
-   whether contractually or by statute;
-3. implement the security measures described in Section 9;
-4. respect the conditions for engaging a further sub-processor described in Section 7;
-5. assist you, taking into account the nature of the processing, in responding to Data Subject
-   requests (Section 8);
-6. assist you in complying with your own obligations under GDPR Articles 32-36, taking into account
-   the nature of processing and the information available to us;
-7. delete or return Customer Personal Data at the end of the provision of Service, as described in
-   Section 10;
-8. make available to you the information reasonably necessary to demonstrate compliance with this
-   Article and allow for, and contribute to, audits as described in Section 11.
+(c) These Clauses apply to the processing of personal data as specified in Annex II.
 
-## 5. Customer Obligations and Rights
+(d) Annexes I to IV are an integral part of the Clauses.
 
-As controller, **you have the right to**: issue us documented instructions regarding the processing of
-Customer Personal Data, which we will follow (Section 1); object to a new sub-processor and, if
-unresolved, end the subscription on that ground (Section 7); receive our assistance with Data Subject
-requests (Section 8); and audit our compliance with this DPA (Section 11).
+(e) These Clauses are without prejudice to obligations to which the controller is subject by virtue of
+Regulation (EU) 2016/679 and/or Regulation (EU) 2018/1725.
 
-In turn, **you warrant** that you have a lawful basis for the Customer Personal Data you enter into
-the Service, that the data is accurate, and that you enter no more of it than is needed for the
-document you are creating. Your instructions to us are limited to what the Service's own features let
-you configure — we have no independent means of processing Customer Personal Data outside of running
-the Service as built.
+(f) These Clauses do not by themselves ensure compliance with obligations related to international
+transfers in accordance with Chapter V of Regulation (EU) 2016/679 and/or Regulation (EU) 2018/1725.
 
-## 6. Confidentiality
+#### Clause 2: Invariability of the Clauses
 
-Our personnel authorized to access Customer Personal Data are bound by a confidentiality obligation,
-whether contractual or statutory, that survives the end of their engagement with us.
+(a) The Parties undertake not to modify the Clauses, except for adding information to the Annexes or
+updating information in them.
 
-## 7. Sub-processors
+(b) This does not prevent the Parties from including the standard contractual clauses laid down in these
+Clauses in a broader contract, or from adding other clauses or additional safeguards provided that they
+do not directly or indirectly contradict the Clauses or detract from the fundamental rights or freedoms
+of data subjects.
 
-You give us a **general authorization** to engage the sub-processors relevant to processing documents
-that carry Customer Personal Data:
+#### Clause 3: Interpretation
 
-- The **national e-invoicing and government platforms you choose to connect** — the French PDP,
-  Poland's KSeF, Italy's SdI (and, for its certified-email channel, the PEC mailbox provider you
-  subscribe to), Portugal's AT, France's Chorus Pro for B2G invoicing — acting on your explicit
-  instruction, under the credentials and mandates you provide, to transmit the documents you send.
-- **Resend** — delivery of transactional email that may carry a document, or a link to one, on your
-  instruction.
-- **Cloudflare, Inc.** — inbound email routing for correspondence sent to **contact@invoicerr.app**
-  (support correspondence only; never the Customer Personal Data contained in the documents you create
-  through the Service).
-- **Google LLC (Gmail)** — the mailbox where support correspondence sent to **contact@invoicerr.app**
-  is received (support correspondence only; never the Customer Personal Data contained in the documents
-  you create through the Service).
-- **Scaleway SAS** — infrastructure hosting for the **production** environment of the Service: the
-  Kubernetes cluster it runs on, the managed PostgreSQL database in which the documents you create — and
-  the Customer Personal Data they contain — are stored, and the object storage that holds archived
-  documents, including those carrying Customer Personal Data. **The Service and Customer Data, including
-  the database, are hosted in the European Union**, in Scaleway's Paris (France) region, with the
-  database reached over Scaleway's own private network rather than the public internet.
+(a) Where these Clauses use the terms defined in Regulation (EU) 2016/679 or Regulation (EU) 2018/1725
+respectively, those terms shall have the same meaning as in that Regulation.
 
-**OCR (optical character recognition) runs on infrastructure we operate; no document is sent to a
-third-party OCR provider.**
+(b) These Clauses shall be read and interpreted in the light of the provisions of Regulation (EU)
+2016/679 or Regulation (EU) 2018/1725 respectively.
 
-**The acceptance environment used for the beta programme is not run by a sub-processor.** Before a
-release reaches the production environment above, we validate it on a separate acceptance environment
-that we operate ourselves, on our own infrastructure, in France. Because we host that environment
-directly, rather than through a third party, there is no sub-processor to authorize for it, and none is
-added to this Section for that reason — the Processor hosting on his own hardware is not his own
-sub-processor. During the beta programme, the programme's participants use the Service on this
-acceptance environment, and Customer Personal Data they enter — on real invoices and other real
-documents — is processed and stored there, not on Scaleway's production infrastructure above, until
-that environment is retired, at which point it moves to the production infrastructure.
+(c) These Clauses shall not be interpreted in a way that runs counter to the rights and obligations
+provided for in Regulation (EU) 2016/679 / Regulation (EU) 2018/1725 or in a way that prejudices the
+fundamental rights or freedoms of the data subjects.
 
-**Polar Software Inc. is not a sub-processor under this DPA**: it processes your Company's own
-subscription and payment data as an independent controller/merchant of record (Privacy Policy
-Sections 3-4), not Customer Personal Data appearing on the documents you issue.
+#### Clause 4: Hierarchy
 
-**GitHub, Inc. is not a sub-processor under this DPA either**: it hosts our public documentation
-website (docs.invoicerr.app) and our source code repository via GitHub Pages, Actions, and Container
-Registry — infrastructure that never receives, stores, or processes Customer Personal Data. See
-Privacy Policy, Section 10.
+In the event of a contradiction between these Clauses and the provisions of related agreements between
+the Parties existing at the time when these Clauses are agreed or entered into thereafter, these Clauses
+shall prevail.
 
-**The AI assistant you connect through our Model Context Protocol endpoint is not a sub-processor
-under this DPA**: the Service exposes an MCP endpoint (`POST /api/mcp`) so you can create an API key
-and connect an AI assistant of your own choosing to it; within the scopes you grant that key, the
-assistant can read and manage your clients and documents, and run document actions, on your behalf.
-We neither call nor choose the AI model behind your assistant — its provider is selected by you, has
-no contract with us, and is therefore not a sub-processor under this DPA, for the same reason Polar is
-not one above. You are responsible for the lawfulness of any Customer Personal Data your assistant
-sends to that provider, including any transfer outside the EEA, and for the instructions the assistant
-acts on. One of the MCP tools, `get_document_pdf_link`, creates a public, unauthenticated link to a
-document's PDF, valid for 30 days and revocable from the Service; once such a link is surfaced into a
-conversation with your assistant, anyone who holds it can reach that document for as long as the link
-remains valid.
+*Clause 5 (optional docking clause) is not used.*
 
-Each sub-processor above is bound, by contract, to data-protection obligations materially equivalent
-to those in this DPA — in particular the confidentiality duty of Section 6 and the security measures
-of Section 9 (**GDPR Art. 28(4)**). We remain fully liable to you for that sub-processor's performance
-of those obligations.
+### SECTION II: OBLIGATIONS OF THE PARTIES
 
-We will give you at least **thirty (30) days' notice by email** before adding a new sub-processor to
-the list above. You may object on reasonable data-protection grounds by writing to
-**contact@invoicerr.app** within that window; if we cannot address your objection, either party may
-treat that as grounds to end the subscription under the Terms of Service, Section 12.
+#### Clause 6: Description of processing(s)
 
-## 8. Assistance with Data Subject Requests
+The details of the processing operations, in particular the categories of personal data and the purposes
+of processing for which the personal data is processed on behalf of the controller, are specified in
+Annex II.
 
-If a Data Subject contacts us directly about Customer Personal Data, we will inform you without undue
-delay and will not respond to the Data Subject ourselves, unless you instruct us to. Where a feature
-of the Service lets you fulfil a request yourself (for example, editing or deleting a client's record),
-you should use it directly; we will otherwise provide reasonable assistance.
+#### Clause 7: Obligations of the Parties
 
-## 9. Security Measures (GDPR Art. 32)
+##### 7.1. Instructions
 
-- Encryption at rest (AES-256-GCM) for credentials and tokens used to connect to third-party channels
-  and platforms.
-- Encryption in transit (TLS) for all traffic to and from the Service.
-- Role-based access control within your Company (owner/admin/member roles) and, within our own
-  organization, access limited to what is needed to operate and support the Service.
-- **Backup encryption.** Backups of the documents and files the Service stores are encrypted
-  (AES-256-GCM) inside our own infrastructure before they are written to backup storage, under a key
-  that only we hold and that the storage provider never receives — a missing key fails the backup run
-  rather than writing anything unencrypted, and a leaked storage access key on its own yields
-  ciphertext, not documents. This does not, by itself, establish the notification exemption **GDPR
-  Article 34(3)(a)** allows for personal data rendered unintelligible by such measures; whether that
-  exemption applies is a case-by-case assessment, not a claim made here.
+(a) The processor shall process personal data only on documented instructions from the controller,
+unless required to do so by Union or Member State law to which the processor is subject. In this case,
+the processor shall inform the controller of that legal requirement before processing, unless the law
+prohibits this on important grounds of public interest. Subsequent instructions may also be given by the
+controller throughout the duration of the processing of personal data. These instructions shall always
+be documented.
 
-## 10. Deletion or Return of Data at the End of the Provision of Services
+(b) The processor shall immediately inform the controller if, in the processor’s opinion, instructions
+given by the controller infringe Regulation (EU) 2016/679 / Regulation (EU) 2018/1725 or the applicable
+Union or Member State data protection provisions.
 
-At the end of your Company's subscription, the Terms of Service, Section 13 govern what happens to
-your data, and this DPA adopts the same mechanism as the "return" half of Article 28(3)(g):
+##### 7.2. Purpose limitation
 
-- **Return**: the zip archive described in Terms of Service Section 13.2 — containing, for every
-  document your Company holds, its stored data and, where renderable, a copy of it — is generated
-  automatically and emailed to your Company's Owner. This is the return of Customer Personal Data
-  Article 28(3)(g) requires; you may also generate a full export yourself, self-service, at any time
-  before that point (Terms of Service Section 8.2).
-- **Deletion**: follows the same schedule as the Privacy Policy, Section 6 — no earlier than
-  **thirty (30) days** after the archive for a Company that never had a paid subscription (Regulation
-  (EU) 2023/2854, Article 25(2)(g)'s minimum retrieval window), no earlier than **180 days** after the
-  archive for one that did.
-- **Statutory retention**: one category of Customer Personal Data outlives that deletion. Every
-  document you send through the Service is archived, and each archive records how long the law of your
-  Company's own country requires that document to be kept and which text imposes the period. We do not
-  erase an archived document while its period is still running — not on your instruction, and not when
-  your Company is deleted, which you may do at any time and which we never block. Article 28(3)(g)
-  itself preserves this case: a processor deletes existing copies "unless Union or Member State law
-  requires storage of the personal data", and **GDPR Article 17(3)(b)** disapplies the erasure right to
-  the same extent, for processing "necessary … for compliance with a legal obligation which requires
-  processing by Union or Member State law to which the controller is subject". The file stays on our
-  storage, with the expiry date and the citation recorded against it, and is erased once that date has
-  passed. The Privacy Policy, Section 6 lists the four countries concerned today — Germany, France,
-  Poland and Portugal — with the period and the statute for each, and states that a Company established
-  anywhere else has nothing held back.
+The processor shall process the personal data only for the specific purpose(s) of the processing, as set
+out in Annex II, unless it receives further instructions from the controller.
 
-## 11. Audits
+##### 7.3. Duration of the processing of personal data
 
-We will make available to you the information reasonably necessary to demonstrate compliance with
-this DPA, and will allow for, and contribute to, audits — including inspections — conducted by you or
-an auditor you mandate, on reasonable prior written notice, subject to confidentiality and to a
-frequency of no more than once per twelve-month period absent a specific, documented cause (such as an
-actual or suspected Personal Data Breach concerning Customer Personal Data).
+Processing by the processor shall only take place for the duration specified in Annex II.
 
-## 12. Personal Data Breach Notification
+##### 7.4. Security of processing
 
-We will notify you **without undue delay** after becoming aware of a Personal Data Breach affecting
-Customer Personal Data, with the information reasonably available to us at the time, sufficient to let
-you meet your own 72-hour notification obligation to your supervisory authority under **GDPR Art.
-33**, and your obligation to inform affected Data Subjects under **Art. 34** where it applies.
+(a) The processor shall at least implement the technical and organisational measures specified in Annex
+III to ensure the security of the personal data. This includes protecting the data against a breach of
+security leading to accidental or unlawful destruction, loss, alteration, unauthorised disclosure or
+access to the data (personal data breach). In assessing the appropriate level of security, the Parties
+shall take due account of the state of the art, the costs of implementation, the nature, scope, context
+and purposes of processing and the risks involved for the data subjects.
 
-## 13. International Transfers
+(b) The processor shall grant access to the personal data undergoing processing to members of its
+personnel only to the extent strictly necessary for implementing, managing and monitoring of the
+contract. The processor shall ensure that persons authorised to process the personal data received have
+committed themselves to confidentiality or are under an appropriate statutory obligation of
+confidentiality.
 
-Same statement as the Privacy Policy, Section 5: where a sub-processor listed in Section 7 processes
-Customer Personal Data outside the EEA, the transfer relies on that provider's own appropriate
-safeguards under GDPR Chapter V.
+##### 7.5. Sensitive data
 
-## 14. Term, Liability, and Governing Law
+If the processing involves personal data revealing racial or ethnic origin, political opinions,
+religious or philosophical beliefs, or trade union membership, genetic data or biometric data for the
+purpose of uniquely identifying a natural person, data concerning health or a person’s sex life or
+sexual orientation, or data relating to criminal convictions and offences (“sensitive data”), the
+processor shall apply specific restrictions and/or additional safeguards.
 
-This DPA runs for as long as the Terms of Service do, and terminates automatically with them. The
-liability cap and governing law/jurisdiction of the Terms of Service, Sections 17 and 20.2, apply to
-this DPA as well.
+##### 7.6. Documentation and compliance
 
-## 15. Governing Language
+(a) The Parties shall be able to demonstrate compliance with these Clauses.
+
+(b) The processor shall deal promptly and adequately with inquiries from the controller about the
+processing of data in accordance with these Clauses.
+
+(c) The processor shall make available to the controller all information necessary to demonstrate
+compliance with the obligations that are set out in these Clauses and stem directly from Regulation (EU)
+2016/679 and/or Regulation (EU) 2018/1725. At the controller’s request, the processor shall also permit
+and contribute to audits of the processing activities covered by these Clauses, at reasonable intervals
+or if there are indications of non-compliance. In deciding on a review or an audit, the controller may
+take into account relevant certifications held by the processor.
+
+(d) The controller may choose to conduct the audit by itself or mandate an independent auditor. Audits
+may also include inspections at the premises or physical facilities of the processor and shall, where
+appropriate, be carried out with reasonable notice.
+
+(e) The Parties shall make the information referred to in this Clause, including the results of any
+audits, available to the competent supervisory authority/ies on request.
+
+##### 7.7. Use of sub-processors
+
+(a) OPTION 2: GENERAL WRITTEN AUTHORISATION: The processor has the controller’s general authorisation
+for the engagement of sub-processors from an agreed list. The processor shall specifically inform in
+writing the controller of any intended changes of that list through the addition or replacement of
+sub-processors at least 30 days in advance, thereby giving the controller sufficient time to be able to
+object to such changes prior to the engagement of the concerned sub-processor(s). The processor shall
+provide the controller with the information necessary to enable the controller to exercise the right to
+object.
+
+(b) Where the processor engages a sub-processor for carrying out specific processing activities (on
+behalf of the controller), it shall do so by way of a contract which imposes on the sub-processor, in
+substance, the same data protection obligations as the ones imposed on the data processor in accordance
+with these Clauses. The processor shall ensure that the sub-processor complies with the obligations to
+which the processor is subject pursuant to these Clauses and to Regulation (EU) 2016/679 and/or
+Regulation (EU) 2018/1725.
+
+(c) At the controller’s request, the processor shall provide a copy of such a sub-processor agreement
+and any subsequent amendments to the controller. To the extent necessary to protect business secret or
+other confidential information, including personal data, the processor may redact the text of the
+agreement prior to sharing the copy.
+
+(d) The processor shall remain fully responsible to the controller for the performance of the
+sub-processor’s obligations in accordance with its contract with the processor. The processor shall
+notify the controller of any failure by the sub-processor to fulfil its contractual obligations.
+
+(e) The processor shall agree a third party beneficiary clause with the sub-processor whereby - in the
+event the processor has factually disappeared, ceased to exist in law or has become insolvent - the
+controller shall have the right to terminate the sub-processor contract and to instruct the
+sub-processor to erase or return the personal data.
+
+##### 7.8. International transfers
+
+(a) Any transfer of data to a third country or an international organisation by the processor shall be
+done only on the basis of documented instructions from the controller or in order to fulfil a specific
+requirement under Union or Member State law to which the processor is subject and shall take place in
+compliance with Chapter V of Regulation (EU) 2016/679 or Regulation (EU) 2018/1725.
+
+(b) The controller agrees that where the processor engages a sub-processor in accordance with Clause
+7.7. for carrying out specific processing activities (on behalf of the controller) and those processing
+activities involve a transfer of personal data within the meaning of Chapter V of Regulation (EU)
+2016/679, the processor and the sub-processor can ensure compliance with Chapter V of Regulation (EU)
+2016/679 by using standard contractual clauses adopted by the Commission in accordance with of Article
+46(2) of Regulation (EU) 2016/679, provided the conditions for the use of those standard contractual
+clauses are met.
+
+#### Clause 8: Assistance to the controller
+
+(a) The processor shall promptly notify the controller of any request it has received from the data
+subject. It shall not respond to the request itself, unless authorised to do so by the controller.
+
+(b) The processor shall assist the controller in fulfilling its obligations to respond to data subjects’
+requests to exercise their rights, taking into account the nature of the processing. In fulfilling its
+obligations in accordance with (a) and (b), the processor shall comply with the controller’s
+instructions
+
+(c) In addition to the processor’s obligation to assist the controller pursuant to Clause 8(b), the
+processor shall furthermore assist the controller in ensuring compliance with the following obligations,
+taking into account the nature of the data processing and the information available to the processor:
+
+(1) the obligation to carry out an assessment of the impact of the envisaged processing operations on
+the protection of personal data (a ‘data protection impact assessment’) where a type of processing is
+likely to result in a high risk to the rights and freedoms of natural persons;
+
+(2) the obligation to consult the competent supervisory authority/ies prior to processing where a data
+protection impact assessment indicates that the processing would result in a high risk in the absence of
+measures taken by the controller to mitigate the risk;
+
+(3) the obligation to ensure that personal data is accurate and up to date, by informing the controller
+without delay if the processor becomes aware that the personal data it is processing is inaccurate or
+has become outdated;
+
+(4) the obligations in Article 32 of Regulation (EU) 2016/679.
+
+(d) The Parties shall set out in Annex III the appropriate technical and organisational measures by
+which the processor is required to assist the controller in the application of this Clause as well as
+the scope and the extent of the assistance required.
+
+#### Clause 9: Notification of personal data breach
+
+In the event of a personal data breach, the processor shall cooperate with and assist the controller for
+the controller to comply with its obligations under Articles 33 and 34 of Regulation (EU) 2016/679 or
+under Articles 34 and 35 of Regulation (EU) 2018/1725, where applicable, taking into account the nature
+of processing and the information available to the processor.
+
+##### 9.1 Data breach concerning data processed by the controller
+
+In the event of a personal data breach concerning data processed by the controller, the processor shall
+assist the controller:
+
+(a) in notifying the personal data breach to the competent supervisory authority/ies, without undue
+delay after the controller has become aware of it, where relevant/(unless the personal data breach is
+unlikely to result in a risk to the rights and freedoms of natural persons);
+
+(b) in obtaining the following information which, pursuant to Article 33(3) of Regulation (EU) 2016/679,
+shall be stated in the controller’s notification, and must at least include:
+
+(1) the nature of the personal data including where possible, the categories and approximate number of
+data subjects concerned and the categories and approximate number of personal data records concerned;
+
+(2) the likely consequences of the personal data breach;
+
+(3) the measures taken or proposed to be taken by the controller to address the personal data breach,
+including, where appropriate, measures to mitigate its possible adverse effects.
+
+Where, and insofar as, it is not possible to provide all this information at the same time, the initial
+notification shall contain the information then available and further information shall, as it becomes
+available, subsequently be provided without undue delay.
+
+(c) in complying, pursuant to Article 34 of Regulation (EU) 2016/679, with the obligation to communicate
+without undue delay the personal data breach to the data subject, when the personal data breach is
+likely to result in a high risk to the rights and freedoms of natural persons.
+
+##### 9.2 Data breach concerning data processed by the processor
+
+In the event of a personal data breach concerning data processed by the processor, the processor shall
+notify the controller without undue delay after the processor having become aware of the breach. Such
+notification shall contain, at least:
+
+(a) a description of the nature of the breach (including, where possible, the categories and approximate
+number of data subjects and data records concerned);
+
+(b) the details of a contact point where more information concerning the personal data breach can be
+obtained;
+
+(c) its likely consequences and the measures taken or proposed to be taken to address the breach,
+including to mitigate its possible adverse effects.
+
+Where, and insofar as, it is not possible to provide all this information at the same time, the initial
+notification shall contain the information then available and further information shall, as it becomes
+available, subsequently be provided without undue delay.
+
+The Parties shall set out in Annex III all other elements to be provided by the processor when assisting
+the controller in the compliance with the controller’s obligations under Articles 33 and 34 of
+Regulation (EU) 2016/679.
+
+### SECTION III: FINAL PROVISIONS
+
+#### Clause 10: Non-compliance with the Clauses and termination
+
+(a) Without prejudice to any provisions of Regulation (EU) 2016/679 and/or Regulation (EU) 2018/1725, in
+the event that the processor is in breach of its obligations under these Clauses, the controller may
+instruct the processor to suspend the processing of personal data until the latter complies with these
+Clauses or the contract is terminated. The processor shall promptly inform the controller in case it is
+unable to comply with these Clauses, for whatever reason.
+
+(b) The controller shall be entitled to terminate the contract insofar as it concerns processing of
+personal data in accordance with these Clauses if:
+
+(1) the processing of personal data by the processor has been suspended by the controller pursuant to
+point (a) and if compliance with these Clauses is not restored within a reasonable time and in any event
+within one month following suspension;
+
+(2) the processor is in substantial or persistent breach of these Clauses or its obligations under
+Regulation (EU) 2016/679 and/or Regulation (EU) 2018/1725;
+
+(3) the processor fails to comply with a binding decision of a competent court or the competent
+supervisory authority/ies regarding its obligations pursuant to these Clauses or to Regulation (EU)
+2016/679 and/or Regulation (EU) 2018/1725.
+
+(c) The processor shall be entitled to terminate the contract insofar as it concerns processing of
+personal data under these Clauses where, after having informed the controller that its instructions
+infringe applicable legal requirements in accordance with Clause 7.1 (b), the controller insists on
+compliance with the instructions.
+
+(d) Following termination of the contract, the processor shall, at the choice of the controller, delete
+all personal data processed on behalf of the controller and certify to the controller that it has done
+so, or, return all the personal data to the controller and delete existing copies unless Union or Member
+State law requires storage of the personal data. Until the data is deleted or returned, the processor
+shall continue to ensure compliance with these Clauses.
+
+## ANNEX I: List of parties
+
+**Controller(s)**
+
+- **Name**: The Customer: the business that holds a Company on the hosted Service (Terms of Service,
+  Section 2), under the name entered in that Company's settings.
+- **Address**: The address entered in that Company's settings.
+- **Contact person’s name, position and contact details**: The Company's Owner (Terms of Service,
+  Section 2), at the email address of the Owner's user account; and, where the Customer has appointed
+  one, its data protection officer, as notified by the Customer to contact@invoicerr.app.
+- **Signature and accession date**: Accepted electronically by the Customer when it accepts the Terms of
+  Service, which incorporate this DPA (Terms of Service, Section 2). The accession date is the date
+  recorded for that acceptance.
+
+**Processor(s)**
+
+- **Name**: Roméo Chevrier, sole trader (entrepreneur individuel), SIREN 982 187 676 (SIRET 982 187 676
+  00019), operator of the hosted Invoicerr Service.
+- **Address**: 4 rue du Puits, 26120 Montélier, France.
+- **Contact person’s name, position and contact details**: Roméo Chevrier, operator of the Service,
+  contact@invoicerr.app. No data protection officer has been appointed (Privacy Policy, Section 1).
+- **Signature and accession date**: Accepted by the Processor by making the Service available under the
+  Terms of Service, on the same date as the Customer.
+
+## ANNEX II: Description of the processing
+
+**Categories of data subjects whose personal data is processed**
+
+The Customer's own customers, suppliers and contacts named on the documents and records the Customer
+creates in, or receives through, the Service.
+
+**Categories of personal data processed**
+
+Names, postal and email addresses, phone numbers, and any other personal data the Customer chooses to
+enter into a document's fields (for example, a contact person's name on an invoice).
+
+**Sensitive data processed (if applicable) and applied restrictions or safeguards that fully take into
+consideration the nature of the data and the risks involved, such as for instance strict purpose
+limitation, access restrictions (including access only for staff having followed specialised training),
+keeping a record of access to the data, restrictions for onward transfers or additional security
+measures.**
+
+None. The Service neither requires nor expects sensitive data, and the Customer should not enter any
+into it.
+
+**Nature of the processing**
+
+Hosting, storing and rendering (as PDF and, for an invoice, as EN 16931 XML) the documents and records
+the Customer creates in the Service; reading the documents the Customer uploads (optical character
+recognition, run on infrastructure the Processor operates); transmitting a document, when the Customer
+chooses to send it, through the email or e-invoicing channel or the government platform the Customer
+selects; archiving each sent document; exporting the Customer's data; deleting it.
+
+**Purpose(s) for which the personal data is processed on behalf of the controller**
+
+Providing the hosted Service to the Customer: creating, issuing, transmitting and archiving the
+Customer's business documents, exactly as configured by the Customer. The Customer's documented
+instructions (Clause 7.1) are this DPA, the Terms of Service, and the Customer's own configuration and
+use of the Service (which Company, which channels, which documents it sends).
+
+**Duration of the processing**
+
+For as long as the Customer's Company exists on the Service, then until its deletion under the Terms of
+Service, Section 13: no earlier than thirty (30) days after the end-of-subscription archive is sent for
+a Company that never had a paid subscription, and no earlier than one hundred eighty (180) days after it
+for a Company that did.
+
+Return of the personal data at the end of the provision of services (Clause 10(d)): that archive,
+emailed to the Company's Owner (Terms of Service, Section 13.2), and the self-service export available
+at any time before (Terms of Service, Section 8.2).
+
+Statutory retention (Clause 10(d): "unless Union or Member State law requires storage of the personal
+data"): an archived document whose statutory retention period is still running is kept until that
+period, recorded against the document together with the text that imposes it, has expired, and is then
+erased. The Privacy Policy, Section 6, lists the countries, periods and texts concerned.
+
+**For processing by (sub-) processors, also specify subject matter, nature and duration of the
+processing**
+
+See Annex IV.
+
+## ANNEX III: Technical and organisational measures including technical and organisational measures to ensure the security of the data
+
+**Measures of pseudonymisation and encryption of personal data**
+
+Credentials and tokens the Service stores to connect a Company to a third-party channel or platform are
+encrypted at rest with AES-256-GCM. Backups of the documents and files the Service stores are encrypted
+with AES-256-GCM inside the Processor's own infrastructure before they are written to backup storage,
+under a key that only the Processor holds and that the storage provider never receives; a missing key
+fails the backup run rather than writing anything unencrypted. This does not, by itself, establish the
+exemption from notification in Article 34(3)(a) of Regulation (EU) 2016/679; whether it applies is
+assessed case by case.
+
+**Measures for ensuring ongoing confidentiality, integrity, availability and resilience of processing
+systems and services**
+
+Within the Processor's organisation, access to Customer data and to production infrastructure is limited
+to what is needed to operate and support the Service, and the persons authorised to access it are bound
+by an obligation of confidentiality.
+
+**Measures for user identification and authorisation**
+
+Each person using the Service holds their own user account (Terms of Service, Section 4.3). Within a
+Company, access depends on the user's role (owner, admin or member). An API key, including one used by
+an AI assistant connected through the Service's Model Context Protocol endpoint, acts only within the
+scopes the Customer grants it.
+
+**Measures for the protection of data during transmission**
+
+All traffic to and from the Service is encrypted with TLS, terminated at the ingress with a certificate
+issued and renewed automatically.
+
+**Measures for the protection of data during storage**
+
+The production environment, including its managed PostgreSQL database and the object storage that holds
+archived documents, is hosted by Scaleway SAS in its Paris (France) region; the database is reached over
+Scaleway's private network, not the public internet. The acceptance environment, used to validate a
+release and, during the beta programme, by that programme's participants, runs on infrastructure the
+Processor operates himself, in France. Neither environment is hosted, mirrored or backed up outside the
+European Union.
+
+**Measures for ensuring events logging**
+
+Application logs are kept for ninety (90) days, then deleted automatically.
+
+**Measures for ensuring data minimisation**
+
+Optical character recognition runs on infrastructure the Processor operates; no document is sent to a
+third-party OCR provider.
+
+**Measures for ensuring limited data retention**
+
+Personal data is deleted on the schedule set out in Annex II, Duration of the processing.
+
+**Measures for allowing data portability and ensuring erasure**
+
+At any time, self-service, the Customer can export a full copy of its data (the stored fields and a PDF
+of each renderable document), its accounting ledger as CSV, each invoice as EN 16931 XML (UBL or CII),
+and all of it through the REST API (Terms of Service, Sections 8.2 and 10). The Customer can delete its
+Company at any time.
+
+**Description of the specific technical and organisational measures to be taken by the processor to be
+able to provide assistance to the controller**
+
+Data subject requests (Clause 8): the Service lets the Customer correct, export or delete a client's
+record itself. A request the Processor receives directly is forwarded to the Customer, as Clause 8(a)
+provides. Any other assistance under Clause 8 is requested by writing to contact@invoicerr.app.
+
+Personal data breach (Clause 9.2(b)): the contact point is contact@invoicerr.app. No element beyond
+those listed in Clause 9.2 is added.
+
+## ANNEX IV: List of sub-processors
+
+The agreed list of sub-processors under Clause 7.7(a), Option 2 (general written authorisation). The
+Customer is informed of any intended addition or replacement by email, at least 30 days in advance.
+
+**1.**
+
+- **Name**: Scaleway SAS
+- **Address**: 8 rue de la Ville-l'Évêque, 75008 Paris, France
+- **Contact person’s name, position and contact details**: privacy@scaleway.com
+- **Description of the processing (including a clear delimitation of responsibilities in case several
+  sub-processors are authorised)**: Hosting of the production environment of the Service: the Kubernetes
+  cluster it runs on, the managed PostgreSQL database that stores the documents the Customer creates
+  (and the personal data they contain), and the object storage that holds archived documents. Paris
+  (France) region; the database is reached over Scaleway's private network, not the public internet.
+
+**2.**
+
+- **Name**: Resend (Plus Five Five, Inc.)
+- **Address**: 2261 Market Street #5039, San Francisco, CA 94114, USA
+- **Contact person’s name, position and contact details**: privacy@resend.com
+- **Description of the processing (including a clear delimitation of responsibilities in case several
+  sub-processors are authorised)**: Delivery of the transactional email that may carry a document, or a
+  link to one, on the Customer's instruction.
+
+**3.**
+
+- **Name**: Cloudflare, Inc.
+- **Address**: 101 Townsend Street, San Francisco, CA 94107, USA
+- **Contact person’s name, position and contact details**: Data Protection Officer, legal@cloudflare.com
+- **Description of the processing (including a clear delimitation of responsibilities in case several
+  sub-processors are authorised)**: Inbound email routing for correspondence sent to
+  contact@invoicerr.app. Support correspondence only; never the personal data contained in the documents
+  created through the Service.
+
+**4.**
+
+- **Name**: Google LLC (Gmail)
+- **Address**: 1600 Amphitheatre Parkway, Mountain View, California 94043, USA
+- **Contact person’s name, position and contact details**: As published by Google LLC in its own data
+  protection terms.
+- **Description of the processing (including a clear delimitation of responsibilities in case several
+  sub-processors are authorised)**: The mailbox where support correspondence sent to
+  contact@invoicerr.app is received. Support correspondence only; never the personal data contained in
+  the documents created through the Service.
+
+**5.**
+
+- **Name**: The national e-invoicing and government platforms the Customer chooses to connect: the
+  French PDP, Poland's KSeF, Italy's SdI (and, for its certified-email channel, the PEC mailbox provider
+  the Customer subscribes to), Portugal's AT, and France's Chorus Pro for B2G invoicing.
+- **Address**: That of each platform's operator.
+- **Contact person’s name, position and contact details**: That published by each platform's operator.
+- **Description of the processing (including a clear delimitation of responsibilities in case several
+  sub-processors are authorised)**: Transmission of the documents the Customer sends through that
+  platform, on the Customer's explicit instruction and under the credentials and mandates the Customer
+  provides.
+
+### Notes to Annex IV
+
+**Not sub-processors under this DPA.** Polar Software, Inc. sells the subscription to the Customer as
+merchant of record and processes the purchase data it collects as an independent controller (Privacy
+Policy, Sections 3 and 4), never the personal data contained in the Customer's documents. GitHub, Inc.
+hosts the public documentation website and the source code repository, which never receive Customer data
+(Privacy Policy, Section 10). The acceptance environment is operated by the Processor himself, on his
+own infrastructure, in France: no third party hosts it.
+
+**AI assistant chosen by the Customer.** The Service exposes a Model Context Protocol endpoint (`POST
+/api/mcp`) to which the Customer may connect an AI assistant of its own choosing, through an API key it
+creates. The provider behind that assistant is chosen by the Customer, has no contract with the
+Processor, and is not a sub-processor under this DPA; the Customer is responsible for the personal data
+its assistant sends to that provider, including any transfer outside the EEA. One of the endpoint's
+tools, `get_document_pdf_link`, creates a public, unauthenticated link to a document's PDF, valid for 30
+days and revocable from the Service.
+
+**International transfers (Clause 7.8).** Resend, Cloudflare and Google LLC may process data outside the
+European Economic Area, including in the United States. Such a transfer relies on that provider's own
+safeguards under Chapter V of Regulation (EU) 2016/679 (Privacy Policy, Section 5). Scaleway SAS
+processes the data in France.
+
+## Additional provisions
+
+These provisions are added under Clause 2(b). Under Clause 4, the Clauses prevail over them, and over
+the Terms of Service, wherever they contradict each other.
+
+**Term.** This DPA applies for as long as the Terms of Service do and ends with them; Clause 10(d)
+continues to apply until the personal data is deleted or returned.
+
+**Liability and governing law.** The limitation of liability and the governing law and jurisdiction of
+the Terms of Service, Sections 17 and 20.3, apply to this DPA, to the extent they do not contradict the
+Clauses.
+
+**Translations.** The Clauses exist in an official version in every official language of the European
+Union. Each translation of this DPA reproduces the official text of the Clauses in its language, from
+the same Implementing Decision.
+
+## Governing Language
 
 This document is drafted and executed in English. Where we provide a translation into another
 language for your convenience and understanding, that translation is not a substitute for the English
@@ -330,3 +679,10 @@ this document; they create no separate or additional rights.
   retention window described in Section 10, and now correctly covers this window too. This is a new
   fact, not a restatement: it is the first place this DPA discloses that Customer Personal Data can
   remain on our storage for years after the end of the provision of services.
+- **2026-10-13**: Replaced the custom text with the European Commission's standard contractual clauses between
+  controllers and processors (Commission Implementing Decision (EU) 2021/915, Annex; CELEX 32021D0915),
+  reproduced word for word from the Official Journal, with Option 1 (Regulation (EU) 2016/679) selected,
+  the docking clause not used, sub-processors under a general written authorisation with 30 days'
+  notice, and Annexes I to IV completed from the facts this document and the Privacy Policy already
+  stated. The former audit frequency limit (once per twelve months) is gone: Clause 7.6 now governs
+  audits. The governing-law cross-reference now points to Terms of Service, Section 20.3.

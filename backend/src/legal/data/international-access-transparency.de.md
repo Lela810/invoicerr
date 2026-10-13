@@ -40,7 +40,7 @@ französischem und EU-Recht, wie jeder Betreiber des Dienstes. Weder eine der be
 Daten auf einer von ihnen werden außerhalb Frankreichs/der EU gehostet, gespiegelt oder gesichert.
 Soweit ein in der
 [Datenschutzerklärung](./privacy-policy.md), Abschnitt 4, und im
-[Auftragsverarbeitungsvertrag (AVV)](./data-processing-agreement.md), Abschnitt 7, genannter
+[Auftragsverarbeitungsvertrag (AVV)](./data-processing-agreement.md), Anhang IV, genannter
 Unterauftragsverarbeiter (Polar für die Abonnementabrechnung, Resend für transaktionale E-Mails,
 Cloudflare und Google LLC für eingehende Support-Korrespondenz) ein Unternehmen außerhalb der EU ist
 oder Daten außerhalb des EWR verarbeiten kann, beschränkt sich diese Verarbeitung auf
@@ -84,11 +84,11 @@ den von Artikel 28 erfassten Anwendungsbereich fielen.
   eigenen Rollen dieses Unternehmens beschränkt (Owner/Admin/Mitglied); der Zugriff auf
   Produktionsinfrastruktur und -daten innerhalb unserer eigenen Organisation ist auf das beschränkt, was
   zum Betrieb und zur Unterstützung des Dienstes erforderlich ist, wie in der Datenschutzerklärung,
-  Abschnitt 7, und im Auftragsverarbeitungsvertrag (AVV), Abschnitt 9, beschrieben.
+  Abschnitt 7, und im Auftragsverarbeitungsvertrag (AVV), Anhang III, beschrieben.
 - **Vertragliche Garantien mit Unterauftragsverarbeitern.** Jeder Unterauftragsverarbeiter ist
   vertraglich zu Datenschutzpflichten verpflichtet, die den im Auftragsverarbeitungsvertrag (AVV)
   enthaltenen Pflichten inhaltlich gleichwertig sind (Art. 28 Abs. 4 DSGVO) — siehe
-  Auftragsverarbeitungsvertrag (AVV), Abschnitt 7 — und, soweit ein Unterauftragsverarbeiter Daten
+  Auftragsverarbeitungsvertrag (AVV), Klausel 7.7 und Anhang IV — und, soweit ein Unterauftragsverarbeiter Daten
   außerhalb des EWR verarbeiten darf, den Standardvertragsklauseln der Europäischen Kommission oder
   einer anderen Garantie nach Kapitel V der DSGVO entsprechen.
 - **Kein dauerhafter oder automatisierter Zugriff für eine ausländische Behörde.** Wir gewähren keiner

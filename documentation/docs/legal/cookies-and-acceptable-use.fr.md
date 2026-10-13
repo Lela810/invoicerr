@@ -74,7 +74,7 @@ se produise.
 ### 4. Utilisation Autorisée
 
 Vous pouvez utiliser le Service pour créer, gérer et transmettre vos propres documents commerciaux, dans
-les limites de votre abonnement, comme décrit dans les Conditions Générales de Vente.
+les limites de votre abonnement, comme décrit dans les Conditions Générales d'Utilisation.
 
 ### 5. Utilisations Interdites
 
@@ -85,7 +85,7 @@ Vous ne devez pas utiliser le Service pour :
   perturber, y compris par des tests d'intrusion non autorisés ou des activités de déni de service ;
 - contourner ou perturber les contrôles d'accès ou les limites de débit propres au Service hébergé,
   au-delà des droits que la licence open source du logiciel vous accorde déjà sur le code source
-  lui-même (Conditions Générales de Vente, Section 11.1) ;
+  lui-même (Conditions Générales d'Utilisation, Section 11.1) ;
 - envoyer des messages non sollicités en masse (spam) au moyen des fonctionnalités d'e-mail sortant ou
   de transmission du Service ;
 - revendre ou concéder en sous-licence l'accès au Service hébergé à un tiers sans notre consentement
@@ -97,13 +97,13 @@ Vous ne devez pas utiliser le Service pour :
 
 Toute violation de la présente Partie B peut entraîner la suspension ou la résiliation de votre accès,
 sans préjudice des dispositions relatives à la suspension et à la résiliation prévues à la Section 13
-des Conditions Générales de Vente.
+des Conditions Générales d'Utilisation.
 
 ### 7. Disponibilité
 
 Les chiffres de disponibilité que nous pouvons publier sont **fournis à titre indicatif uniquement** et
 ne constituent pas un niveau de service contractuel — la même base de moyens raisonnables (best effort)
-que celle déjà décrite à la Section 16.1 des Conditions Générales de Vente.
+que celle déjà décrite à la Section 16.1 des Conditions Générales d'Utilisation.
 
 ## Partie C — Sites Web Publics
 
