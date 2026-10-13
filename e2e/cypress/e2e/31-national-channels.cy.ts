@@ -124,6 +124,23 @@ function setCompanyCountry(
  * "22" — `pl.json`/`it.json`'s own `pl-standard`/`it-standard`), since neither would validate against
  * the OTHER country's list.
  */
+/** Sends a draft from the list and waits for the queue to give up, naming the channel in the row's error. */
+function sendFromListUntilFailed(invoiceId: string, channel: string) {
+	cy.visit("/documents/invoice");
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
+		.find('[data-cy="document-status-badge"]')
+		.should("contain.text", "Draft");
+
+	cy.runDocumentRowAction(invoiceId, "send");
+
+	// Three queue attempts with exponential backoff, each a real connect: 90s, measured on CI, not a guess.
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
+		.find('[data-cy="document-status-badge"]', { timeout: 90000 })
+		.should("contain.text", "Send failed");
+
+	cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should("contain.text", channel);
+}
+
 function createInvoiceDraft(vatRate = "20") {
 	return cy
 		.request({ url: `${api}/api/documents/references/client/search` })
@@ -276,37 +293,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via PDP → the queue really fails (fake server) and "send_failed" names the channel', () => {
 		createInvoiceDraft().then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			// A real click — the invoice has no "send" param (the transport reads the client, not a
-			// typed field — see invoice-actions.ts), so there is no params dialog to go through.
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// A large, documented budget, same reasoning as 28-document-async-send.cy.ts:
-			// DOCUMENT_ACTION_QUEUE_ATTEMPTS=3 by default, exponential backoff base 2000ms — up to
-			// ~6s of queueing before the final failure. `timeout` on the `.find()` itself, not just
-			// the preceding `cy.get()` (a Cypress pitfall documented in this same file 28).
-			//
-			// UNLIKE 28's own scenario (a structural refusal — no contact email — that fails every
-			// attempt near-instantly), this one is a REAL connect attempt to the fake PDP baseUrl
-			// (a closed local port). That was assumed near-instant too (ECONNREFUSED) when 40000ms
-			// was chosen; measured on CI 2026-09-14 it is not — each of the 3 attempts took ~10-13s
-			// there (fetch/undici's own connect timeout firing before an immediate refusal), pushing
-			// the total past 40s and failing this exact assertion in that run (32-channel-mandate.cy.ts
-			// runs the identical scenario). 90000ms leaves real margin; the assertion itself — a real
-			// "Send failed", never a silent success — is unchanged.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			// The VISIBLE error names the channel — never a generic message.
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"PDP",
-			);
+			sendFromListUntilFailed(invoiceId, "PDP");
 
 			// The assertion that matters reads the API, never the screen as proof of what is in the database.
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
@@ -472,22 +459,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 	it('sends an invoice via KSeF → the queue really fails (fake token rejected by the local fake KSeF API) and "send_failed" names the channel', () => {
 		cy.task("startFakeKsefServer");
 		createInvoiceDraft("23").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above: the fake answers at once, the queue's retry backoff does not.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"KSeF",
-			);
+			sendFromListUntilFailed(invoiceId, "KSeF");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -653,25 +625,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via SdI → the queue really fails (fake server, closed port) and "send_failed" names the channel', () => {
 		createInvoiceDraft("22").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above — see its comment: a closed-port connect (SdI's fake
-			// server here, same as PDP's) was assumed near-instant when 40000ms was chosen; measured
-			// ~10-13s per attempt on CI instead. 40-b2g-routing.cy.ts's own SdI test passed at
-			// 37983ms out of the old 40000ms on 2026-09-14 — under 5% of margin, not a real one.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"SdI",
-			);
+			sendFromListUntilFailed(invoiceId, "SdI");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -864,7 +818,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 			cy.runDocumentRowAction(invoiceId, "send");
 
-			// Same budget as the PDP/KSeF/SdI tests above — see their comment for why it is
+			// Same budget as `sendFromListUntilFailed` above, for the same reason: it is
 			// 90000ms, not 40000ms. The real PISTE rejection is in practice near-instant (probed by
 			// hand: well under a second) — that part holds — but 40-b2g-routing.cy.ts's own
 			// chorus-pro test measured ~11-12s of preamble before each of the 3 attempts even reaches
