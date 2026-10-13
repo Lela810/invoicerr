@@ -36,11 +36,8 @@ export class LoggerService {
 
   constructor() {}
 
-  /**
-   * Returns nothing to await: the row is written in the background, and losing a log line must
-   * never cost the request that produced it.
-   */
-  private createLog(level: LogLevel, message: string, options: LogOptions): void {
+  /** Resolves once the row is written or its failure reported; never rejects. */
+  private createLog(level: LogLevel, message: string, options: LogOptions): Promise<void> {
     const contextCompanyId = getContextCompanyId();
     // `undefined` (the ordinary case — see `LogOptions.companyId`'s own header) defers entirely to
     // the ambient request/job context; an explicit value (including `null`) always wins, since the
@@ -67,8 +64,7 @@ export class LoggerService {
       );
     }
 
-    // persist() catches every failure itself, so this promise cannot reject.
-    void this.persist(level, message, options, companyId);
+    return this.persist(level, message, options, companyId);
   }
 
   private async persist(
@@ -105,7 +101,7 @@ export class LoggerService {
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
   ): void {
     this.inLogger.log(`[${options.category}] ${message}`);
-    this.createLog('INFO', message, options);
+    void this.createLog('INFO', message, options);
   }
 
   public warn(
@@ -113,7 +109,7 @@ export class LoggerService {
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
   ): void {
     this.inLogger.warn(`[${options.category}] ${message}`);
-    this.createLog('WARN', message, options);
+    void this.createLog('WARN', message, options);
   }
 
   public error(
@@ -125,7 +121,16 @@ export class LoggerService {
     if (errorDetails.stack === undefined) {
       errorDetails.stack = new Error().stack;
     }
-    this.createLog('ERROR', message, { ...options, details: errorDetails });
+    void this.createLog('ERROR', message, { ...options, details: errorDetails });
+  }
+
+  /** For audit rows the caller must not get ahead of: same INFO row, but awaited. */
+  public audit(
+    message: string,
+    options: Omit<LogOptions, 'details'> & { details?: Record<string, unknown> },
+  ): Promise<void> {
+    this.inLogger.log(`[${options.category}] ${message}`);
+    return this.createLog('INFO', message, options);
   }
 
   public debug(
@@ -135,7 +140,7 @@ export class LoggerService {
     if (process.env.NODE_ENV !== 'production' || process.env.FORCE_DEBUG_LOGS === 'true') {
       this.inLogger.debug(`[${options.category}] ${message}`);
     }
-    this.createLog('DEBUG', message, options);
+    void this.createLog('DEBUG', message, options);
   }
 
   public async fetchLogs(

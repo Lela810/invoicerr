@@ -24,7 +24,7 @@ describe('LoggerService — companyId resolution', () => {
     createLog.mockResolvedValue({ id: 'log-1' });
   });
 
-  it('outside any context, an omitted companyId resolves to null — the instance-level case', () => {
+  it('outside any context, an omitted companyId resolves to null, the instance-level case', () => {
     logger.info('boot check', { category: 'documents' });
     expect(createLog).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ companyId: null }) }),
@@ -78,7 +78,7 @@ describe('LoggerService — companyId resolution', () => {
     ).not.toThrow();
   });
 
-  it('the guard is inert outside NODE_ENV=test — production traffic is never taken down by it', () => {
+  it('the guard is inert outside NODE_ENV=test: production traffic is never taken down by it', () => {
     const original = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
     try {
@@ -111,5 +111,23 @@ describe('LoggerService — companyId resolution', () => {
     } finally {
       process.off('unhandledRejection', unhandled);
     }
+  });
+
+  it('audit() resolves only once its row is written', async () => {
+    let written!: () => void;
+    createLog.mockReturnValueOnce(new Promise((resolve) => (written = () => resolve({ id: 'log-1' }))));
+    let settled = false;
+    const pending = logger.audit('quote accepted', { category: 'documents' }).then(() => {
+      settled = true;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(settled).toBe(false);
+    written();
+    await pending;
+    expect(createLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ level: 'INFO', message: 'quote accepted' }),
+      }),
+    );
   });
 });

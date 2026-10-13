@@ -44,7 +44,7 @@ import { ActionRegistry } from './action-registry';
  *     same race-safety `documents/persistence.ts#updateDocumentStatus`'s own header documents for
  *     every other conditional write in this module; a concurrent second call (a double click, a
  *     second tab) loses with a named 409 rather than silently re-recording the same fact twice.
- *  2. An `Log` row (`logger.info`, category "documents") - the AUDIT TRAIL: who, when, what note,
+ *  2. An `Log` row (`logger.audit`, category "documents") - the AUDIT TRAIL: who, when, what note,
  *     found the same way `grep audit` finds every other audit-adjacent write in this codebase.
  *  3. A `DocumentArchive` row of `kind: ACCEPTANCE` (`archive/persistence.ts#
  *     createManualAcceptanceArchive`) - the LEGAL record: this file's own header states at length why
@@ -166,7 +166,7 @@ export function registerAcceptManuallyAction(registry: ActionRegistry): void {
     };
 
     // The AUDIT TRAIL - see this file's own header, point 2.
-    logger.info('Quote marked as accepted manually (not an electronic signature)', {
+    await logger.audit('Quote marked as accepted manually (not an electronic signature)', {
       category: 'documents',
       userId: ctx.actor.id,
       details: {
