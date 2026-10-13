@@ -26,13 +26,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # configure-pages reads the Pages site configuration through the API.
+    permissions:
+      contents: read
+      pages: read
     # Only `openapi-dump` (below) needs these — see that step's own comment for why generating the
     # spec is a real backend boot (Postgres + Redis both required), not a static file read. Same
     # throwaway-credentials pattern `queue-integration` in cypress.yml already uses: this database and
     # this Redis exist only for the life of this job, so a hardcoded, publicly-visible key here is not
     # a secret leak.
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/invoicerr_openapi?schema=public
+      DATABASE_URL: postgresql://postgres@localhost:5432/invoicerr_openapi?schema=public
       REDIS_URL: redis://localhost:6379
       BETTER_AUTH_SECRET: docs-deploy-openapi-dump-throwaway-secret-0000000000000000
       CREDENTIALS_ENCRYPTION_KEY: e2896d60a5fe20415931030ea7eadb3352f2698948ba29948a9f2e04b8840e6d
@@ -42,7 +46,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_openapi
         ports:
           - "5432:5432"

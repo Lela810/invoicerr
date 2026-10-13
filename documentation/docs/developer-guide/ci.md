@@ -49,13 +49,20 @@ the existing ones:
   --no-save --ignore-scripts <name>@<version>` (see `lighthouse.yml`).
 - **Actions pinned by commit SHA**, with the version in a trailing comment
   (`uses: actions/checkout@<sha> # v4`). Renovate keeps both up to date.
-- **Least privilege.** The workflow declares `permissions: contents: read` or `permissions: {}`,
-  and each job asks for what it needs on top of that, for example `packages: write` to push an
-  image, `security-events: write` to upload a SARIF report, `pages: write` and `id-token: write`
-  only on the job that deploys to GitHub Pages.
-- **No `${{ }}` inside a script.** A value from the event, an input, a matrix or another step's
-  output goes through `env:` and is read as `"$NAME"`. GitHub substitutes `${{ }}` before the shell
-  parses the line, so a branch name or a tag containing shell syntax would run as code.
+- **Least privilege.** The workflow declares a read-only floor at the top (`contents: read`,
+  `pull-requests: read` for `dco.yml`, or `{}`), and each job that needs more declares its own
+  block. A job-level block replaces the top-level one, so it restates `contents: read` when the job
+  checks out the repository. Examples: `packages: write` to push an image, `security-events: write`
+  to upload a SARIF report, `pages: read` for `actions/configure-pages`, `pages: write` and
+  `id-token: write` only on the job that deploys to GitHub Pages.
+- **No `${{ }}` inside a script.** A value from the event, an input, a matrix, `needs` or another
+  step's output goes through `env:` and is read as `"$NAME"`. GitHub substitutes `${{ }}` before the
+  shell parses the line, so a branch name or a tag containing shell syntax would run as code. The
+  rule applies to every expression, not only attacker-controlled ones, so a reviewer never has to
+  decide which values are safe.
+- **CI Postgres runs with trust auth.** Service containers set `POSTGRES_HOST_AUTH_METHOD: trust`
+  and connection strings carry no password. The database is reachable only from the runner and is
+  thrown away with the job.
 
 ## Release notes and the Discord announcement
 
