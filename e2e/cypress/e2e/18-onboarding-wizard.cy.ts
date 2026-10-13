@@ -99,11 +99,13 @@ describe("Onboarding wizard — company-lookup drives the identifier step", () =
 		);
 
 		openCreateCompanyDialog();
+		cy.assertAccessible();
 		pickCountryAndAdvance("France");
 
 		cy.get('[data-cy="onboarding-legalid-input"]', { timeout: 10000 })
 			.clear({ force: true })
 			.type("55208131766522", { force: true });
+		cy.assertAccessible();
 		cy.get('[data-cy="onboarding-identifier-next-btn"]').click();
 
 		// The search FIRES — that's on our own code, not on the register's.
@@ -113,7 +115,10 @@ describe("Onboarding wizard — company-lookup drives the identifier step", () =
 		cy.get('[data-cy="onboarding-company-name-input"]', { timeout: 10000 })
 			.clear({ force: true })
 			.type("Societe Saisie Manuelle", { force: true });
+		cy.assertAccessible();
 		cy.get('[data-cy="onboarding-submit-btn"]').click();
+		cy.get('[data-cy="onboarding-finish-btn"]', { timeout: 10000 }).should("exist");
+		cy.assertAccessible();
 		finishFromChannelsStep();
 
 		cy.request(`${onboardingApiUrl}/api/company/info`).then(({ body }) => {

@@ -266,8 +266,14 @@ export function ClientImportDialog() {
 
   return (
     <>
-      <Button type="button" variant="outline" onClick={() => setOpen(true)} dataCy="clients-import-button">
-        <Upload className="h-4 w-4 me-0 md:me-2" />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setOpen(true)}
+        aria-label={t("clients.import.button")}
+        dataCy="clients-import-button"
+      >
+        <Upload className="h-4 w-4 me-0 md:me-2" aria-hidden="true" />
         <span className="hidden md:inline-flex">{t("clients.import.button")}</span>
       </Button>
 

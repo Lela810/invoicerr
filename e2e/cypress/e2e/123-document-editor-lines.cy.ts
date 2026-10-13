@@ -80,16 +80,24 @@ const FULL_LINE: Line = {
 	supplyType: "SERVICES",
 };
 
-function startDocumentAtLines(typeId: "quote" | "invoice") {
+function openCreateDialog(typeId: "quote" | "invoice") {
 	cy.visit(`/documents/${typeId}`, { timeout: 20000 });
 	cy.get('[data-cy="document-create-button"]', { timeout: 15000 }).click();
 	cy.get('[data-cy="document-create-dialog"]', { timeout: 15000 }).should("be.visible");
+}
+
+function continueToLines() {
 	cy.pickDocumentClient();
 	cy.pickToday('[data-cy="document-field-issueDate-input"]');
 	cy.pickDocumentFieldOption("currency", "eur");
 	cy.continueDocumentWizard();
 	cy.get('[data-cy="document-field-lines-add-row"]').click();
 	cy.get('[data-cy="document-field-lines-row-0"]').should("exist");
+}
+
+function startDocumentAtLines(typeId: "quote" | "invoice") {
+	openCreateDialog(typeId);
+	continueToLines();
 }
 
 describe("Document line editor", () => {
@@ -117,6 +125,15 @@ describe("Document line editor", () => {
 		it("shows the unit on a quote line", () => {
 			startDocumentAtLines("quote");
 			cy.get('input[name="lines.0.unit"]').should("be.visible");
+		});
+
+		it("passes axe on the create dialog and on its line rows", () => {
+			openCreateDialog("invoice");
+			cy.assertAccessible();
+			continueToLines();
+			cy.get('[data-cy="document-field-lines-add-row"]').click();
+			cy.get('[data-cy="document-field-lines-row-1"]').should("exist");
+			cy.assertAccessible();
 		});
 
 		it("carries every line field over when a quote becomes an invoice", () => {

@@ -195,9 +195,10 @@ function ImportDocumentCsvButton({ descriptor }: DocumentCustomSlotProps) {
         type="button"
         variant="outline"
         onClick={() => setOpen(true)}
+        aria-label={t("documents.custom.importCsv.button")}
         dataCy={`import-document-csv-button-${descriptor.id}`}
       >
-        <FileUp className="h-4 w-4 me-0 md:me-2" />
+        <FileUp className="h-4 w-4 me-0 md:me-2" aria-hidden="true" />
         <span className="hidden md:inline-flex">{t("documents.custom.importCsv.button")}</span>
       </Button>
 

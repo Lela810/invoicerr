@@ -93,6 +93,11 @@ describe("Document list — server-side pagination and filters", () => {
 
 		cy.visit("/documents/invoice");
 		cy.get('[data-cy^="document-list-row-"]', { timeout: 15000 }).should("have.length", 25);
+		cy.assertAccessible();
+		cy.viewport(390, 844);
+		cy.assertAccessible();
+		cy.assertAccessible({ rules: ["button-name", "heading-order"] });
+		cy.viewport(1000, 660);
 
 		cy.contains("a", "2").click();
 		cy.url().should("include", "page=2");

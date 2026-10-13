@@ -80,3 +80,44 @@ its `FormControl`. The only muted lines allowed next to a control report live st
 next to a control is flagged in any colour: a text element whose key, variable or `data-cy` names a
 lock belongs behind the label's lock instead.
 :::
+
+## Accessibility checks
+
+Every control has an accessible name, and that name contains the text the control shows (WCAG 2.5.3).
+A button that hides its label on small screens, such as an icon-only "Import" below `md`, keeps it in
+`aria-label` and marks its icon `aria-hidden`. A link whose visible text is not the whole story keeps
+that text as its name and adds the rest as screen-reader-only text after it, rather than replacing it
+with an `aria-label`. Headings go down one level at a time: a list row or an empty state under a page
+`h1` is an `h2`. A page has one `main`, the layout's: a screen's own content area is a
+plain element. A toggle that opens a group carries `aria-expanded`, and the group's list sits inside
+the toggle's own list item.
+
+The Cypress specs of the key screens (document lists and detail, the document editor and its line
+rows, the create-document, delete-confirmation and client dialogs, onboarding, sign-in, sign-up and
+the company settings) call `cy.assertAccessible()` from `e2e/cypress/support/a11y.ts`. It runs
+[axe-core](https://github.com/dequelabs/axe-core) on the page through `cypress-axe` and fails the test
+on any **serious** or **critical** violation, printing each one with its rule and element to the
+runner output:
+
+```ts
+cy.assertAccessible() // the whole page, serious and critical violations fail
+cy.assertAccessible({ context: '[data-cy="client-dialog"]' }) // one region
+cy.assertAccessible({ rules: ["heading-order"] }) // only these rules, at every impact level
+```
+
+Call it once the screen has settled, after the element the test waits for, and again after a dialog
+opens or a step changes. To run it locally, start the e2e stack and run one spec:
+
+```bash
+cd e2e
+npx cypress run --browser firefox --spec "cypress/e2e/05-clients.cy.ts"
+```
+
+Never disable an axe rule for the whole suite. A violation inside a third-party element the app does
+not control may be excluded with `context: { exclude: [...] }` at the one call site that needs it, with
+a one-line comment naming the element.
+
+:::warning[Enforced in CI]
+The axe checks run with the Cypress suite on every pull request. On the pull request from `dev` to
+`main`, `lighthouse.yml` also fails when an audited page scores below 100 in Lighthouse accessibility.
+:::

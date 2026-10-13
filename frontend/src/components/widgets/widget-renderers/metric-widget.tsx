@@ -109,8 +109,8 @@ function VariationChip({ value, previousValue, unit }: VariationChipProps) {
  *  When the contribution supplied `link`, the whole tile opens the filtered list behind the figure
  *  (`short-list-widget.tsx`'s own `Link`-wrapped row is the precedent this follows): a visible hover
  *  affordance (border/background shift, a chevron that appears), a focus-visible ring for keyboard
- *  navigation, and an `aria-label` naming what the click does, since the tile's own visible text is
- *  only the number and its label, never "open the list". A metric with no `link` renders exactly as
+ *  navigation, and a screen-reader-only "open the list" after the visible text, which stays the
+ *  start of the link's name (WCAG 2.5.3). A metric with no `link` renders exactly as
  *  it did before this existed: a plain, non-interactive `Card`. */
 export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
   const { t } = useTranslation()
@@ -170,7 +170,6 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
       <Link
         to={buildMetricLinkHref(metric.link)}
         className="group block rounded-xl outline-none"
-        aria-label={t("widgets.metric.openList", { label: metric.label })}
         data-cy={`widget-${metric.id}-link`}
       >
         <Card
@@ -186,6 +185,7 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
         >
           {cardBody}
         </Card>
+        <span className="sr-only">{t("widgets.metric.openListHint")}</span>
       </Link>
     )
   }

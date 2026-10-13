@@ -39,8 +39,12 @@ export function ProjectList({ projects, loading, selectedProjectId, onSelect }: 
       <Card className="gap-0">
         <CardHeader className="border-b flex flex-row items-center justify-between">
           <CardTitle>{t("timeTracking.projects.title")}</CardTitle>
-          <Button onClick={() => setCreateOpen(true)} dataCy="project-add-button">
-            <Plus className="h-4 w-4 me-0 md:me-2" />
+          <Button
+            onClick={() => setCreateOpen(true)}
+            aria-label={t("timeTracking.projects.list.add")}
+            dataCy="project-add-button"
+          >
+            <Plus className="h-4 w-4 me-0 md:me-2" aria-hidden="true" />
             <span className="hidden md:inline-flex">{t("timeTracking.projects.list.add")}</span>
           </Button>
         </CardHeader>

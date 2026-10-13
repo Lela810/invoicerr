@@ -2,6 +2,7 @@
 // Cypress e2e support file — loaded before every spec.
 // ***********************************************************
 
+import './a11y'
 import './commands'
 import './test-time-limit'
 

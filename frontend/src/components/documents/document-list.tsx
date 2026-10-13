@@ -604,7 +604,7 @@ function DocumentListRow({ descriptor, instance, amount, onOpen, onActionSuccess
                   label={descriptor.statuses?.find((s) => s.id === instance.status)?.label}
                 />
                 <DocumentCardNumber descriptor={descriptor} instance={instance} />
-                <h3
+                <h2
                   className="min-w-0 break-words font-medium text-foreground"
                   data-cy={`document-list-title-${instance.id}`}
                 >
@@ -617,7 +617,7 @@ function DocumentListRow({ descriptor, instance, amount, onOpen, onActionSuccess
                   >
                     <DocumentCardTitle descriptor={descriptor} instance={instance} />
                   </Link>
-                </h3>
+                </h2>
                 {showSettlementBadge && (
                   <DocumentSettlementBadge
                     typeId={descriptor.id}

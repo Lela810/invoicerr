@@ -215,6 +215,18 @@ describe("Company Settings E2E", () => {
 				"have.value",
 				"123 Main St",
 			);
+			cy.assertAccessible();
+			cy.assertAccessible({
+				rules: [
+					"button-name",
+					"heading-order",
+					"landmark-main-is-top-level",
+					"landmark-no-duplicate-main",
+					"landmark-one-main",
+					"landmark-unique",
+					"landmark-complementary-is-top-level",
+				],
+			});
 		});
 	});
 

@@ -93,9 +93,9 @@ export function DeclareLastNumberSection() {
       }
     >
       <div className="grid gap-2">
-        <Label>{t("settings.declareLastNumber.type")}</Label>
+        <Label htmlFor="declare-last-number-type">{t("settings.declareLastNumber.type")}</Label>
         <Select value={typeId} onValueChange={(value) => setTypeId(value as TypeId)}>
-          <SelectTrigger data-cy="declare-last-number-type">
+          <SelectTrigger id="declare-last-number-type" data-cy="declare-last-number-type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

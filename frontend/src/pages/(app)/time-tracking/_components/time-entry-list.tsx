@@ -93,8 +93,12 @@ export function TimeEntryList({ project }: TimeEntryListProps) {
         <CardTitle>
           {project.name} — {project.client.name}
         </CardTitle>
-        <Button onClick={() => setCreateOpen(true)} dataCy="time-entry-add-button">
-          <Plus className="h-4 w-4 me-0 md:me-2" />
+        <Button
+          onClick={() => setCreateOpen(true)}
+          aria-label={t("timeTracking.entries.list.add")}
+          dataCy="time-entry-add-button"
+        >
+          <Plus className="h-4 w-4 me-0 md:me-2" aria-hidden="true" />
           <span className="hidden md:inline-flex">{t("timeTracking.entries.list.add")}</span>
         </Button>
       </CardHeader>

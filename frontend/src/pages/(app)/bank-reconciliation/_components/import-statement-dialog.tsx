@@ -1002,8 +1002,13 @@ export function ImportStatementDialog({ onImported }: ImportStatementDialogProps
 
   return (
     <>
-      <Button type="button" onClick={() => setOpen(true)} dataCy="bank-reconciliation-import-button">
-        <Upload className="h-4 w-4 me-0 md:me-2" />
+      <Button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={t("bankReconciliation.import.button")}
+        dataCy="bank-reconciliation-import-button"
+      >
+        <Upload className="h-4 w-4 me-0 md:me-2" aria-hidden="true" />
         <span className="hidden md:inline-flex">{t("bankReconciliation.import.button")}</span>
       </Button>
 

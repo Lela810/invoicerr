@@ -30,6 +30,11 @@ describe("Clients E2E", () => {
 	describe("Create Clients", () => {
 		it("creates a company client", () => {
 			cy.visit("/clients");
+			cy.get('[data-cy="client-add-button"]', { timeout: 10000 }).should("be.visible");
+			cy.assertAccessible();
+			cy.viewport(390, 844);
+			cy.assertAccessible();
+			cy.viewport(1000, 660);
 			cy.contains("button", /add|new|créer|ajouter/i, {
 				timeout: 10000,
 			}).click();
@@ -37,6 +42,7 @@ describe("Clients E2E", () => {
 			cy.get('[data-cy="client-dialog"]', { timeout: 5000 }).should(
 				"be.visible",
 			);
+			cy.assertAccessible();
 
 			cy.get('[name="name"]').clear().type("ACME Corporation");
 			cy.get('[name="description"]')
@@ -53,6 +59,7 @@ describe("Clients E2E", () => {
 			cy.get('[data-cy="client-identifier-LEGAL_ID"]', { timeout: 10000 })
 				.clear()
 				.type("123456789");
+			cy.assertAccessible();
 			// The country-specific identifiers section (EIN, above) pushes this
 			// select further down the scrollable dialog — scroll it into view first
 			// or the opened options panel renders clipped by the dialog's overflow.
@@ -66,6 +73,7 @@ describe("Clients E2E", () => {
 
 			cy.get('[name="contacts.0.email"]').clear().type("contact@acme.org");
 			cy.get('[name="contacts.0.phone"]').clear().type("+1 23 456 7890");
+			cy.assertAccessible();
 			cy.continueSteppedDialog("client-dialog");
 
 			cy.get('[data-cy="client-submit"]').click();

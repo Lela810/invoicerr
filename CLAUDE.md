@@ -245,6 +245,8 @@ business rule carries its reason behind a red lock on the label, never as text u
 `components/ui/field-help.guard.spec.ts` fails CI otherwise. See
 `documentation/docs/developer-guide/ui-conventions.md`.
 
+**Accessibility is gated.** Key screens' Cypress specs call `cy.assertAccessible()` (axe, fails on serious/critical) and Lighthouse accessibility must stay at 100; see `ui-conventions.md#accessibility-checks`.
+
 ## Conventions
 
 - **Biome is the only linter/formatter.** Backend: single quotes, semicolons always, 110 cols.

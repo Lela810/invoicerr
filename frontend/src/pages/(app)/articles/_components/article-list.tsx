@@ -37,7 +37,7 @@ function ArticleRow({
       identity={
         <>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="min-w-0 break-words font-medium text-foreground">{article.name}</h3>
+            <h2 className="min-w-0 break-words font-medium text-foreground">{article.name}</h2>
             <Badge variant="outline" className="text-xs">
               {t(`articles.fields.type.${article.type?.toLowerCase()}`) || article.type}
             </Badge>
@@ -149,7 +149,12 @@ export function ArticlesList() {
               dataCy="articles-search"
               className="flex-1 sm:max-w-xs"
             />
-            <Button onClick={() => setCreateDialog(true)} className="ms-auto" dataCy="article-add-button">
+            <Button
+              onClick={() => setCreateDialog(true)}
+              className="ms-auto"
+              aria-label={t("articles.list.add")}
+              dataCy="article-add-button"
+            >
               <Plus aria-hidden="true" />
               <span className="hidden md:inline">{t("articles.list.add")}</span>
             </Button>
