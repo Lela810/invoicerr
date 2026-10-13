@@ -114,8 +114,10 @@ or a help text the backend substitutes at runtime (`company-view.ts` uses
 A type this application ships adds its English keys to `frontend/src/locales/en/translation.json`
 in the same pull request; Weblate fills the other languages. `backend/src/modules/documents/descriptors/descriptor-i18n-keys.spec.ts`
 walks every native descriptor, including extension actions such as `duplicate`, and fails on any
-label or help text without an English key. A new native type is registered in
-`descriptors/native-types.ts`, which both the module and that spec read.
+label or help text without an English key, or whose English value differs from the descriptor's own
+text: English has one wording, written in both places. A new native type is registered in
+`descriptors/native-types.ts`, and a new extension action in `actions/native-extensions.ts`; both
+the module and that spec read them.
 
 :::info[Options are not checked]
 
