@@ -267,7 +267,7 @@ function startFakeKsefServer(): Promise<string> {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       req.resume();
-      const path = new URL(req.url ?? "/", "http://fake-ksef.local").pathname;
+      const path = (req.url ?? "/").split("?")[0];
       fakeKsefRequests.push(`${req.method} ${path}`);
       const reply = (status: number, body: unknown) => {
         res.writeHead(status, { "Content-Type": "application/json" });
