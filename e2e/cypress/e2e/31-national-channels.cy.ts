@@ -141,6 +141,19 @@ function sendFromListUntilFailed(invoiceId: string, channel: string) {
 	cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should("contain.text", channel);
 }
 
+/** Checks the stored failure is the authority's own rejection, answered by its local fake. */
+function expectRejectedByFake(invoiceId: string, rejection: RegExp, fakeRequestsTask: string, fakeRequest: string) {
+	cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
+		.its("body")
+		.then((doc) => {
+			expect(doc.status, 'la facture est réellement "send_failed" en base').to.eq("send_failed");
+			// Every failure names the channel, so the channel name alone would also pass on a network error.
+			expect(doc.lastActionError, "l'erreur enregistrée est le vrai rejet de l'autorité").to.match(rejection);
+			expect(doc.transportRef, "aucune référence de transport sans dépôt accepté").to.not.be.a("string");
+		});
+	cy.task<string[]>(fakeRequestsTask).should("include", fakeRequest);
+}
+
 function createInvoiceDraft(vatRate = "20") {
 	return cy
 		.request({ url: `${api}/api/documents/references/client/search` })
@@ -460,26 +473,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		cy.task("startFakeKsefServer");
 		createInvoiceDraft("23").then((invoiceId) => {
 			sendFromListUntilFailed(invoiceId, "KSeF");
-
-			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
-				.its("body")
-				.then((doc) => {
-					expect(
-						doc.status,
-						'la facture est réellement "send_failed" en base',
-					).to.eq("send_failed");
-					// Every failure names the channel, so `/KSeF/` alone would also pass on a network error:
-					// "code 450" only comes from an auth status actually returned by the API.
-					expect(
-						doc.lastActionError,
-						"l'erreur enregistrée est le vrai rejet KSeF (code 450), pas un message générique",
-					).to.match(/code 450/);
-					expect(
-						doc.transportRef,
-						"aucune référence de session/facture sans soumission acceptée",
-					).to.not.be.a("string");
-				});
-			cy.task<string[]>("getFakeKsefRequests").should("include", "POST /v2/auth/ksef-token");
+			expectRejectedByFake(invoiceId, /code 450/, "getFakeKsefRequests", "POST /v2/auth/ksef-token");
 		});
 	});
 
@@ -812,26 +806,12 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		createInvoiceDraft().then((invoiceId) => {
 			sendFromListUntilFailed(invoiceId, "Chorus Pro");
 
-			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
-				.its("body")
-				.then((doc) => {
-					expect(
-						doc.status,
-						'la facture est réellement "send_failed" en base',
-					).to.eq("send_failed");
-					// Every failure names the channel, so `/Chorus Pro/` alone would also pass on a network error:
-					// "HTTP 400" only comes from a token request actually answered by PISTE.
-					expect(
-						doc.lastActionError,
-						"l'erreur enregistrée est le vrai rejet PISTE (HTTP 400), pas un message générique",
-					).to.match(/Chorus Pro PISTE authentication failed \(HTTP 400\)/);
-					expect(
-						doc.transportRef,
-						"aucun numeroFluxDepot sans dépôt accepté",
-					).to.not.be.a("string");
-				});
-
-			cy.task<string[]>("getFakeChorusProRequests").should("include", "POST /api/oauth/token");
+			expectRejectedByFake(
+				invoiceId,
+				/Chorus Pro PISTE authentication failed \(HTTP 400\)/,
+				"getFakeChorusProRequests",
+				"POST /api/oauth/token",
+			);
 		});
 	});
 
