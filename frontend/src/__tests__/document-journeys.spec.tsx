@@ -1147,6 +1147,36 @@ describe("Server-side pagination and filters — GET /documents's own query stri
     await waitFor(() => expect(calls.some((params) => params.get("q") === "acme")).toBe(true))
   })
 
+  it("a keystroke landing while the debounced URL update is still committing is never lost", async () => {
+    const calls: URLSearchParams[] = []
+    installFetchMock({
+      "GET /api/documents/types/invoice": () => invoiceDescriptor,
+      "GET /api/documents": (url) => {
+        calls.push(url.searchParams)
+        return documentsPage([invoiceInstance("inv-1")])
+      },
+    })
+
+    renderDocumentTypeScreen("invoice")
+    await screen.findByTestId("document-list-row-inv-1")
+    const search = screen.getByTestId("document-list-search")
+
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+    try {
+      fireEvent.change(search, { target: { value: "Z" } })
+      // The debounce fires and pushes `q=Z`, and the next keystroke arrives before React commits it.
+      vi.advanceTimersByTime(300)
+      fireEvent.change(search, { target: { value: "Zz" } })
+      expect(search).toHaveValue("Zz")
+      vi.advanceTimersByTime(300)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    await waitFor(() => expect(calls.at(-1)?.get("q")).toBe("Zz"))
+    expect(screen.getByTestId("document-list-search")).toHaveValue("Zz")
+  })
+
   it("the client and date filters render for a client/date-bearing type, and neither renders for one with neither field", async () => {
     installFetchMock({
       "GET /api/documents/types/invoice": () => invoiceDescriptor,
@@ -1192,5 +1222,24 @@ describe("Server-side pagination and filters — GET /documents's own query stri
 
     await screen.findByTestId("document-list-row-inv-1")
     expect(calls.at(-1)?.getAll("status")).toEqual([])
+  })
+
+  it('"Clear filters" empties a search box whose term was already applied to the URL', async () => {
+    installFetchMock({
+      "GET /api/documents/types/invoice": () => invoiceDescriptor,
+      "GET /api/documents": (url) =>
+        documentsPage(url.searchParams.get("q") ? [] : [invoiceInstance("inv-1")]),
+    })
+
+    renderDocumentTypeScreen("invoice")
+    await screen.findByTestId("document-list-row-inv-1")
+
+    fireEvent.change(screen.getByTestId("document-list-search"), { target: { value: "acme" } })
+    await screen.findByTestId("document-list-empty", {}, { timeout: 2000 })
+
+    fireEvent.click(screen.getByTestId("document-list-clear-filters"))
+
+    await screen.findByTestId("document-list-row-inv-1")
+    expect(screen.getByTestId("document-list-search")).toHaveValue("")
   })
 })

@@ -99,12 +99,20 @@ export default function DocumentTypePage() {
   }
 
   // The search box's own visible value — every keystroke, immediately, independent of the URL's own
-  // `q` (which only updates after the debounce below). Resynced from `q` on an EXTERNAL change (a
-  // shared link, the back button, "Clear filters") — the effect depends on `q` alone, never on
-  // `searchInput`, so it never fights the debounce timer below.
+  // `q` (which only updates after the debounce below). Resynced from `q` on an EXTERNAL change only (a
+  // shared link, the back button, "Clear filters"): the echo of a `q` this box pushed itself is
+  // skipped, since keystrokes typed while that URL update was committing would otherwise be wiped.
   const [searchInput, setSearchInput] = useState(q ?? "")
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => setSearchInput(q ?? ""), [q])
+  const pushedQRef = useRef<string | undefined | null>(null)
+  useEffect(() => {
+    if (pushedQRef.current !== null && pushedQRef.current === q) {
+      pushedQRef.current = null
+      return
+    }
+    pushedQRef.current = null
+    setSearchInput(q ?? "")
+  }, [q])
   useEffect(
     () => () => {
       if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
@@ -118,10 +126,14 @@ export default function DocumentTypePage() {
     // Clearing the box is an explicit intent, not a keystroke to smooth over — applied immediately,
     // never left waiting out the same debounce a fresh search term gets.
     if (value.trim() === "") {
+      pushedQRef.current = undefined
       applyParams({ q: undefined })
       return
     }
-    searchDebounceRef.current = setTimeout(() => applyParams({ q: value }), SEARCH_DEBOUNCE_MS)
+    searchDebounceRef.current = setTimeout(() => {
+      pushedQRef.current = value
+      applyParams({ q: value })
+    }, SEARCH_DEBOUNCE_MS)
   }
 
   const { sort: sortField, order } = sortKeyToQuery(sort)
