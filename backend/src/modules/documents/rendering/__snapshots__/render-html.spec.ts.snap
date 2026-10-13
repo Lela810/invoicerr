@@ -8,9 +8,6 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
   <meta charset="UTF-8">
   <title>Invoice</title>
   <style>
-    @page {
-      size: A4;
-    }
     * {
       margin: 0;
       padding: 0;
