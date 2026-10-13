@@ -45,8 +45,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           REPO_NAME_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
-          REGISTRY_IMAGE="${{ env.REGISTRY }}/${REPO_NAME_LOWER}"
-          GIT_REF="${GITHUB_REF:-${{ github.ref }}}"
+          REGISTRY_IMAGE="${REGISTRY}/${REPO_NAME_LOWER}"
+          GIT_REF="$GITHUB_REF"
 
           PUSH_LATEST="false"
 
@@ -56,7 +56,7 @@ jobs:
             
             echo "Current Tag: $IMAGE_TAG"
 
-            LATEST_API_TAG=$(gh release view --repo "${{ github.repository }}" --json tagName --jq '.tagName' || echo "")
+            LATEST_API_TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq '.tagName' || echo "")
 
             echo "API Latest Tag: $LATEST_API_TAG"
             
@@ -74,11 +74,13 @@ jobs:
             CACHE_REF=branch-${SAFE_BRANCH_NAME}
           fi
 
-          echo "repo-name-lower=$REPO_NAME_LOWER" >> $GITHUB_OUTPUT
-          echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "cache-ref=$CACHE_REF" >> $GITHUB_OUTPUT
-          echo "registry-image=$REGISTRY_IMAGE" >> $GITHUB_OUTPUT
-          echo "push-latest=$PUSH_LATEST" >> $GITHUB_OUTPUT
+          {
+            echo "repo-name-lower=$REPO_NAME_LOWER"
+            echo "image-tag=$IMAGE_TAG"
+            echo "cache-ref=$CACHE_REF"
+            echo "registry-image=$REGISTRY_IMAGE"
+            echo "push-latest=$PUSH_LATEST"
+          } >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare
@@ -127,10 +129,11 @@ jobs:
           cache-from: type=gha,scope=${{ needs.prepare.outputs.cache-ref }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ needs.prepare.outputs.cache-ref }}-${{ matrix.platform }}
 
-      - run: |
+      - env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          touch "/tmp/digests/${DIGEST#sha256:}"
       
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -164,6 +167,12 @@ jobs:
     permissions:
       packages: write
       security-events: write
+    # The image tag is the release's tag name: it reaches the scripts below as data, never as
+    # interpolated shell.
+    env:
+      REGISTRY_IMAGE: ${{ needs.prepare.outputs.registry-image }}
+      IMAGE_TAG: ${{ needs.prepare.outputs.image-tag }}
+      PUSH_LATEST: ${{ needs.prepare.outputs.push-latest }}
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -181,18 +190,16 @@ jobs:
 
       - working-directory: /tmp/digests
         run: |
-          TAGS="-t ${{ needs.prepare.outputs.registry-image }}:${{ needs.prepare.outputs.image-tag }}"
-          
-          if [[ "${{ needs.prepare.outputs.push-latest }}" == "true" ]]; then
-            TAGS="$TAGS -t ${{ needs.prepare.outputs.registry-image }}:latest"
-            echo "🏷️ Adding 'latest' tag"
+          tags=(-t "$REGISTRY_IMAGE:$IMAGE_TAG")
+          if [[ "$PUSH_LATEST" == "true" ]]; then
+            tags+=(-t "$REGISTRY_IMAGE:latest")
+            echo "Adding the 'latest' tag"
           fi
-          
-          docker buildx imagetools create $TAGS \
-            $(printf '${{ needs.prepare.outputs.registry-image }}@sha256:%s ' *)        
+          refs=()
+          for digest in *; do refs+=("$REGISTRY_IMAGE@sha256:$digest"); done
+          docker buildx imagetools create "${tags[@]}" "${refs[@]}"
 
-      - run: |
-          docker buildx imagetools inspect ${{ needs.prepare.outputs.registry-image }}:${{ needs.prepare.outputs.image-tag }}
+      - run: docker buildx imagetools inspect "$REGISTRY_IMAGE:$IMAGE_TAG"
 
       # Scans the manifest list just created, the same two-run pattern as docker-dev.yml's own
       # Trivy steps (see that file's comment for why there are two): a full report to the Security

@@ -51,7 +51,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_test
         ports:
           - "5432:5432"
@@ -77,7 +77,7 @@ jobs:
       # --- Real Postgres for the specs that touch the `prisma` singleton directly (see the
       # `services:` comment above for which ones and why) — a fresh, empty, freshly-migrated DB is
       # enough; those specs create and clean up their own rows.
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/invoicerr_test?schema=public
+      DATABASE_URL: postgresql://postgres@localhost:5432/invoicerr_test?schema=public
 
       # --- TSA (RFC 3161) — e.g. https://freetsa.org/tsr ---
       # The ONLY row here that needs no credential at all: FreeTSA is public and anonymous, so the
@@ -175,17 +175,17 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install backend dependencies
-        run: cd backend && npm ci
+        run: cd backend && npm ci --ignore-scripts
 
       - name: Generate Prisma client
-        run: cd backend && npx prisma generate
+        run: cd backend && ./node_modules/.bin/prisma generate
 
       # Apply the full migration chain to the empty CI Postgres — same as cypress.yml's
       # queue-integration job. superpdp-conformity.live.spec.ts, sequence.live.spec.ts and
       # send-quote.live.spec.ts create their own Company/DocumentInstance fixtures against this
       # schema and clean them up themselves (afterAll, or inline once done with them).
       - name: Apply migrations (empty dev DB)
-        run: cd backend && npx prisma migrate deploy
+        run: cd backend && ./node_modules/.bin/prisma migrate deploy
 
       # Vitest, not Jest. Jest and ts-jest were removed from backend/package.json by the 2026-09-19
       # migration (see backend/vitest.config.ts's own header), so the `npx jest live` this step used
@@ -213,7 +213,7 @@ jobs:
       - name: Run gated live specs
         run: |
           cd backend
-          npx vitest run .live.spec.ts \
+          ./node_modules/.bin/vitest run .live.spec.ts \
             --no-file-parallelism \
             --reporter=default \
             --reporter=json \
