@@ -64,6 +64,23 @@ the existing ones:
   and connection strings carry no password. The database is reachable only from the runner and is
   thrown away with the job.
 
+## External services in the required e2e lane
+
+The `cypress-run` shards gate every merge, so a spec there never waits on a public server it does not
+control: a slow or unavailable sandbox would block the merge queue for a reason unrelated to the
+change under test. When the backend calls an outside service, the spec points it at a local fake
+started from `e2e/cypress.config.ts` instead:
+
+- a URL stored on a row (PDP, SdI, the Portuguese AT webservice) is written by the spec itself,
+  toward a fake on an ephemeral port;
+- a URL the backend reads from its environment at boot uses a fixed port and a variable set for the
+  e2e stack: `ADDRESS_AUTOCOMPLETE_URL` (Photon, port 19876, set in `cypress.yml`) and
+  `KSEF_TEST_API_URL` (KSeF test API, port 19877, set in `backend/.env.test`).
+
+The real round trip with each authority belongs in a `*.live.spec.ts` run by `compliance-live.yml`
+(see [Live Testing](./live-testing.md)). The Chorus Pro send test in `31-national-channels.cy.ts`
+still reaches the public PISTE sandbox and is the remaining exception.
+
 ## Release notes and the Discord announcement
 
 `.github/release.yml` groups pull requests into the categories GitHub's "Generate release notes"
