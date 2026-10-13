@@ -52,13 +52,7 @@ import { VatRateCatalog } from './vat-rates/registry';
 import { DocumentsService } from './documents.service';
 import { FieldKindRegistry, registerCoreFieldKinds } from './descriptors/field-kinds';
 import { DocumentTypeRegistry } from './descriptors/type-registry';
-import { buildCreditNoteDescriptor } from './descriptors/credit-note.descriptor';
-import { buildExpenseDescriptor } from './descriptors/expense.descriptor';
-import { buildGoodsReceiptDescriptor } from './descriptors/goods-receipt.descriptor';
-import { buildInvoiceDescriptor } from './descriptors/invoice.descriptor';
-import { buildPurchaseOrderDescriptor } from './descriptors/purchase-order.descriptor';
-import { buildQuoteDescriptor } from './descriptors/quote.descriptor';
-import { buildReceivedInvoiceDescriptor } from './descriptors/received-invoice.descriptor';
+import { buildNativeDocumentTypeDescriptors } from './descriptors/native-types';
 import { DOCUMENT_WEBHOOK_EMITTER, DocumentWebhookEmitter } from './queue/document-webhooks';
 import { DocumentEventsPublisher } from './queue/document-events-publisher';
 import { DocumentQueueDispatcher } from './queue/document-queue.dispatcher';
@@ -120,24 +114,7 @@ import {
 
 function buildDocumentTypeRegistry(): DocumentTypeRegistry {
   const registry = new DocumentTypeRegistry();
-  // Adding a document type is exactly this one line — a descriptor, registered. No controller, no
-  // service, no frontend screen of its own. The credit note (THIRD type) proves it again; the
-  // expense (FOURTH — migrated OUT of its own former bespoke module, see expense.descriptor.ts)
-  // proves it once more, this time for a type that used to be something else entirely.
-  registry.register(buildQuoteDescriptor());
-  registry.register(buildInvoiceDescriptor());
-  registry.register(buildCreditNoteDescriptor());
-  registry.register(buildExpenseDescriptor());
-  // The FIFTH type, and the first in the "inbound"
-  // category: see received-invoice.descriptor.ts for the full reasoning.
-  registry.register(buildReceivedInvoiceDescriptor());
-  // Purchase orders & goods receipts — the SIXTH type: see purchase-order.descriptor.ts for the full
-  // reasoning (first pass: EMIT a purchase order; 3-way match against a received invoice is a
-  // deliberately separate, second pass).
-  registry.register(buildPurchaseOrderDescriptor());
-  // Purchase orders & goods receipts, SECOND PASS (three-way match) — the SEVENTH type: see
-  // goods-receipt.descriptor.ts for the full reasoning.
-  registry.register(buildGoodsReceiptDescriptor());
+  for (const descriptor of buildNativeDocumentTypeDescriptors()) registry.register(descriptor);
   return registry;
 }
 
