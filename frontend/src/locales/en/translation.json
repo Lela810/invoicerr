@@ -1529,6 +1529,7 @@
     }
   },
   "widgets": {
+    "loading": "Loading…",
     "emptyTitle": "Nothing to show yet",
     "emptyDescription": "This will fill in once your company has some documents to report on.",
     "unsupportedKind": "Widget \"{{label}}\" has kind \"{{kind}}\", which no renderer is registered for.",

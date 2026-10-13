@@ -169,14 +169,14 @@ export function MetricWidgetRenderer({ widget }: WidgetRendererProps) {
     return (
       <Link
         to={buildMetricLinkHref(metric.link)}
-        className="group block rounded-xl outline-none"
+        className="group block h-full rounded-xl outline-none"
         data-cy={`widget-${metric.id}-link`}
       >
         <Card
           data-cy={`widget-${metric.id}`}
           data-widget-kind="metric"
           className={cn(
-            "cursor-pointer gap-2 border-s-4 py-4 transition-colors duration-150",
+            "h-full cursor-pointer gap-2 border-s-4 py-4 transition-colors duration-150",
             // Background and shadow only: the left border carries the tile's tone and must survive a hover.
             "hover:bg-accent/40 hover:shadow-md",
             "group-focus-visible:ring-2 group-focus-visible:ring-ring",

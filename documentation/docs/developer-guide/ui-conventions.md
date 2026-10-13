@@ -81,6 +81,15 @@ next to a control is flagged in any colour: a text element whose key, variable o
 lock belongs behind the label's lock instead.
 :::
 
+## Loading states
+
+Loading never moves or resizes what is already on screen. When a filter or a period changes, the
+previous results stay in place, veiled and marked `aria-busy`, with a small "Loading…" status, until
+the new ones arrive (`placeholderData: keepPreviousData` on the query). A first load shows skeletons
+with the dimensions of the content they stand for: the widget grid reuses the card heights it last
+measured at the same window width. `e2e/cypress/e2e/124-dashboard-stable-loading.cy.ts` compares
+card bounding boxes before and during a load, the pattern to follow for another screen.
+
 ## Accessibility checks
 
 Every control has an accessible name, and that name contains the text the control shows (WCAG 2.5.3).
