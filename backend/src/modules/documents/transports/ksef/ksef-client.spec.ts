@@ -30,6 +30,33 @@ const TEST_CONFIG = {
 };
 
 describe('KsefClient', () => {
+  describe('base URL', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    const challengePath = async (environment: 'test' | 'prod') => {
+      const http = mockHttp(() => ({ status: 200, body: {} }));
+      await new KsefClient(http, { ...TEST_CONFIG, environment }).authChallenge();
+      return (http.request as Mock).mock.calls[0][0].path as string;
+    };
+
+    it('targets the public KSeF test API by default', async () => {
+      vi.stubEnv('KSEF_TEST_API_URL', '');
+      expect(await challengePath('test')).toBe('https://api-test.ksef.mf.gov.pl/v2/auth/challenge');
+    });
+
+    it('KSEF_TEST_API_URL repoints the test environment', async () => {
+      vi.stubEnv('KSEF_TEST_API_URL', 'http://127.0.0.1:19877/v2');
+      expect(await challengePath('test')).toBe('http://127.0.0.1:19877/v2/auth/challenge');
+    });
+
+    it('KSEF_TEST_API_URL never repoints production', async () => {
+      vi.stubEnv('KSEF_TEST_API_URL', 'http://127.0.0.1:19877/v2');
+      expect(await challengePath('prod')).toBe('https://api.ksef.mf.gov.pl/v2/auth/challenge');
+    });
+  });
+
   describe('authChallenge()', () => {
     it('POSTs to /auth/challenge with no body', async () => {
       const http = mockHttp((_req) => ({
