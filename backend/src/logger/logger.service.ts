@@ -37,11 +37,10 @@ export class LoggerService {
   constructor() {}
 
   /**
-   * Resolves to null when the row could not be written. Callers never await this — a
-   * rejected promise would surface as an unhandled rejection, which takes the Node
-   * process down. Losing a log line must never cost the request that produced it.
+   * Returns nothing to await: the row is written in the background, and losing a log line must
+   * never cost the request that produced it.
    */
-  private async createLog(level: LogLevel, message: string, options: LogOptions): Promise<Log | null> {
+  private createLog(level: LogLevel, message: string, options: LogOptions): void {
     const contextCompanyId = getContextCompanyId();
     // `undefined` (the ordinary case — see `LogOptions.companyId`'s own header) defers entirely to
     // the ambient request/job context; an explicit value (including `null`) always wins, since the
@@ -68,10 +67,20 @@ export class LoggerService {
       );
     }
 
+    // persist() catches every failure itself, so this promise cannot reject.
+    void this.persist(level, message, options, companyId);
+  }
+
+  private async persist(
+    level: LogLevel,
+    message: string,
+    options: LogOptions,
+    companyId: string | null,
+  ): Promise<void> {
     try {
       const { category, userId, path, details } = options;
       // Awaited on purpose: without it the rejection escapes the catch below.
-      return await this.prisma.log.create({
+      await this.prisma.log.create({
         data: {
           level,
           category,
@@ -88,46 +97,45 @@ export class LoggerService {
       // what happens when the schema is being rebuilt under a running app — turned one
       // failure into an endless chain of failing writes.
       this.inLogger.error(`Failed to persist a ${level} log entry: ${message}`, error as Error);
-      return null;
     }
   }
 
   public info(
     message: string,
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
-  ): Promise<Log | null> {
+  ): void {
     this.inLogger.log(`[${options.category}] ${message}`);
-    return this.createLog('INFO', message, options);
+    this.createLog('INFO', message, options);
   }
 
   public warn(
     message: string,
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
-  ): Promise<Log | null> {
+  ): void {
     this.inLogger.warn(`[${options.category}] ${message}`);
-    return this.createLog('WARN', message, options);
+    this.createLog('WARN', message, options);
   }
 
   public error(
     message: string,
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
-  ): Promise<Log | null> {
+  ): void {
     this.inLogger.error(`[${options.category}] ${message}`);
     const errorDetails = options.details || {};
     if (errorDetails.stack === undefined) {
       errorDetails.stack = new Error().stack;
     }
-    return this.createLog('ERROR', message, { ...options, details: errorDetails });
+    this.createLog('ERROR', message, { ...options, details: errorDetails });
   }
 
   public debug(
     message: string,
     options: Omit<LogOptions, 'details'> & { details?: Record<string, any> },
-  ): Promise<Log | null> {
+  ): void {
     if (process.env.NODE_ENV !== 'production' || process.env.FORCE_DEBUG_LOGS === 'true') {
       this.inLogger.debug(`[${options.category}] ${message}`);
     }
-    return this.createLog('DEBUG', message, options);
+    this.createLog('DEBUG', message, options);
   }
 
   public async fetchLogs(

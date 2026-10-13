@@ -165,12 +165,8 @@ export function registerAcceptManuallyAction(registry: ActionRegistry): void {
       ),
     };
 
-    // The AUDIT TRAIL - see this file's own header, point 2. Awaited (unlike the archive write right
-    // below): a lost audit row is a silent gap in "who did this, and when", never something to risk
-    // for a client that isn't waiting on it any longer than the archive write already takes; `logger`
-    // itself never throws even on a DB failure (`logger.service.ts`'s own header), so this can never
-    // fail the action either.
-    await logger.info('Quote marked as accepted manually (not an electronic signature)', {
+    // The AUDIT TRAIL - see this file's own header, point 2.
+    logger.info('Quote marked as accepted manually (not an electronic signature)', {
       category: 'documents',
       userId: ctx.actor.id,
       details: {

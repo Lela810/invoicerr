@@ -140,12 +140,10 @@ export function buildChorusProStatusPoller(deps: ChorusProStatusPollerDeps): Aut
       // near-identical `Log` rows (full `raw` response included) for ONE deposit before ever giving up.
       // A genuinely NEW status (this deposit's first sighting, or a change from one unrecognized value
       // to another) still surfaces immediately — nothing here waits for `mapChorusProStatus` to be
-      // fixed before speaking up again. Never awaited into a failure of the poll itself —
-      // `LoggerService` already never throws (catches its own write failures internally), so this is
-      // belt-and-suspenders, not a new failure mode.
+      // fixed before speaking up again.
       if (mapped === 'UNKNOWN' && lastLoggedUnknownStatus.get(transportRef) !== cr.statutFlux) {
         lastLoggedUnknownStatus.set(transportRef, cr.statutFlux);
-        await logger.error(
+        logger.error(
           `Chorus Pro returned an unrecognized flux status "${cr.statutFlux}" for deposit ` +
             `${transportRef} — mapChorusProStatus has no branch for it yet, so it reads as UNKNOWN ` +
             "(never terminal, but never silently PENDING either — see that function's own doc " +
