@@ -95,7 +95,7 @@ const REJECT_PARAMS: DocumentFieldDescriptor[] = [
     kind: 'text',
     label: 'Reason',
     required: true,
-    helpText: 'Why this invoice is refused — required, and reported back to the sender where applicable.',
+    helpText: 'Why this invoice is refused. Required, and reported back to the sender where applicable.',
   },
 ];
 
@@ -284,8 +284,7 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         label: 'Supplier',
         required: false,
         helpText:
-          "The supplier's name, as printed on their own document — free text, independent from " +
-          '"Linked supplier" below.',
+          'The supplier\'s name, as printed on their own document. Free text, independent from "Linked supplier" below.',
       },
       {
         key: 'supplierClient',
@@ -294,16 +293,14 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         required: false,
         entity: 'supplier',
         helpText:
-          "This company's own persistent record for the supplier — auto-matched by VAT number or " +
-          'exact name when the deposited file carries one; otherwise choose an existing one or create ' +
-          'it from the Clients screen.',
+          "This company's own record for the supplier. Matched automatically by VAT number or exact name when the uploaded file carries one; otherwise choose an existing one or create it from the Clients screen.",
       },
       {
         key: 'supplierNumber',
         kind: 'text',
         label: "Supplier's invoice number",
         required: false,
-        helpText: "The number as printed on the supplier's own invoice — never assigned by this company.",
+        helpText: "The number as printed on the supplier's own invoice, never assigned by this company.",
       },
       {
         key: 'purchaseOrder',
@@ -312,8 +309,7 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         required: false,
         entity: 'purchase-order',
         helpText:
-          'The purchase order this invoice fulfills, if any — links this invoice into the 3-way match ' +
-          '(purchase order × goods receipt × invoice) shown in the "Reconciliation" panel below.',
+          'The purchase order this invoice fulfills, if any. Links this invoice into the 3-way match (purchase order × goods receipt × invoice) shown in the "Reconciliation" panel below.',
       },
       {
         key: 'issueDate',

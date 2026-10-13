@@ -273,10 +273,7 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         required: false,
         entity: 'invoice',
         helpText:
-          'The invoice this credit note corrects. Leave empty for a FREE credit note (a commercial ' +
-          'gesture, a refund of an overpayment) — a reason is then required below, and some countries ' +
-          'do not recognise a credit note with nothing to reference (this screen refuses those with ' +
-          "the country's own rule once you try to save).",
+          "The invoice this credit note corrects. Leave empty for a free credit note (a commercial gesture, a refund of an overpayment): a reason is then required below, and some countries do not recognise a credit note with nothing to reference (saving then refuses it with that country's rule).",
       },
       {
         key: 'issueDate',
@@ -313,8 +310,7 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         label: 'Reason',
         requiredIfAbsent: 'invoice',
         helpText:
-          'Why this credit note exists — required once there is no invoice to correct (a FREE credit ' +
-          'note). Optional once one is set: the correction itself already says what this document is for.',
+          'Why this credit note exists. Required when there is no invoice to correct (a free credit note); optional once one is set, since the correction already says what this document is for.',
       },
       {
         key: 'correctedLines',

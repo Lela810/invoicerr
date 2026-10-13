@@ -228,7 +228,7 @@ export function descriptorWidgetLabel(t: DescriptorTranslator, widgetId: string,
 
 // ---- whole-tree translations — what the query hooks actually call -----------------------------
 
-/** A field's `labelKey`/`helpTextKey` wins over the derived key; with neither text nor key, nothing. */
+/** A field's `labelKey`/`helpTextKey` wins over the derived key. */
 function explicitOrDerived(
   t: DescriptorTranslator,
   explicitKey: string | undefined,

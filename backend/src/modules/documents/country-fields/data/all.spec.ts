@@ -91,6 +91,7 @@ describe('country-fields/data — five countries ship a real overlay', () => {
         key: field.key,
         kind: field.kind,
         label: field.label,
+        labelKey: field.labelKey,
         required: field.required ?? false,
         options: field.options,
       });

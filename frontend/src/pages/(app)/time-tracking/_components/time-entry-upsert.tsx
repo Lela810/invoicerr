@@ -19,7 +19,7 @@ import { fromCalendarDate, toCalendarDate, todayCalendarDate } from "@/lib/calen
 import { currencies } from "@/lib/constants/currencies"
 import type { TimeEntry } from "@/types"
 
-const buildTimeEntrySchema = (t: TFunction) =>
+export const buildTimeEntrySchema = (t: TFunction) =>
   z.object({
     date: z.string().min(1, { message: t("timeTracking.entries.errors.dateRequired") }),
     // Hours, not minutes — the unit a person actually thinks in; converted at the submit boundary
@@ -27,7 +27,10 @@ const buildTimeEntrySchema = (t: TFunction) =>
     hours: z.number().gt(0, { message: t("timeTracking.entries.errors.durationPositive") }),
     description: z.string().optional(),
     billable: z.boolean(),
-    hourlyRate: z.number().min(0).nullable(),
+    hourlyRate: z
+      .number({ invalid_type_error: t("timeTracking.entries.errors.hourlyRateMin") })
+      .min(0, { message: t("timeTracking.entries.errors.hourlyRateMin") })
+      .nullable(),
   })
 
 type TimeEntryForm = z.infer<ReturnType<typeof buildTimeEntrySchema>>

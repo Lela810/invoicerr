@@ -139,8 +139,7 @@ describe("i18n descriptors (item 25) -- key derived in EN, falling back to the r
 		cy.get('[data-cy="document-field-notes"]').should("contain.text", "Notes");
 
 		// Help texts take the same derived-key path as labels
-		// (documents.descriptors.invoice.fields.<key>.helpText): the English catalog's wording, which
-		// differs from the descriptor's raw text, is what the popover carries.
+		// (documents.descriptors.invoice.fields.<key>.helpText) and reach the popover.
 		cy.get('[data-cy="document-field-clientReference-help"]').should(
 			"have.text",
 			"The buyer's own reference for this document: their purchase order or file number.",

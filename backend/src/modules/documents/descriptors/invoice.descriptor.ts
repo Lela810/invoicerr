@@ -577,7 +577,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         kind: 'text',
         label: 'Client reference / PO number',
         required: false,
-        helpText: "The buyer's own reference for this document — their purchase order or file number.",
+        helpText: "The buyer's own reference for this document: their purchase order or file number.",
         hideWhenEmpty: true,
       },
       {

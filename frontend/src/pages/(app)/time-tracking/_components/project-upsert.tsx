@@ -19,14 +19,17 @@ import { useClientSearch, useCompany, useCreateProject, useUpdateProject } from 
 import { currencies } from "@/lib/constants/currencies"
 import type { Project } from "@/types"
 
-const buildProjectSchema = (t: TFunction) =>
+export const buildProjectSchema = (t: TFunction) =>
   z.object({
     clientId: z.string().min(1, { message: t("timeTracking.projects.errors.clientRequired") }),
     name: z.string().min(1, { message: t("timeTracking.projects.errors.nameRequired") }),
     description: z.string().optional(),
     // `null` (never `undefined`) when emptied — same "explicit null clears it" convention
     // articles.service.ts's own quantity/lowStockThreshold fields hold (see ArticleUpsert).
-    hourlyRate: z.number().min(0).nullable(),
+    hourlyRate: z
+      .number({ invalid_type_error: t("timeTracking.projects.errors.hourlyRateMin") })
+      .min(0, { message: t("timeTracking.projects.errors.hourlyRateMin") })
+      .nullable(),
   })
 
 type ProjectForm = z.infer<ReturnType<typeof buildProjectSchema>>

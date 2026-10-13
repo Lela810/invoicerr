@@ -770,7 +770,7 @@
               "key": "supplyType",
               "kind": "select",
               "label": "Supply type",
-              "labelKey": "documents.countryFields.supplyType.crossBorderTax.label",
+              "labelKey": "documents.countryFields.supplyType.label",
               "required": false,
               "options": [
                 {
@@ -798,7 +798,7 @@
               "key": "supplyType",
               "kind": "select",
               "label": "Supply type",
-              "labelKey": "documents.countryFields.supplyType.crossBorderTax.label",
+              "labelKey": "documents.countryFields.supplyType.label",
               "required": false,
               "options": [
                 {
@@ -826,7 +826,7 @@
               "key": "supplyType",
               "kind": "select",
               "label": "Supply type",
-              "labelKey": "documents.countryFields.supplyType.crossBorderTax.label",
+              "labelKey": "documents.countryFields.supplyType.label",
               "required": false,
               "options": [
                 {
@@ -854,7 +854,7 @@
               "key": "supplyType",
               "kind": "select",
               "label": "Supply type",
-              "labelKey": "documents.countryFields.supplyType.crossBorderTax.label",
+              "labelKey": "documents.countryFields.supplyType.label",
               "required": false,
               "options": [
                 {
