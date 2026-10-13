@@ -10,6 +10,13 @@ repository instead of `docker-compose.yml`. It deploys the same image in two rol
 queue consumer) — as independently-scaled Deployments, plus Redis, an optional OCR service, and an
 Ingress.
 
+:::info[The chart runs Invoicerr 2.x and needs an image tag]
+The chart has no default image: `helm install` and `helm template` fail until `image.tag` (or
+`image.digest`) is set. It only works with 2.x images, published as pre-releases for now
+(`v2.0.0-alpha.N`). A 1.x image has neither the `worker` role nor the `catalogs:release` script the
+chart's hook Job runs. See "Which tag?" below to choose one.
+:::
+
 :::info[Reference deployment]
 This guide follows the setup this project actually runs in production: **Scaleway Kubernetes
 Kapsule** (Paris), **Scaleway Object Storage** for the legal document archive, and **Scaleway
@@ -371,7 +378,7 @@ kubectl rollout restart deployment/invoicerr-api deployment/invoicerr-worker
 ```yaml title="values.prod.yaml"
 image:
   repository: ghcr.io/invoicerr-app/invoicerr
-  tag: "v2.0.0-alpha.5" # pin an EXISTING tag, see "Which tag?" below; never "latest" for anything you operate
+  tag: "v2.0.0-alpha.5" # required, an EXISTING 2.x tag, see "Which tag?" below
 
 existingSecret: invoicerr-secrets
 
@@ -432,11 +439,10 @@ As of 2026-09-20 both print the same `Digest: sha256:615f4cec…`, while `:v1.4.
 one. This is the concrete reason the guide says to pin: on this repository `latest` means "newest
 full release", not "newest thing published", and the two have differed since July 2026.
 
-The chart's default `image.tag` is `v1.4.5c`, the latest stable release, the same image `:latest`
-resolves to, pinned so that it never moves on its own. Version 2 is published as pre-releases
-(`v2.0.0-alpha.N`); to run one, set `image.tag` to it, as the example above does. Setting
-`image.tag: ""` selects `v` followed by the chart's `appVersion` (`Chart.yaml`), the 2.x release
-the chart was written against.
+For this chart, choose a 2.x release from that list: `gh release list` marks them `Pre-release`.
+The chart's `appVersion` (`Chart.yaml`) names the release it was last written against, a safe
+choice when in doubt. `image.tag` has no default, so `:latest`, which still resolves to a 1.x
+image, is never pulled by accident.
 
 Pinning a digest is stronger still: set `image.digest: "sha256:…"` next to the tag, and the
 templates render `repository:tag@sha256:…`, which the container runtime pulls by digest. A
@@ -504,10 +510,12 @@ cert-manager has issued the certificate (`kubectl get certificate`), the app is 
 The chart's defaults now follow the Kubernetes rules SonarCloud checks. On `helm upgrade`, with
 your own values file unchanged:
 
-- **`image.tag` no longer defaults to `latest`** but to `v1.4.5c`, the image `:latest` resolves
-  to. A values file that sets no tag keeps running the same image, now pinned: the upgrade does not
-  move you to 2.x. To opt into a 2.x pre-release, set `image.tag` (for example `v2.0.0-alpha.5`).
-  If you also set `image.digest`, change it in the same edit: the digest decides what is pulled.
+- **`image.tag` no longer defaults to `latest`; it has no default at all.** A values file that
+  sets no tag now fails at `helm upgrade` with `Set image.tag (for example v2.0.0-alpha.5)`, before
+  anything changes in the cluster. Such an install was pulling `:latest`, a 1.x image this chart
+  cannot run (no `worker` role, no `catalogs:release` script). Set `image.tag` to a 2.x release and
+  upgrade again. If you also set `image.digest`, change both together: the digest decides what is
+  pulled.
 - **The service account token is no longer mounted** in any pod
   (`automountServiceAccountToken: false`). Invoicerr never calls the Kubernetes API. Set
   `serviceAccount.automount: true` only if something you add to the api or worker pods needs it.
