@@ -360,7 +360,7 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
 
     <div class="field-row">
       <div class="field-label">Items</div>
-      <div class="field-value"><table style="border-collapse: collapse; width: 100%; margin-top: 8px;"><thead><tr style="border-bottom: 1px solid #ccc;"><th style="padding: 8px; text-align: left; font-weight: bold;">Description</th><th style="padding: 8px; text-align: left; font-weight: bold;">Quantity</th><th style="padding: 8px; text-align: left; font-weight: bold;">Unit price</th></tr></thead><tbody><tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">Consulting hours</td><td style="padding: 8px;">2</td><td style="padding: 8px;">100.00 </td></tr><tr class="table-tail"><td colspan="3">
+      <div class="field-value"><table style="border-collapse: collapse; width: 100%; margin-top: 8px;"><thead><tr style="border-bottom: 1px solid #ccc;"><th style="text-align: left; font-weight: bold;">Description</th><th style="text-align: left; font-weight: bold;">Quantity</th><th style="text-align: left; font-weight: bold;">Unit price</th></tr></thead><tbody><tr style="border-bottom: 1px solid #eee;"><td>Consulting hours</td><td>2</td><td>100.00 </td></tr><tr class="table-tail"><td colspan="3">
     <div class="totals-section">
       <div class="totals-label">Totals</div>
 

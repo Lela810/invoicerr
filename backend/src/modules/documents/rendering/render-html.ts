@@ -162,7 +162,7 @@ function renderFieldValue(
       // Header
       html += '<thead><tr style="border-bottom: 1px solid #ccc;">';
       for (const subField of subFields) {
-        html += `<th style="padding: 8px; text-align: left; font-weight: bold;">${escapeHtmlSafe(subField.label)}</th>`;
+        html += `<th style="text-align: left; font-weight: bold;">${escapeHtmlSafe(subField.label)}</th>`;
       }
       html += '</tr></thead>';
       // Body
@@ -171,7 +171,7 @@ function renderFieldValue(
         html += '<tr style="border-bottom: 1px solid #eee;">';
         for (const subField of subFields) {
           const cellValue = renderFieldValue(subField, row[subField.key], referenceLabels, row, strings);
-          html += `<td style="padding: 8px;">${cellValue}</td>`;
+          html += `<td>${cellValue}</td>`;
         }
         html += '</tr>';
       }
@@ -1040,7 +1040,7 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
   // Short values go in one compact grid; tables keep the document's field order; long free text
   // follows the totals so the totals always sit right under the lines they sum.
   const compactItems: string[] = [];
-  const blocks: { render: (tail?: string) => string; isTable: boolean }[] = [];
+  const blocks: { render: (tail?: string) => string; isTableWithRows: boolean }[] = [];
   const trailingBlocks: string[] = [];
   for (const field of descriptor.fields) {
     // 'hiddenReference' never gets a row at all, set or not (see types.ts's own `entity` doc comment).
@@ -1069,7 +1069,7 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
         strings,
         accentColor,
       );
-      blocks.push({ render: () => groupsHtml, isTable: false });
+      blocks.push({ render: () => groupsHtml, isTableWithRows: false });
       continue;
     }
 
@@ -1095,7 +1095,8 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
 `;
 
     if (resolvedRows || field.kind === 'array') {
-      blocks.push({ render: renderRow, isTable: true });
+      const rows = resolvedRows ? resolvedRows.rows : value;
+      blocks.push({ render: renderRow, isTableWithRows: Array.isArray(rows) && rows.length > 0 });
     } else if (COMPACT_FIELD_KINDS.has(field.kind)) {
       compactItems.push(`
       <div class="meta-item">
@@ -1105,7 +1106,7 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
     } else if (field.kind === 'longText') {
       trailingBlocks.push(renderRow());
     } else {
-      blocks.push({ render: renderRow, isTable: false });
+      blocks.push({ render: renderRow, isTableWithRows: false });
     }
   }
 
@@ -1115,14 +1116,11 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
     </div>
 `;
   }
-  // The totals ride inside the last table as its closing row: Chromium ignores `break-before: avoid`
+  // The totals ride inside the last table that has rows, as its closing row: Chromium ignores `break-before: avoid`
   // between a table and the block after it, but honors it between two rows.
-  const lastBlock = blocks.at(-1);
-  const totalsInTable = !!totalsHtml && !!lastBlock?.isTable;
-  html += blocks
-    .map((block) => block.render(block === lastBlock && totalsInTable ? totalsHtml : ''))
-    .join('');
-  if (!totalsInTable) {
+  const tailBlock = totalsHtml ? blocks.findLast((block) => block.isTableWithRows) : undefined;
+  html += blocks.map((block) => block.render(block === tailBlock ? totalsHtml : '')).join('');
+  if (!tailBlock) {
     html += totalsHtml;
   }
 

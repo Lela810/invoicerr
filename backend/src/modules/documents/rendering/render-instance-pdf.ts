@@ -209,23 +209,9 @@ async function companyCustomFieldsFor(
 }
 
 /**
- * The document's own client (its language and postal address), read ahead of the render from the
- * SAME client id `referenceLabels` above already
- * resolves a display name for (`findClientReferenceField`, the one rule `actions/email-template.ts`
- * owns — see its own updated header). A document type with no "client" reference field at all
- * (`expense` has none; `credit-note`/`received-invoice` don't reference one either) simply never has a
- * client to ask, and falls straight to `company.language` — never a lookup on an id that doesn't exist.
- *
- * A dangling/unresolvable client id (the same defensive case the `referenceLabels` loop above already
- * tolerates) is read the same way: a scoped lookup returning `null` is not an error here, just "no
- * client-level preference available": this function must never THROW over a language or an address, the
- * same "a rendering gap must never block issuing/sending the document itself" discipline that loop's
- * own comment states. Scoped by `companyId` for the SAME reason `referenceLabels`' own lookup above
- * goes through the company-scoped `EntityReferenceRegistry` rather than a bare Prisma call: `clientId`
- * is read straight off the document's own reference field, never checked for existence at write time
- * (descriptors/field-kinds.ts's own comment on the 'reference' kind) — an id naming ANOTHER company's
- * client must fall back to `companyLanguage` exactly like a dangling one already does, never actually
- * resolve to that other tenant's own language preference.
+ * The document's client or supplier (language and postal address), or `null` when the type has no
+ * such field or the id resolves to nothing. Scoped by `companyId` because the id is read straight off
+ * the document and never checked at write time: another company's client must resolve to nothing.
  */
 async function recipientClientFor(
   companyId: string,

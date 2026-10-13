@@ -127,6 +127,18 @@ function pageOf(pages: string[], needle: string): number {
   return found[0];
 }
 
+function expectTotalsWithLastLine(pages: string[], input: RenderDocumentHtmlInput, lineCount: number): void {
+  expect(pages.length).toBeGreaterThan(1);
+  for (let i = 1; i <= lineCount; i++) {
+    const n = String(i).padStart(2, '0');
+    expect(pageOf(pages, `L${n}start`), `line ${n}`).toBe(pageOf(pages, `L${n}end`));
+  }
+  const lastLinePage = pageOf(pages, `L${String(lineCount).padStart(2, '0')}end`);
+  const gross = `${(input.totals!.grossMinor / 100).toFixed(2)} EUR`;
+  expect(pageOf(pages, gross)).toBe(lastLinePage);
+  expect(pageOf(pages, 'Net')).toBe(lastLinePage);
+}
+
 async function renderPages(input: RenderDocumentHtmlInput): Promise<string[]> {
   return pagesText(await renderPdf(renderDocumentHtml(input)));
 }
@@ -172,15 +184,31 @@ describe('PDF pagination', () => {
     const input = await documentInput(buildInvoiceDescriptor(), invoiceData(lineCount));
     const pages = await renderPages(input);
 
-    expect(pages.length).toBeGreaterThan(1);
-    for (let i = 1; i <= lineCount; i++) {
-      const n = String(i).padStart(2, '0');
-      expect(pageOf(pages, `L${n}start`), `line ${n}`).toBe(pageOf(pages, `L${n}end`));
-    }
-    const lastLinePage = pageOf(pages, `L${String(lineCount).padStart(2, '0')}end`);
-    const gross = `${(input.totals!.grossMinor / 100).toFixed(2)} EUR`;
-    expect(pageOf(pages, gross)).toBe(lastLinePage);
-    expect(pageOf(pages, 'Net')).toBe(lastLinePage);
+    expectTotalsWithLastLine(pages, input, lineCount);
+  }, 30_000);
+
+  it.each(
+    Array.from({ length: 13 }, (_, i) => 24 + i),
+  )('keeps the totals of a linked credit note with the last of %i corrected lines', async (lineCount) => {
+    const invoiceDescriptor = buildInvoiceDescriptor();
+    const linesField = invoiceDescriptor.fields.find((field) => field.key === 'lines')!;
+    const rows = lines(lineCount);
+    const base = await documentInput(buildCreditNoteDescriptor(), {
+      invoice: 'invoice-1',
+      issueDate: '2026-10-01',
+      currency: 'EUR',
+      correctedLines: rows.map((_, i) => `row-${i}`),
+      lines: [],
+    });
+    const input: RenderDocumentHtmlInput = {
+      ...base,
+      totals: computeDocumentTotals(invoiceDescriptor, { currency: 'EUR', lines: rows }),
+      correctedInvoice: { displayNumber: 'INV-2026-0042', issueDate: '2026-09-01' },
+      resolvedRowSelections: { correctedLines: { field: linesField, rows } },
+    };
+    const pages = await renderPages(input);
+
+    expectTotalsWithLastLine(pages, input, lineCount);
   }, 30_000);
 
   it('repeats the line table header on every page the table spans', async () => {

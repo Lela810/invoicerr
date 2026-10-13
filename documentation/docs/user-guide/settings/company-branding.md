@@ -145,20 +145,24 @@ document reads, from top to bottom:
 
 1. **Header**: your logo on the left; the document type, its number and its date on the right.
 2. **Parties**: your company and its address on the left, the client (or the supplier, on a purchase
-   order) and its address on the right.
+   order or a received invoice) and its address on the right.
 3. **Details**: the short fields of the document (issue date, due date, currency, client reference,
    and so on) in one compact grid. An optional field left empty, such as the origin document of an
    invoice, is not printed.
-4. **Lines**: the line table. On a document longer than a page, its header row is repeated at the top
-   of every page and no line is ever cut in two.
-5. **Totals**: right under the last line, always on the same page as it.
+4. **Lines**: the line table (on a credit note linked to an invoice, the corrected lines). On a
+   document longer than a page, its header row is repeated at the top of every page and a line is
+   never cut in two.
+5. **Totals**: right under the last line, on the same page as it.
 6. **Notes**, then the payment block (SEPA QR code and payment methods side by side), the legal
    mentions, and your custom fields.
 
 :::info[Page breaks]
-A document with a single line fits on one A4 page. When the lines run over a page, the page break
-falls between two lines: the totals never sit alone at the top of a page, they always come with at
-least the last line above them.
+The layout is designed so that a short document (a few lines, ordinary notes, the usual legal
+mentions and payment details) fits on one A4 page; long notes, many custom fields or a long list of
+mentions can still push the end of the document onto a second page. When the lines run over a page,
+the break falls between two lines, and the totals move with at least the last line rather than
+starting a page on their own. Only the totals and lines are kept together: notes, payment details
+and mentions flow onto the next page as needed.
 :::
 
 ## What this page used to describe, and does not any more

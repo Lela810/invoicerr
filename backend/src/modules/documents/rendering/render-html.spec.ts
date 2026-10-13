@@ -556,15 +556,15 @@ describe('renderDocumentHtml', () => {
       });
 
     it('prints the English label of a known code by default', () => {
-      expect(render('DAY')).toContain('<td style="padding: 8px;">Day</td>');
+      expect(render('DAY')).toContain('<td>Day</td>');
     });
 
     it('prints the label in the document language', () => {
-      expect(render('HUR', 'fr')).toContain('<td style="padding: 8px;">Heure</td>');
+      expect(render('HUR', 'fr')).toContain('<td>Heure</td>');
     });
 
     it('prints any other text as typed', () => {
-      expect(render('sprint')).toContain('<td style="padding: 8px;">sprint</td>');
+      expect(render('sprint')).toContain('<td>sprint</td>');
     });
   });
 
@@ -1917,6 +1917,97 @@ describe('renderDocumentHtml', () => {
       expect(html).toContain('INV-2026-0007');
       expect(html).not.toContain('Draft \u2014 no number yet');
       expect(html).not.toContain('Issued without a number');
+    });
+  });
+
+  describe('layout', () => {
+    const totals = {
+      currency: 'EUR',
+      lines: [],
+      netMinor: 10000,
+      vatMinor: 2000,
+      grossMinor: 12000,
+      vatBreakdown: [],
+      warnings: [],
+    };
+    const lineFields: DocumentTypeDescriptor['fields'] = [
+      { key: 'description', kind: 'text', label: 'Designation' },
+    ];
+    const descriptor: DocumentTypeDescriptor = {
+      id: 'test',
+      label: 'Test',
+      actions: [],
+      fields: [
+        { key: 'client', kind: 'reference', label: 'Client', entity: 'client' },
+        { key: 'issueDate', kind: 'date', label: 'Issue date' },
+        { key: 'notes', kind: 'longText', label: 'Notes' },
+        { key: 'picked', kind: 'array', label: 'Picked lines', fields: lineFields },
+        { key: 'lines', kind: 'array', label: 'Lines', fields: lineFields },
+      ],
+    };
+    const render = (data: Record<string, unknown>, recipient?: { fieldKey: string; name: string }) =>
+      renderDocumentHtml({
+        descriptor,
+        instance: { ...baseInstance, data },
+        company: baseCompany,
+        recipient,
+        referenceLabels: { client: 'Globex' },
+        totals,
+      });
+    const tableOf = (html: string, label: string) => {
+      const start = html.indexOf(`>${label}</div>`);
+      return html.slice(start, html.indexOf('</table>', start));
+    };
+
+    it('prints the recipient next to the seller, with its address, and not again among the fields', () => {
+      const html = renderDocumentHtml({
+        descriptor,
+        instance: { ...baseInstance, data: { client: 'client-1' } },
+        company: baseCompany,
+        recipient: {
+          fieldKey: 'client',
+          name: 'Globex',
+          address: '8 Market St',
+          postalCode: '1000',
+          city: 'Town',
+        },
+        referenceLabels: { client: 'Globex' },
+      });
+
+      const parties = html.slice(html.indexOf('class="parties"'), html.indexOf('class="meta-grid"'));
+      expect(parties).toContain('Acme Corp');
+      expect(parties).toContain('<div>8 Market St</div><div>1000 Town</div>');
+      expect(html.split('Globex')).toHaveLength(2);
+    });
+
+    it('without a recipient, the client stays an ordinary short field', () => {
+      const html = render({ client: 'client-1' });
+
+      expect(html).not.toContain('class="recipient-info"');
+      const grid = html.slice(html.indexOf('class="meta-grid"'));
+      expect(grid).toContain('>Client</div>');
+      expect(grid).toContain('Globex');
+    });
+
+    it('puts short fields in one compact grid and long text after the totals', () => {
+      const html = render({ issueDate: '2026-10-01', notes: 'Thanks', lines: [{ description: 'Work' }] });
+
+      expect(html).toMatch(/class="meta-item">\s*<div class="field-label">Issue date</);
+      expect(html.indexOf('class="totals-section"')).toBeLessThan(html.indexOf('Thanks'));
+    });
+
+    it('closes the last table that has rows with the totals, skipping an empty one after it', () => {
+      const html = render({ picked: [{ description: 'Corrected' }], lines: [] });
+
+      expect(tableOf(html, 'Picked lines')).toContain('<tr class="table-tail">');
+      expect(html.split('class="totals-section"')).toHaveLength(2);
+    });
+
+    it('prints the totals on their own when no table has rows', () => {
+      const html = render({ lines: [] });
+
+      expect(html).not.toContain('class="table-tail"');
+      expect(html.split('class="totals-section"')).toHaveLength(2);
     });
   });
 });
