@@ -15,13 +15,13 @@ function collectLoaders(routes: RouteObject[]): Loader[] {
 const CONCURRENCY = 2
 const FALLBACK_DELAY_MS = 1000
 const BUSY_RETRY_MS = 1000
-const SLOW_CONNECTIONS = ["slow-2g", "2g"]
+const SLOW_CONNECTIONS = new Set(["slow-2g", "2g"])
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string }
 
 function isConstrained(): boolean {
   const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection
-  return !!connection?.saveData || SLOW_CONNECTIONS.includes(connection?.effectiveType ?? "")
+  return !!connection?.saveData || SLOW_CONNECTIONS.has(connection?.effectiveType ?? "")
 }
 
 function whenIdle(callback: () => void) {
@@ -41,7 +41,10 @@ export function prefetchRoutesWhenIdle(routes: RouteObject[], { isBusy = () => f
     }
     const load = queue.shift()!
     // A failed prefetch only means the page loads on click, as without prefetch.
-    new Promise((resolve) => resolve(load())).catch(() => {}).finally(() => whenIdle(next))
+    Promise.resolve()
+      .then(load)
+      .catch(() => {})
+      .finally(() => whenIdle(next))
   }
   whenIdle(() => {
     for (let i = 0; i < CONCURRENCY; i++) next()
