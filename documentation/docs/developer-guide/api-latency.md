@@ -90,10 +90,14 @@ error rate) and the list of routes not measured.
 `docs-deploy.yml` extracts those records and `documentation/scripts/fetch-api-latency.mjs`, run by
 the documentation build, turns them into `static/api-latency.json`, which the
 [API latency](/api-latency) page loads. A build without records (a pull request's documentation
-check, a local `npm start`) shows the page with no run. The page shows
-one route at a time: p95 as a solid line, p99 as a dashed line, and every published release as a
-vertical marker. Hovering a point shows that run's date, version, p50, p95, p99 and error rate. The
-table below the chart lists the latest run, slowest first; clicking a route plots it.
+check, a local `npm start`) shows the page with no run.
+
+The page shows one route at a time: p95 as a solid line, p99 as a dashed line, and every published
+release as a vertical marker. A run is named by its short commit and the last release published
+before it, for example `5f5c7415 after v2.0.0-alpha.5`: release tags live on `main`, so the
+record's own `git describe` on `dev` would name an older release. Hovering a point shows that name,
+the run's date, p50, p95, p99 and error rate. The table below the chart lists the latest run,
+slowest first; clicking a route plots it.
 
 `docs-deploy.yml` rebuilds the site when an `API latency` run completes on `dev`, so a new record
 reaches the page without waiting for a documentation change.

@@ -65,3 +65,20 @@ test('no record yet gives an empty history the page can still render', () => {
     unmeasured: [],
   });
 });
+
+test('a run is labelled by its short commit and the latest release published before it', () => {
+  const history = buildHistory(
+    [
+      record('2026-10-13T02:20:00Z', 'nightly', '5f5c74159e50', 2),
+      record('2026-09-01T02:20:00Z', 'nightly', '0123456789ab', 2),
+    ],
+    [
+      { tag_name: 'v2.0.0-alpha.5', published_at: '2026-10-12T17:53:50Z', draft: false },
+      { tag_name: 'v2.0.0-alpha.6', published_at: '2026-10-14T10:00:00Z', draft: false },
+    ],
+  );
+  assert.deepEqual(
+    history.runs.map((r) => r.label),
+    ['01234567', '5f5c7415 after v2.0.0-alpha.5'],
+  );
+});

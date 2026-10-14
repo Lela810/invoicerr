@@ -6,7 +6,7 @@ import Heading from '@theme/Heading';
 
 import styles from './api-latency.module.css';
 
-type Run = {kind: string; ref: string; commit: string; version: string; date: string; runner: string; k6: string};
+type Run = {kind: string; ref: string; commit: string; label: string; date: string; runner: string; k6: string};
 type Point = [run: number, p50: number, p95: number, p99: number, errorRate: number];
 type History = {
   runs: Run[];
@@ -143,7 +143,7 @@ function Chart({history, route}: Readonly<{history: History; route: string}>): R
           }}>
           <strong>{day(history.runs[hovered[0]].date)}</strong> {history.runs[hovered[0]].kind}
           <br />
-          {history.runs[hovered[0]].version}
+          {history.runs[hovered[0]].label}
           <dl>
             <dt>p50</dt>
             <dd>{ms(hovered[1])} ms</dd>
@@ -259,7 +259,7 @@ export default function ApiLatency(): ReactNode {
             </div>
             <Chart history={history} route={selected} />
             <p className={styles.meta}>
-              {history.runs.length} {history.runs.length === 1 ? 'run' : 'runs'}. Latest: {day(latest.date)}, <code>{latest.version}</code>, {latest.runner}
+              {history.runs.length} {history.runs.length === 1 ? 'run' : 'runs'}. Latest: {day(latest.date)}, <code>{latest.label}</code>, {latest.runner}
               , k6 {latest.k6}.
             </p>
             <Heading as="h2">Latest run, slowest first</Heading>
