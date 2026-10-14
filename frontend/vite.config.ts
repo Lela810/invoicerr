@@ -139,6 +139,10 @@ export default defineConfig({
   server: {
     port: process.env.VITE_PORT ? parseInt(process.env.VITE_PORT) : 5173,
   },
+  // Lazy pages are invisible to the dev dependency scan, which then reloads the page on first visit.
+  optimizeDeps: {
+    entries: ["index.html", "src/pages/**/*.tsx", "!src/**/*.spec.tsx"],
+  },
   test: {
     // Component tests need a DOM. Everything else (pure zod schemas, helpers) is happy in it too,
     // so there is a single environment rather than per-file overrides.
