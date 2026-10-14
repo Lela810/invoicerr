@@ -20,6 +20,9 @@
 # without that copy step first simply ships the site without it.
 /static/openapi.json
 
+# API latency history for /api-latency, built from the perf-data branch by scripts/fetch-api-latency.mjs.
+/static/api-latency.json
+
 # Misc
 .DS_Store
 .env.local
