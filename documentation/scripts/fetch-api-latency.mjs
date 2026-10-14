@@ -15,8 +15,9 @@ const RELEASES = 'https://api.github.com/repos/invoicerr-app/invoicerr/releases?
 
 function recordsFromBranch() {
   const dir = mkdtempSync(join(tmpdir(), 'api-latency-'));
-  execFileSync('git', ['fetch', '--quiet', '--depth=1', 'origin', 'perf-data'], { stdio: 'pipe' });
-  execSync(`git archive FETCH_HEAD records | tar -x -C "${dir}"`, { stdio: 'pipe' });
+  const cwd = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+  execFileSync('git', ['fetch', '--quiet', '--depth=1', 'origin', 'perf-data'], { cwd, stdio: 'pipe' });
+  execSync(`git archive FETCH_HEAD records | tar -x -C "${dir}"`, { cwd, stdio: 'pipe' });
   return join(dir, 'records');
 }
 

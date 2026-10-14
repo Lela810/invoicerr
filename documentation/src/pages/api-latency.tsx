@@ -25,7 +25,7 @@ const day = (iso: string) => iso.slice(0, 10);
 function niceTicks(max: number): number[] {
   const raw = max / 4;
   const step = [1, 2, 5, 10].map((m) => m * 10 ** Math.floor(Math.log10(raw))).find((s) => s >= raw) ?? raw;
-  return Array.from({length: Math.floor(max / step) + 1}, (_, i) => i * step);
+  return Array.from({length: Math.ceil(max / step) + 1}, (_, i) => i * step);
 }
 
 function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
@@ -45,14 +45,14 @@ function Chart({history, route}: {history: History; route: string}): ReactNode {
   const [hover, setHover] = useState<number | null>(null);
   const points = history.routes[route] ?? [];
   const times = history.runs.map((r) => Date.parse(r.date));
-  const lo = Math.min(...times) - (times.length > 1 ? 0 : DAY);
-  const hi = Math.max(...times) + (times.length > 1 ? 0 : DAY);
+  const span = [...times, ...history.releases.map((r) => Date.parse(r.date))];
+  const lo = Math.min(...span) - (span.length > 1 ? 0 : DAY);
+  const hi = Math.max(...span) + (span.length > 1 ? 0 : DAY);
   const yTicks = niceTicks(Math.max(1, ...points.map((p) => p[3])) * 1.1);
   const yMax = yTicks.at(-1) ?? 1;
   const x = (t: number) => PAD.left + ((t - lo) / (hi - lo)) * (width - PAD.left - PAD.right);
   const y = (v: number) => PAD.top + (1 - v / yMax) * (HEIGHT - PAD.top - PAD.bottom);
   const line = (k: 2 | 3) => points.map((p, i) => `${i ? 'L' : 'M'}${x(times[p[0]])},${y(p[k])}`).join('');
-  const markers = history.releases.filter((r) => Date.parse(r.date) >= lo && Date.parse(r.date) <= hi);
   const hovered = hover === null ? undefined : points[hover];
 
   function onMove(event: React.MouseEvent<SVGRectElement>) {
@@ -89,7 +89,7 @@ function Chart({history, route}: {history: History; route: string}): ReactNode {
             {day(new Date(t).toISOString())}
           </text>
         ))}
-        {markers.map((r) => (
+        {history.releases.map((r, i) => (
           <g key={r.tag}>
             <line
               className={styles.release}
@@ -98,7 +98,11 @@ function Chart({history, route}: {history: History; route: string}): ReactNode {
               y1={PAD.top}
               y2={HEIGHT - PAD.bottom}
             />
-            <text className={styles.releaseLabel} x={x(Date.parse(r.date)) + 4} y={PAD.top + 10}>
+            <text
+              className={styles.releaseLabel}
+              x={x(Date.parse(r.date)) + (x(Date.parse(r.date)) > width - 110 ? -4 : 4)}
+              y={PAD.top + 10 + (i % 2) * 13}
+              textAnchor={x(Date.parse(r.date)) > width - 110 ? 'end' : 'start'}>
               {r.tag}
             </text>
           </g>
@@ -133,7 +137,10 @@ function Chart({history, route}: {history: History; route: string}): ReactNode {
       {hovered && (
         <div
           className={styles.tooltip}
-          style={{left: Math.min(x(times[hovered[0]]) + 12, width - 220), top: PAD.top}}>
+          style={{
+            left: x(times[hovered[0]]) + 232 < width ? x(times[hovered[0]]) + 12 : x(times[hovered[0]]) - 232,
+            top: HEIGHT - PAD.bottom - 150,
+          }}>
           <strong>{day(history.runs[hovered[0]].date)}</strong> {history.runs[hovered[0]].kind}
           <br />
           {history.runs[hovered[0]].version}
@@ -248,7 +255,7 @@ export default function ApiLatency(): ReactNode {
             </div>
             <Chart history={history} route={selected} />
             <p className={styles.meta}>
-              {history.runs.length} runs. Latest: {day(latest.date)}, <code>{latest.version}</code>, {latest.runner}
+              {history.runs.length} {history.runs.length === 1 ? 'run' : 'runs'}. Latest: {day(latest.date)}, <code>{latest.version}</code>, {latest.runner}
               , k6 {latest.k6}.
             </p>
             <Heading as="h2">Latest run, slowest first</Heading>
