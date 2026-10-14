@@ -144,6 +144,7 @@ export default defineConfig({
   // Lazy pages are invisible to the dev dependency scan, which then reloads the page on first visit.
   optimizeDeps: {
     entries: ["index.html", "src/pages/**/*.tsx", "!src/**/*.spec.tsx"],
+    include: ["@generouted/react-router/lazy"],
   },
   test: {
     // Component tests need a DOM. Everything else (pure zod schemas, helpers) is happy in it too,
