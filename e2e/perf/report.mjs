@@ -68,12 +68,11 @@ export function renderComparison(head, baseline) {
         `| \`${route}\` | ${ms(base.p95)} | ${ms(m.p95)} | ${delta(base.p95, m.p95)} | ${ms(base.p99)} | ${ms(m.p99)} | ${delta(base.p99, m.p99)} | ${ms(m.p50)} | ${Math.round(m.errorRate * 100)}% |`,
     );
 
-  const against =
-    baseline.runs > 1
-      ? ` against the median of the last ${baseline.runs} nightly runs (${baseline.from} to ${baseline.to})`
-      : baseline.runs === 1
-        ? ` against the only nightly run so far (${baseline.from})`
-        : '. No nightly run recorded yet, so the base columns are empty';
+  let against = '. No nightly run recorded yet, so the base columns are empty';
+  if (baseline.runs === 1) against = ` against the only nightly run so far (${baseline.from})`;
+  if (baseline.runs > 1) {
+    against = ` against the median of the last ${baseline.runs} nightly runs (${baseline.from} to ${baseline.to})`;
+  }
   const unmeasured = head.unmeasured ?? [];
 
   return [

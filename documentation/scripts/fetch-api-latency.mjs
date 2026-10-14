@@ -1,10 +1,7 @@
-// Writes static/api-latency.json for the /api-latency page from the records on the `perf-data`
-// branch (see .github/workflows/api-latency.yml) and the published releases. API_LATENCY_RECORDS
-// points at a local directory of records instead, for a preview. Never fails the build: without
-// records or without the releases, the page says so.
-import { execFileSync, execSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+// Writes static/api-latency.json for the /api-latency page from a directory of API latency records
+// (API_LATENCY_RECORDS, extracted from the `perf-data` branch by docs-deploy.yml) and the published
+// releases. Never fails the build: without records or without the releases, the page says so.
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,14 +9,6 @@ import { buildHistory } from './api-latency-history.mjs';
 
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'static', 'api-latency.json');
 const RELEASES = 'https://api.github.com/repos/invoicerr-app/invoicerr/releases?per_page=100';
-
-function recordsFromBranch() {
-  const dir = mkdtempSync(join(tmpdir(), 'api-latency-'));
-  const cwd = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-  execFileSync('git', ['fetch', '--quiet', '--depth=1', 'origin', 'perf-data'], { cwd, stdio: 'pipe' });
-  execSync(`git archive FETCH_HEAD records | tar -x -C "${dir}"`, { cwd, stdio: 'pipe' });
-  return join(dir, 'records');
-}
 
 function readRecords(dir) {
   return readdirSync(dir)
@@ -36,10 +25,14 @@ async function fetchReleases() {
 }
 
 let records = [];
-try {
-  records = readRecords(process.env.API_LATENCY_RECORDS ?? recordsFromBranch());
-} catch (err) {
-  console.warn(`api-latency: no records (${err.message.split('\n')[0]})`);
+if (process.env.API_LATENCY_RECORDS) {
+  try {
+    records = readRecords(process.env.API_LATENCY_RECORDS);
+  } catch (err) {
+    console.warn(`api-latency: no records (${err.message})`);
+  }
+} else {
+  console.warn('api-latency: API_LATENCY_RECORDS is not set, the page will show no run');
 }
 let releases = [];
 try {

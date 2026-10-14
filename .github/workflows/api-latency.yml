@@ -138,7 +138,7 @@ jobs:
 
       - name: Install k6, pinned and checksummed
         run: |
-          curl -sSfL -o "$RUNNER_TEMP/k6.tgz" \
+          curl -sSfL --proto '=https' --tlsv1.2 -o "$RUNNER_TEMP/k6.tgz" \
             "https://github.com/grafana/k6/releases/download/$K6_VERSION/k6-$K6_VERSION-linux-amd64.tar.gz"
           echo "$K6_SHA256  $RUNNER_TEMP/k6.tgz" | sha256sum -c -
           mkdir -p /tmp/ci-tools

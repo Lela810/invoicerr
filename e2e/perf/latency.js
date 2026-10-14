@@ -185,7 +185,7 @@ function scenario(n) {
   send('DELETE /api/clients/{id}', 'DELETE', `/api/clients/${clientId}`);
 }
 
-export default function () {
+export default function measure() {
   const probe = send(null, 'GET', '/api/company/info');
   if (probe.status !== 200) exec.test.abort(`the seeded session does not work: GET /api/company/info answered ${probe.status}`);
 

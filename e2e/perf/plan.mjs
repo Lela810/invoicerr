@@ -39,35 +39,31 @@ function resolveQuery(parameters, context) {
   return { query: new URLSearchParams(pairs).toString() };
 }
 
+function classify(route, method, parameters, template, context) {
+  if (EXCLUDED[route]) return { reason: EXCLUDED[route] };
+  if (method !== 'get') {
+    return SCRIPTED.includes(route) ? { scripted: true } : { reason: 'mutating route outside the scripted scenario' };
+  }
+  const path = resolvePath(template, context);
+  if (path.error) return { reason: path.error };
+  const query = resolveQuery(parameters, context);
+  if (query.error) return { reason: query.error };
+  return { url: query.query ? `${path.path}?${query.query}` : path.path };
+}
+
 export function buildPlan(openapi, context) {
-  const requests = [];
-  const scripted = [];
-  const unmeasured = [];
+  const plan = { requests: [], scripted: [], unmeasured: [] };
   for (const [template, operations] of Object.entries(openapi.paths ?? {})) {
-    for (const method of METHODS) {
-      const operation = operations[method];
-      if (!operation) continue;
+    for (const method of METHODS.filter((m) => operations[m])) {
       const route = `${method.toUpperCase()} ${template}`;
-      if (EXCLUDED[route]) {
-        unmeasured.push({ route, reason: EXCLUDED[route] });
-        continue;
-      }
-      if (method !== 'get') {
-        if (SCRIPTED.includes(route)) scripted.push(route);
-        else unmeasured.push({ route, reason: 'mutating route outside the scripted scenario' });
-        continue;
-      }
-      const params = [...(operations.parameters ?? []), ...(operation.parameters ?? [])];
-      const path = resolvePath(template, context);
-      const query = path.error ? path : resolveQuery(params, context);
-      if (path.error || query.error) {
-        unmeasured.push({ route, reason: path.error ?? query.error });
-        continue;
-      }
-      requests.push({ route, url: query.query ? `${path.path}?${query.query}` : path.path });
+      const parameters = [...(operations.parameters ?? []), ...(operations[method].parameters ?? [])];
+      const outcome = classify(route, method, parameters, template, context);
+      if (outcome.reason) plan.unmeasured.push({ route, reason: outcome.reason });
+      else if (outcome.scripted) plan.scripted.push(route);
+      else plan.requests.push({ route, url: outcome.url });
     }
   }
-  return { requests, scripted, unmeasured };
+  return plan;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -16,7 +16,8 @@ export function buildHistory(records, releases) {
   const routes = {};
   sorted.forEach((record, index) => {
     for (const [route, m] of Object.entries(record.routes)) {
-      (routes[route] ??= []).push([index, m.p50, m.p95, m.p99, m.errorRate]);
+      routes[route] ??= [];
+      routes[route].push([index, m.p50, m.p95, m.p99, m.errorRate]);
     }
   });
 
@@ -25,7 +26,7 @@ export function buildHistory(records, releases) {
     .map((r) => ({ tag: r.tag_name, date: r.published_at }))
     .sort((a, b) => a.date.localeCompare(b.date));
   const first = sorted[0]?.date;
-  const inEffect = first ? published.filter((r) => r.date <= first).at(-1) : undefined;
+  const inEffect = first ? published.findLast((r) => r.date <= first) : undefined;
   const markers = first ? published.filter((r) => r === inEffect || r.date > first) : [];
 
   return { runs, routes, releases: markers, unmeasured: sorted.at(-1)?.unmeasured ?? [] };

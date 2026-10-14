@@ -87,8 +87,10 @@ Nightly, manual and release runs append one JSON file to the orphan `perf-data` 
 --tags`), the date, the runner, the k6 version, every measured route (p50, p95, p99, request count,
 error rate) and the list of routes not measured.
 
-The documentation build reads that branch (`documentation/scripts/fetch-api-latency.mjs`) and
-writes `static/api-latency.json`, which the [API latency](/api-latency) page loads. The page shows
+`docs-deploy.yml` extracts those records and `documentation/scripts/fetch-api-latency.mjs`, run by
+the documentation build, turns them into `static/api-latency.json`, which the
+[API latency](/api-latency) page loads. A build without records (a pull request's documentation
+check, a local `npm start`) shows the page with no run. The page shows
 one route at a time: p95 as a solid line, p99 as a dashed line, and every published release as a
 vertical marker. Hovering a point shows that run's date, version, p50, p95, p99 and error rate. The
 table below the chart lists the latest run, slowest first; clicking a route plots it.
@@ -120,11 +122,14 @@ PERF_KIND=pr PERF_COMMIT=$(git rev-parse --short=12 HEAD) PERF_RUNNER=local PERF
 node e2e/perf/report.mjs compare /tmp/api-latency/record.json <directory of records> /tmp/api-latency/comment.md
 ```
 
-To preview the page with records of your own, point the documentation build at them:
+To preview the page with the published history, or with records of your own, point the
+documentation build at a directory of records:
 
 ```bash
+mkdir -p /tmp/api-latency-records
+git fetch origin perf-data && git archive FETCH_HEAD records | tar -x -C /tmp/api-latency-records
 cd documentation
-API_LATENCY_RECORDS=/path/to/records npm start
+API_LATENCY_RECORDS=/tmp/api-latency-records/records npm start
 ```
 
 :::info[Use a fresh database]

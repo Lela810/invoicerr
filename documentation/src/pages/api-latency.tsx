@@ -40,7 +40,7 @@ function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] 
   return [ref, width];
 }
 
-function Chart({history, route}: {history: History; route: string}): ReactNode {
+function Chart({history, route}: Readonly<{history: History; route: string}>): ReactNode {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const points = history.routes[route] ?? [];
@@ -160,7 +160,11 @@ function Chart({history, route}: {history: History; route: string}): ReactNode {
   );
 }
 
-function Latest({history, route, onSelect}: {history: History; route: string; onSelect: (r: string) => void}) {
+function Latest({
+  history,
+  route,
+  onSelect,
+}: Readonly<{history: History; route: string; onSelect: (r: string) => void}>) {
   const last = history.runs.length - 1;
   const rows = Object.entries(history.routes)
     .map(([name, points]) => ({name, p: points.at(-1)!}))
@@ -229,7 +233,7 @@ export default function ApiLatency(): ReactNode {
         </p>
         {failed && <p>The history could not be loaded.</p>}
         {!failed && !history && <p>Loading...</p>}
-        {history && history.runs.length === 0 && <p>No run recorded yet.</p>}
+        {history?.runs.length === 0 && <p>No run recorded yet.</p>}
         {history && latest && (
           <>
             <div className={styles.controls}>
