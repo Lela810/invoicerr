@@ -19,6 +19,7 @@ import Layout from "./_layout"
  */
 vi.mock("@/lib/auth", () => ({ authClient: { useSession: vi.fn() } }))
 vi.mock("@/hooks/use-document-events-sse", () => ({ useDocumentEventsSse: vi.fn() }))
+vi.mock("@/hooks/use-route-prefetch", () => ({ useRoutePrefetch: vi.fn() }))
 vi.mock("@/components/sidebar", () => ({ Sidebar: () => null }))
 vi.mock("@/components/billing-banner", () => ({ BillingBanner: () => null }))
 vi.mock("@/components/pwa-install-prompt", () => ({ PwaInstallPrompt: () => null }))
