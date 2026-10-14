@@ -2,7 +2,7 @@ import "./index.css"
 import "./lib/i18n"
 
 import { QueryClientProvider } from "@tanstack/react-query"
-import { Routes } from "@generouted/react-router"
+import { Routes } from "@generouted/react-router/lazy"
 import { CauseDayFavicon } from "@/brand/cause-day-favicon"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"

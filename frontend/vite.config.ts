@@ -112,10 +112,7 @@ export default defineConfig({
       workbox: {
         // Precache the built app shell (JS/CSS/HTML/icons) only.
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff,woff2}"],
-        // The main bundle is a single ~2.7 MB chunk (pre-existing — `vite build` already warns
-        // "chunks larger than 500 kB", unrelated to the PWA setup) and workbox's default precache
-        // limit is 2 MiB; without raising it the build fails outright rather than merely skip the
-        // asset, so this only lifts the ceiling, it doesn't request splitting that chunk.
+        // Above workbox's 2 MiB default: a chunk over the limit fails the build instead of being skipped.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // The SPA fallback (serving cached index.html for unknown navigations, e.g. a deep link
         // opened while offline) must never catch an /api/* request.
