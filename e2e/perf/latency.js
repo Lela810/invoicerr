@@ -107,20 +107,9 @@ function waitUntilSent(id) {
 }
 
 function scenario(n) {
-  const clientBody = {
-    name: `Scenario ${n} GmbH`,
-    type: 'COMPANY',
-    contactEmail: `scenario-${n}@perf.test`,
-    address: 'Mönckebergstraße 1',
-    postalCode: '20095',
-    city: 'Hamburg',
-    country: 'Germany',
-    countryCode: context.countryCode,
-    currency: 'EUR',
-    isActive: true,
-  };
+  const clientBody = { ...context.clientTemplate, name: `Scenario ${n}`, contactEmail: `scenario-${n}@perf.test` };
   const clientId = json(send('POST /api/clients', 'POST', '/api/clients', clientBody), 'id');
-  send('PATCH /api/clients/{id}', 'PATCH', `/api/clients/${clientId}`, { ...clientBody, id: clientId, city: 'Bremen' });
+  send('PATCH /api/clients/{id}', 'PATCH', `/api/clients/${clientId}`, { ...clientBody, id: clientId, name: `Scenario ${n} renamed` });
 
   const articleId = json(
     send('POST /api/articles', 'POST', '/api/articles', { name: `Scenario ${n}`, type: 'SERVICE', unitPrice: 80, vatRate: 19 }),

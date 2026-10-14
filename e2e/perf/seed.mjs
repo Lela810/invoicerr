@@ -46,20 +46,19 @@ export async function seedCompany(base) {
   }
   const action = (typeId, actionId, body) => call('POST', `/api/documents/types/${typeId}/actions/${actionId}`, body);
 
+  // New clients copy the address of one the load seed created, so this file names no country.
+  const { type, address, postalCode, city, country, countryCode, currency } = await call(
+    'GET',
+    `/api/clients/${user.clientIds[0]}`,
+  );
+  const clientTemplate = { type, address, postalCode, city, country, countryCode, currency, isActive: true };
   const clientIds = [...user.clientIds];
   while (clientIds.length < SEED.clients) {
     const n = clientIds.length;
     const client = await call('POST', '/api/clients', {
-      name: `Kunde ${n} GmbH`,
-      type: 'COMPANY',
+      ...clientTemplate,
+      name: `Client ${n}`,
       contactEmail: `buyer-${n}@perf.test`,
-      address: 'Mönckebergstraße 1',
-      postalCode: '20095',
-      city: 'Hamburg',
-      country: 'Germany',
-      countryCode: 'DE',
-      currency: 'EUR',
-      isActive: true,
     });
     clientIds.push(client.id);
   }
@@ -129,6 +128,7 @@ export async function seedCompany(base) {
     email: user.email,
     cookie: user.cookie,
     countryCode: company.countryCode,
+    clientTemplate,
     ids: {
       client: clientIds[0],
       clients: clientIds,
