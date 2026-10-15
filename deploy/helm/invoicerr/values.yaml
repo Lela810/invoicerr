@@ -19,10 +19,13 @@ image:
   # own GIT_REVISION label exists because, on 2026-09-14, the commit actually running behind a
   # moving branch tag (e.g. `:compliance-engine-v2`) could only be GUESSED by correlating the image's
   # build timestamp against the git log to within two minutes — reading it from GHCR needed a token
-  # scope nobody had. `latest` is fine for a throwaway/dev install; pin an exact tag, ideally a
-  # digest (`repository: ghcr.io/invoicerr-app/invoicerr@sha256:...` and leave `tag` empty), for
-  # anything you intend to operate.
-  tag: "latest"
+  # scope nobody had. Pin an exact tag, ideally with its digest, for anything you intend to operate.
+  # Required, no default: this chart runs Invoicerr 2.x, published as pre-releases for now
+  # (for example v2.0.0-alpha.5). A digest alone, or a repository ending in @sha256:..., also works.
+  tag: ""
+  # Optional "sha256:..." appended to the reference; the runtime pulls by digest when it is set.
+  # Change it together with the tag, or the digest wins and the old image is pulled.
+  digest: ""
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -34,6 +37,8 @@ serviceAccount:
   create: true
   name: ""
   annotations: {}
+  # Neither role calls the Kubernetes API. Set true only if something you add needs the token.
+  automount: false
 
 # ===================================================================================================
 # api — nginx + Nest API. Serves the SPA, proxies /api, runs migrations at boot.
@@ -75,8 +80,12 @@ api:
     requests:
       cpu: 250m
       memory: 256Mi
+      ephemeral-storage: 256Mi
     limits:
       memory: 768Mi
+      # Billing exports are zipped under /tmp, and local document storage without a PVC lands on
+      # this filesystem too: past this limit the kubelet evicts the pod.
+      ephemeral-storage: 4Gi
   # `/api/health` (HealthController, @Public()) does a real `SELECT 1` against Postgres: 200 when
   # the database answers, 503 otherwise. That makes it a GOOD readiness probe (a pod that can't reach
   # its database should stop receiving traffic) but a BAD liveness probe used alone — a transient DB
@@ -137,8 +146,11 @@ worker:
     requests:
       cpu: 100m
       memory: 192Mi
+      ephemeral-storage: 256Mi
     limits:
       memory: 768Mi
+      # Same reason as api.resources.
+      ephemeral-storage: 4Gi
   # The worker's own bootstrap (backend/src/worker.ts) starts a minimal HTTP server on :3001
   # answering `{"status":"ok"}` on ANY path — plain TCP or an HTTP GET both work equally well; GET is
   # used here so a failing response body would also show up in `kubectl describe pod`.
@@ -414,6 +426,7 @@ postgresql:
   image:
     repository: postgres
     tag: "15"
+    digest: ""
   auth:
     # Plaintext on purpose — this whole block only ever applies to the dev/kind-only bundled
     # Postgres below, matching the repo's own docker-compose.yml dev defaults byte for byte.
@@ -424,7 +437,16 @@ postgresql:
     enabled: true
     size: 5Gi
     storageClassName: ""
-  resources: {}
+  # With persistence disabled the database lives on the container's own filesystem, so the
+  # ephemeral-storage limit is also the database's size limit.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 256Mi
+    limits:
+      memory: 1Gi
+      ephemeral-storage: 4Gi
 
 # Read only when postgresql.enabled=false. Not consumed directly by the application (which reads
 # DATABASE_URL straight out of the Secret named by `existingSecret`) — `host` exists only so this
@@ -446,12 +468,24 @@ redis:
     port: 6379
   image:
     repository: bitnami/redis
-    tag: latest
+    # bitnami/redis publishes only `latest` on Docker Hub, so the default pins that image by digest.
+    # To use a tag instead, set `tag` and clear `digest`.
+    tag: ""
+    digest: "sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62"
   persistence:
     enabled: true
     size: 2Gi
     storageClassName: ""
-  resources: {}
+  # With persistence disabled the append-only file lives on the container's own filesystem and
+  # counts against the ephemeral-storage limit.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+      ephemeral-storage: 64Mi
+    limits:
+      memory: 1Gi
+      ephemeral-storage: 2Gi
 
 # ===================================================================================================
 # OCR of scanned received invoices — optional, off by default. Our own image
@@ -463,7 +497,9 @@ ocr:
   enabled: false
   image:
     repository: ghcr.io/invoicerr-app/ocr-image
-    tag: latest
+    # ocr-image publishes one tag per commit; pin one rather than `latest`.
+    tag: "648d151f41767cb4ecb84038a6af07ae06d86bfb"
+    digest: ""
   service:
     # Must match the port the ocr-image server listens on (docker-compose.yml's own commented-out
     # OCR_SERVICE_URL example uses the same 9998).
@@ -486,9 +522,11 @@ ocr:
     requests:
       cpu: 250m
       memory: 512Mi
+      ephemeral-storage: 256Mi
     limits:
       cpu: "2"
       memory: 2Gi
+      ephemeral-storage: 4Gi
   # How many OCR jobs run at once ACROSS THE WHOLE CLUSTER — wired as RECEIVED_INVOICE_OCR_CONCURRENCY
   # on both the api and worker deployments (only when ocr.enabled), independent of the document-action
   # queue's own concurrency. Enforced two ways from the SAME value: BullMQ's Queue.setGlobalConcurrency

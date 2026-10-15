@@ -140,3 +140,23 @@ false
 true
 {{- end -}}
 {{- end -}}
+
+{{/*
+Image reference from {repository, tag, digest}. A repository already carrying "@sha256:" is used
+verbatim.
+*/}}
+{{- define "invoicerr.image" -}}
+{{- $ref := .image.repository -}}
+{{- if not (contains "@" $ref) -}}
+{{- with .image.tag }}{{ $ref = printf "%s:%s" $ref . }}{{ end -}}
+{{- with .image.digest }}{{ $ref = printf "%s@%s" $ref . }}{{ end -}}
+{{- end -}}
+{{- $ref -}}
+{{- end -}}
+
+{{- define "invoicerr.appImage" -}}
+{{- if not (or .Values.image.tag .Values.image.digest (contains "@" .Values.image.repository)) -}}
+{{- required "Set image.tag (for example v2.0.0-alpha.5): this chart runs Invoicerr 2.x and has no default image." nil -}}
+{{- end -}}
+{{- include "invoicerr.image" (dict "image" .Values.image) -}}
+{{- end -}}

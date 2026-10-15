@@ -20,9 +20,10 @@ spec:
       labels:
         {{- include "invoicerr.componentSelectorLabels" (dict "context" . "component" "ocr") | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: ocr
-          image: "{{ .Values.ocr.image.repository }}:{{ .Values.ocr.image.tag }}"
+          image: {{ include "invoicerr.image" (dict "image" .Values.ocr.image) | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.ocr.service.port }}
