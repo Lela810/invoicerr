@@ -1,25 +1,14 @@
 import {
-  af,
   ar,
   arDZ,
   arEG,
   arMA,
   arSA,
   arTN,
-  az,
-  be,
-  beTarask,
-  bg,
-  bn,
-  bs,
-  ca,
-  ckb,
   cs,
-  cy,
   da,
   de,
   deAT,
-  el,
   enAU,
   enCA,
   enGB,
@@ -28,72 +17,22 @@ import {
   enNZ,
   enUS,
   enZA,
-  eo,
   es,
-  et,
-  eu,
-  faIR,
-  fi,
   fr,
   frCA,
   frCH,
-  fy,
-  gd,
-  gl,
-  gu,
   he,
-  hi,
-  hr,
-  ht,
-  hu,
-  hy,
-  id,
-  is,
   it,
   itCH,
   ja,
-  jaHira,
-  ka,
-  kk,
-  km,
-  kn,
   ko,
-  lb,
-  lt,
-  lv,
-  mk,
-  mn,
-  ms,
-  mt,
-  nb,
   nl,
   nlBE,
-  nn,
-  oc,
   pl,
-  pt,
   ptBR,
-  ro,
   ru,
-  se,
-  sk,
-  sl,
-  sq,
-  sr,
-  srLatn,
   sv,
-  ta,
-  te,
-  th,
-  tr,
-  ug,
   uk,
-  uz,
-  uzCyrl,
-  vi,
-  zhCN,
-  zhHK,
-  zhTW,
 } from "date-fns/locale"
 
 import LanguageDetector from "i18next-browser-languagedetector"
@@ -234,200 +173,45 @@ i18n.on("languageChanged", syncDocumentLanguage)
 // apply once more here to cover that race instead of depending on event-registration order.
 syncDocumentLanguage()
 
-export function languageToLocale(lang: string): Locale {
-  switch (lang) {
-    case "af":
-      return af
-    case "ar":
-      return ar
-    case "ar-DZ":
-      return arDZ
-    case "ar-EG":
-      return arEG
-    case "ar-MA":
-      return arMA
-    case "ar-SA":
-      return arSA
-    case "ar-TN":
-      return arTN
-    case "az":
-      return az
-    case "be":
-      return be
-    case "be-tarask":
-      return beTarask
-    case "bg":
-      return bg
-    case "bn":
-      return bn
-    case "bs":
-      return bs
-    case "ca":
-      return ca
-    case "ckb":
-      return ckb
-    case "cs":
-      return cs
-    case "cy":
-      return cy
-    case "da":
-      return da
-    case "de":
-      return de
-    case "de-AT":
-      return deAT
-    case "el":
-      return el
-    case "en-AU":
-      return enAU
-    case "en-CA":
-      return enCA
-    case "en-GB":
-      return enGB
-    case "en-IE":
-      return enIE
-    case "en-IN":
-      return enIN
-    case "en-NZ":
-      return enNZ
-    case "en-US":
-      return enUS
-    case "en-ZA":
-      return enZA
-    case "eo":
-      return eo
-    case "es":
-      return es
-    case "et":
-      return et
-    case "eu":
-      return eu
-    case "fa-IR":
-      return faIR
-    case "fi":
-      return fi
-    case "fr":
-      return fr
-    case "fr-CA":
-      return frCA
-    case "fr-CH":
-      return frCH
-    case "fy":
-      return fy
-    case "gd":
-      return gd
-    case "gl":
-      return gl
-    case "gu":
-      return gu
-    case "he":
-      return he
-    case "hi":
-      return hi
-    case "hr":
-      return hr
-    case "ht":
-      return ht
-    case "hu":
-      return hu
-    case "hy":
-      return hy
-    case "id":
-      return id
-    case "is":
-      return is
-    case "it":
-      return it
-    case "it-CH":
-      return itCH
-    case "ja":
-      return ja
-    case "ja-Hira":
-      return jaHira
-    case "ka":
-      return ka
-    case "kk":
-      return kk
-    case "km":
-      return km
-    case "kn":
-      return kn
-    case "ko":
-      return ko
-    case "lb":
-      return lb
-    case "lt":
-      return lt
-    case "lv":
-      return lv
-    case "mk":
-      return mk
-    case "mn":
-      return mn
-    case "ms":
-      return ms
-    case "mt":
-      return mt
-    case "nb":
-      return nb
-    case "nl":
-      return nl
-    case "nl-BE":
-      return nlBE
-    case "nn":
-      return nn
-    case "oc":
-      return oc
-    case "pl":
-      return pl
-    case "pt":
-      return pt
-    case "pt-BR":
-      return ptBR
-    case "ro":
-      return ro
-    case "ru":
-      return ru
-    case "se":
-      return se
-    case "sk":
-      return sk
-    case "sl":
-      return sl
-    case "sq":
-      return sq
-    case "sr":
-      return sr
-    case "sr-Latn":
-      return srLatn
-    case "sv":
-      return sv
-    case "ta":
-      return ta
-    case "te":
-      return te
-    case "th":
-      return th
-    case "tr":
-      return tr
-    case "ug":
-      return ug
-    case "uk":
-      return uk
-    case "uz":
-      return uz
-    case "uz-Cyrl":
-      return uzCyrl
-    case "vi":
-      return vi
-    case "zh-CN":
-      return zhCN
-    case "zh-HK":
-      return zhHK
-    case "zh-TW":
-      return zhTW
+// Supported languages and their regional variants, plus every shipped catalog: i18next adopts a
+// detected code verbatim when a catalog exists for it, even outside `supportedLngs`.
+const DATE_FNS_LOCALES = new Map<string, Locale>([
+  ["ar", ar],
+  ["ar-DZ", arDZ],
+  ["ar-EG", arEG],
+  ["ar-MA", arMA],
+  ["ar-SA", arSA],
+  ["ar-TN", arTN],
+  ["cs", cs],
+  ["de", de],
+  ["de-AT", deAT],
+  ["en-AU", enAU],
+  ["en-CA", enCA],
+  ["en-GB", enGB],
+  ["en-IE", enIE],
+  ["en-IN", enIN],
+  ["en-NZ", enNZ],
+  ["en-US", enUS],
+  ["en-ZA", enZA],
+  ["es", es],
+  ["fr", fr],
+  ["fr-CA", frCA],
+  ["fr-CH", frCH],
+  ["it", it],
+  ["it-CH", itCH],
+  ["nl", nl],
+  ["nl-BE", nlBE],
+  ["pl", pl],
+  ["da", da],
+  ["he", he],
+  ["ja", ja],
+  ["ko", ko],
+  ["pt-BR", ptBR],
+  ["ru", ru],
+  ["sv", sv],
+  ["uk", uk],
+])
 
-    default:
-      return enUS
-  }
+export function languageToLocale(lang: string): Locale {
+  return DATE_FNS_LOCALES.get(lang) ?? enUS
 }
