@@ -7,13 +7,15 @@ import { buildQuoteDescriptor } from '../descriptors/quote.descriptor';
 import { DocumentTypeDescriptor } from '../descriptors/types';
 import { computeDocumentTotals } from '../totals/compute-totals';
 import { renderDocumentHtml, RenderDocumentHtmlInput } from './render-html';
-import { renderPdf, warmUpPdfRenderer } from './render-pdf';
+import { renderPdf } from './render-pdf';
 import { buildEpcPayload, renderSepaQrDataUri } from './sepa-qr';
 
 vi.mock('@/prisma/prisma.service', () => ({
   __esModule: true,
   default: { log: { create: vi.fn().mockResolvedValue({}) } },
 }));
+
+vi.setConfig({ testTimeout: 30_000 });
 
 const LOGO_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="64"><rect width="240" height="64" fill="#334"/></svg>';
@@ -145,14 +147,17 @@ async function renderPages(input: RenderDocumentHtmlInput): Promise<string[]> {
 
 // A developer machine may have no Chromium at all; CI always does, so it never skips there.
 let rendererAvailable = true;
+// A full render, not just a browser launch: on a hosted runner the first page after launch costs seconds.
 beforeAll(async () => {
+  const startedAt = Date.now();
   try {
-    await warmUpPdfRenderer();
+    await renderPages(await documentInput(buildInvoiceDescriptor(), invoiceData(1)));
   } catch (error) {
-    if (process.env.CI) throw error;
+    if (process.env.CI || !String(error).includes('PDF renderer unavailable')) throw error;
     rendererAvailable = false;
   }
-}, 60_000);
+  process.stderr.write(`[render-pdf-pagination] PDF pipeline warm-up took ${Date.now() - startedAt}ms\n`);
+}, 180_000);
 
 describe('PDF pagination', () => {
   beforeEach((context) => {
@@ -185,7 +190,7 @@ describe('PDF pagination', () => {
     const pages = await renderPages(input);
 
     expectTotalsWithLastLine(pages, input, lineCount);
-  }, 30_000);
+  });
 
   it.each(
     Array.from({ length: 13 }, (_, i) => 24 + i),
@@ -209,7 +214,7 @@ describe('PDF pagination', () => {
     const pages = await renderPages(input);
 
     expectTotalsWithLastLine(pages, input, lineCount);
-  }, 30_000);
+  });
 
   it('repeats the line table header on every page the table spans', async () => {
     const pages = await renderPages(await documentInput(buildInvoiceDescriptor(), invoiceData(40)));
