@@ -141,3 +141,21 @@ describe('countries/data: a country file dropped in at runtime needs no code cha
     expect(() => loadComposedCountryFilesFrom(tmpDir)).toThrow(/"taxSystem.countryCode" \("YY"\) must match/);
   });
 });
+
+describe('countries/data: an empty catalogue directory is refused', () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'countries-data-all-spec-empty-'));
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('throws instead of returning no country, so a boot never reseeds every catalogue to nothing', () => {
+    writeFileSync(join(tmpDir, 'README.md'), 'not a country file', 'utf-8');
+
+    expect(() => loadComposedCountryFilesFrom(tmpDir)).toThrow(/no country file/);
+  });
+});

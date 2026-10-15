@@ -349,7 +349,12 @@ function loadCountryFile(dir: string, code: string): ComposedCountryView {
 /** Discovers and validates every `<cc>.json` file in `dir` - parameterized so a test can point this
  *  at an isolated directory instead of the real one, which other specs read concurrently. */
 export function loadComposedCountryFilesFrom(dir: string): ComposedCountryView[] {
-  return discoverCountryCodes(dir).map((code) => loadCountryFile(dir, code));
+  const codes = discoverCountryCodes(dir);
+  // Every boot reseed mirrors this list into the database, so an empty one would delete every country.
+  if (codes.length === 0) {
+    throw new Error(`${dir} holds no country file (<cc>.json): refusing to load an empty country catalogue`);
+  }
+  return codes.map((code) => loadCountryFile(dir, code));
 }
 
 /** One validated composed view per country with a `countries/data/<cc>.json` file - see this

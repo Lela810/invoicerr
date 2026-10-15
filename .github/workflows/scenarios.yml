@@ -68,7 +68,7 @@ jobs:
       # The backend requires Redis (BullMQ) to boot — WORKER_INLINE defaults to true, so the inline
       # compliance processors + registerRepeatables() connect at startup. Without it the Nest app
       # fails to boot and the scenario times out on a hung /api, which is exactly what happened here
-      # for weeks: `redisConnection()` defaults to localhost:6379, but `npm run start:test` loads
+      # for weeks: `redisConnection()` defaults to localhost:6379, but `npm run start:test:built` loads
       # backend/.env.test, which pins REDIS_URL to 6399 — the port the LOCAL dev container publishes
       # (ead8542e). On a runner nothing listens there, so every one of the six legs died before
       # running a single assertion. cypress.yml never hit this because its own job sets REDIS_URL
@@ -104,7 +104,7 @@ jobs:
           ./node_modules/.bin/prisma generate
           ./node_modules/.bin/prisma migrate deploy
           # See the same step in cypress.yml: `migrate deploy` never runs the seed hook, and
-          # `npm run start:test` doesn't call syncDatabaseSchema() (production-only) either — without
+          # `npm run start:test:built` doesn't call syncDatabaseSchema() (production-only) either; without
           # this, the document country-action policy table stays empty and every document action
           # 403s for the whole scenario.
           PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
@@ -148,7 +148,9 @@ jobs:
           # against this same database. `migrate dev` used to run again here — it is a
           # developer-machine command that can prompt or fail without a TTY as soon as
           # the migrations drift from schema.prisma.
-          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test > "$GITHUB_WORKSPACE/logs/backend-$SCENARIO.log" 2>&1 &)
+          # Boot from a finished build, never `nest start --watch`: see cypress.yml's `cypress-run`.
+          (cd "$GITHUB_WORKSPACE/backend" && npm run build)
+          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test:built > "$GITHUB_WORKSPACE/logs/backend-$SCENARIO.log" 2>&1 &)
           (cd "$GITHUB_WORKSPACE/frontend" && npm run start:test > /dev/null 2>&1 &)
           # wait-on above only checked the DB/mail/Redis ports were open, not that the
           # Nest app itself finished booting — a slow boot or a startup crash used to
