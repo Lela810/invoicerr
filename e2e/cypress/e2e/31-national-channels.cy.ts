@@ -29,10 +29,10 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *     the French one in place rather than adding a second row.
  *  2. Unlike PDP (whose URL is a field typed by the user, and thus falsifiable toward a
  *     closed port), the KSeF URL is FIXED per environment (`ksef-client.ts`'s own `BASE_URLS`) —
- *     no configuration field replaces it. The KSeF test therefore sends a FAKE token to the REAL
- *     public sandbox `ksef-test.mf.gov.pl`, which really rejects it (code 450, "invalid
- *     token") — verified by hand before writing this test (direct probe: response in under
- *     300ms, never a network block). SdI now has a real SOAP client (`sdicoop-client.ts`,
+ *     no company setting replaces it. The test environment's URL is read from `KSEF_TEST_API_URL`
+ *     (`backend/.env.test`), which points at the local fake KSeF API (`startFakeKsefServer`,
+ *     `cypress.config.ts`): it rejects the FAKE token with the real sandbox's own code 450. The real
+ *     round trip is `ksef.live.spec.ts`, in `compliance-live.yml`. SdI now has a real SOAP client (`sdicoop-client.ts`,
  *     "implemented-awaiting-accreditation" — AdE accreditation not obtained, see
  *     `sdi-transport.ts`'s own header): like PDP, its `endpoint` is a field typed by the user, and
  *     thus falsifiable toward the same closed port — the deposit really fails (ECONNREFUSED),
@@ -67,8 +67,8 @@ const FAKE_PDP = {
 };
 
 /** A structurally valid NIP (the well-known test NIP from the Polish Ministry of Finance — see
- *  `fa3-provider.spec.ts`'s own fixture) but a FAKE token: the real sandbox
- *  ksef-test.mf.gov.pl really rejects it (code 450) — see this file's own header, point 2. */
+ *  `fa3-provider.spec.ts`'s own fixture) but a FAKE token: the fake KSeF API
+ *  rejects it (code 450), see this file's own header, point 2. */
 const FAKE_KSEF = {
 	nip: "5260001246",
 	ksefToken: "e2e-fake-ksef-token",
@@ -124,6 +124,23 @@ function setCompanyCountry(
  * "22" — `pl.json`/`it.json`'s own `pl-standard`/`it-standard`), since neither would validate against
  * the OTHER country's list.
  */
+/** Sends a draft from the list and waits for the queue to give up, naming the channel in the row's error. */
+function sendFromListUntilFailed(invoiceId: string, channel: string) {
+	cy.visit("/documents/invoice");
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
+		.find('[data-cy="document-status-badge"]')
+		.should("contain.text", "Draft");
+
+	cy.runDocumentRowAction(invoiceId, "send");
+
+	// Three queue attempts with exponential backoff, each a real connect: 90s, measured on CI, not a guess.
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
+		.find('[data-cy="document-status-badge"]', { timeout: 90000 })
+		.should("contain.text", "Send failed");
+
+	cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should("contain.text", channel);
+}
+
 function createInvoiceDraft(vatRate = "20") {
 	return cy
 		.request({ url: `${api}/api/documents/references/client/search` })
@@ -276,37 +293,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via PDP → the queue really fails (fake server) and "send_failed" names the channel', () => {
 		createInvoiceDraft().then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			// A real click — the invoice has no "send" param (the transport reads the client, not a
-			// typed field — see invoice-actions.ts), so there is no params dialog to go through.
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// A large, documented budget, same reasoning as 28-document-async-send.cy.ts:
-			// DOCUMENT_ACTION_QUEUE_ATTEMPTS=3 by default, exponential backoff base 2000ms — up to
-			// ~6s of queueing before the final failure. `timeout` on the `.find()` itself, not just
-			// the preceding `cy.get()` (a Cypress pitfall documented in this same file 28).
-			//
-			// UNLIKE 28's own scenario (a structural refusal — no contact email — that fails every
-			// attempt near-instantly), this one is a REAL connect attempt to the fake PDP baseUrl
-			// (a closed local port). That was assumed near-instant too (ECONNREFUSED) when 40000ms
-			// was chosen; measured on CI 2026-09-14 it is not — each of the 3 attempts took ~10-13s
-			// there (fetch/undici's own connect timeout firing before an immediate refusal), pushing
-			// the total past 40s and failing this exact assertion in that run (32-channel-mandate.cy.ts
-			// runs the identical scenario). 90000ms leaves real margin; the assertion itself — a real
-			// "Send failed", never a silent success — is unchanged.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			// The VISIBLE error names the channel — never a generic message.
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"PDP",
-			);
+			sendFromListUntilFailed(invoiceId, "PDP");
 
 			// The assertion that matters reads the API, never the screen as proof of what is in the database.
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
@@ -409,8 +396,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		cy.get('[data-cy="channel-ksef-kseftoken-input"]')
 			.clear()
 			.type(FAKE_KSEF.ksefToken);
-		// Environment left on "Test (sandbox)" — that is precisely what points to the REAL
-		// ksef-test.mf.gov.pl (see this file's own header, point 2).
+		// Environment left on "Test (sandbox)", the one `KSEF_TEST_API_URL` points at the fake (header, point 2).
 		cy.get('[data-cy="channel-ksef-connect-button"]').click();
 
 		cy.get("[data-sonner-toast]", { timeout: 10000 }).should(
@@ -470,27 +456,10 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			});
 	});
 
-	it('sends an invoice via KSeF → the queue really fails (fake token rejected by the real ksef-test.mf.gov.pl) and "send_failed" names the channel', () => {
+	it('sends an invoice via KSeF → the queue really fails (fake token rejected by the local fake KSeF API) and "send_failed" names the channel', () => {
+		cy.task("startFakeKsefServer");
 		createInvoiceDraft("23").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above — see its comment for why it is 90000ms, not the
-			// 40000ms this was originally set to. The real KSeF rejection is in practice near-instant
-			// (probed by hand: < 300ms) — that part of the estimate holds — but the queueing/attempt
-			// overhead around it does not always, on CI, per the PDP test's own measurement.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"KSeF",
-			);
+			sendFromListUntilFailed(invoiceId, "KSeF");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -499,13 +468,8 @@ describe("National transports — the PDP channel, connected/disconnected via th
 						doc.status,
 						'la facture est réellement "send_failed" en base',
 					).to.eq("send_failed");
-					// `ksef-transport.ts` wraps EVERY failure (DNS, timeout, a blocked sandbox egress) in a
-					// message that names the channel — matching only `/KSeF/` would pass identically for a
-					// broken `BASE_URLS` entry or a runner with no outbound network at all, silently
-					// blind to its own reachability. The real sandbox's own rejection code for an invalid
-					// token — verified against a real run: `ksef-transport.ts`'s own auth-step wrapper
-					// produces "KSeF authentication rejected (code 450: ...)", the Polish description
-					// untranslated — only an actual round-trip to ksef-test.mf.gov.pl can produce this.
+					// Every failure names the channel, so `/KSeF/` alone would also pass on a network error:
+					// "code 450" only comes from an auth status actually returned by the API.
 					expect(
 						doc.lastActionError,
 						"l'erreur enregistrée est le vrai rejet KSeF (code 450), pas un message générique",
@@ -515,6 +479,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 						"aucune référence de session/facture sans soumission acceptée",
 					).to.not.be.a("string");
 				});
+			cy.task<string[]>("getFakeKsefRequests").should("include", "POST /v2/auth/ksef-token");
 		});
 	});
 
@@ -660,25 +625,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via SdI → the queue really fails (fake server, closed port) and "send_failed" names the channel', () => {
 		createInvoiceDraft("22").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above — see its comment: a closed-port connect (SdI's fake
-			// server here, same as PDP's) was assumed near-instant when 40000ms was chosen; measured
-			// ~10-13s per attempt on CI instead. 40-b2g-routing.cy.ts's own SdI test passed at
-			// 37983ms out of the old 40000ms on 2026-09-14 — under 5% of margin, not a real one.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"SdI",
-			);
+			sendFromListUntilFailed(invoiceId, "SdI");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -871,7 +818,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 			cy.runDocumentRowAction(invoiceId, "send");
 
-			// Same budget as the PDP/KSeF/SdI tests above — see their comment for why it is
+			// Same budget as `sendFromListUntilFailed` above, for the same reason: it is
 			// 90000ms, not 40000ms. The real PISTE rejection is in practice near-instant (probed by
 			// hand: well under a second) — that part holds — but 40-b2g-routing.cy.ts's own
 			// chorus-pro test measured ~11-12s of preamble before each of the 3 attempts even reaches

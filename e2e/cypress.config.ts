@@ -251,6 +251,61 @@ function startFakePhotonServer(): Promise<string> {
 }
 
 /**
+ * Stands in for the KSeF test API (`api-test.ksef.mf.gov.pl/v2`) so `31-national-channels.cy.ts` never
+ * depends on a public government sandbox in the required CI lane. It answers the token handshake the
+ * way the real sandbox answers a fake token: challenge, then `ksef-token` accepted, then the auth
+ * status rejected with code 450. Fixed port for the same reason as the Photon fake: the backend reads
+ * `KSEF_TEST_API_URL` from its environment at boot (`backend/.env.test`). The real round trip is
+ * proven by `ksef.live.spec.ts` in `compliance-live.yml`.
+ */
+const FAKE_KSEF_PORT = 19877;
+let fakeKsefServerUrl: string | null = null;
+const fakeKsefRequests: string[] = [];
+
+function startFakeKsefServer(): Promise<string> {
+  if (fakeKsefServerUrl) return Promise.resolve(fakeKsefServerUrl);
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      req.resume();
+      const path = (req.url ?? "/").split("?")[0];
+      fakeKsefRequests.push(`${req.method} ${path}`);
+      const reply = (status: number, body: unknown) => {
+        res.writeHead(status, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(body));
+      };
+      if (req.method === "POST" && path === "/v2/auth/challenge") {
+        const now = new Date();
+        return reply(200, {
+          challenge: "20260101-CR-FAKE000000-FAKE000000-00",
+          timestamp: now.toISOString(),
+          timestampMs: now.getTime(),
+          clientIp: "127.0.0.1",
+        });
+      }
+      if (req.method === "POST" && path === "/v2/auth/ksef-token") {
+        return reply(202, {
+          referenceNumber: "20260101-AU-FAKE000000-FAKE000000-00",
+          authenticationToken: { token: "fake-authentication-token", validUntil: new Date(Date.now() + 600_000).toISOString() },
+        });
+      }
+      if (req.method === "GET" && path.startsWith("/v2/auth/")) {
+        return reply(200, {
+          startDate: new Date().toISOString(),
+          authenticationMethod: "Token",
+          status: { code: 450, description: "Uwierzytelnianie zakończone niepowodzeniem z powodu błędnego tokenu" },
+        });
+      }
+      reply(404, { exception: { exceptionDetailList: [{ exceptionCode: 404, exceptionDescription: "not found" }] } });
+    });
+    server.on("error", reject);
+    server.listen(FAKE_KSEF_PORT, "127.0.0.1", () => {
+      fakeKsefServerUrl = `http://127.0.0.1:${FAKE_KSEF_PORT}/v2`;
+      resolve(fakeKsefServerUrl);
+    });
+  });
+}
+
+/**
  * The "AT webservice" side for `107-pt-at-declaration-payload.cy.ts` (issue #501): a local HTTPS
  * server standing in for the Portuguese AT's `fatcorews` endpoint, started once for the run, for the
  * same reason as the two fakes above. The backend's `pt-at` provider posts its SOAP
@@ -800,6 +855,12 @@ export default defineConfig({
           fakePhotonFeatures = [];
           fakePhotonRequests.length = 0;
           return null;
+        },
+        startFakeKsefServer() {
+          return startFakeKsefServer();
+        },
+        getFakeKsefRequests() {
+          return [...fakeKsefRequests];
         },
 
         /**

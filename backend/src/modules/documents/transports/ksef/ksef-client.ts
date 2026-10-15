@@ -45,6 +45,12 @@ const BASE_URLS: Record<KsefEnvironment, string> = {
   prod: 'https://api.ksef.mf.gov.pl/v2',
 };
 
+/** `KSEF_TEST_API_URL` lets the e2e suite point the TEST environment at a local fake; production is never repointable. */
+function baseUrlFor(environment: KsefEnvironment): string {
+  if (environment === 'test') return process.env.KSEF_TEST_API_URL?.trim() || BASE_URLS.test;
+  return BASE_URLS[environment];
+}
+
 export interface AuthChallengeResponse {
   challenge: string;
   timestamp: string;
@@ -283,7 +289,7 @@ export class KsefClient {
   private readonly http: KsefHttpClient;
 
   constructor(http: KsefHttpClient, config: KsefClientConfig) {
-    this.baseUrl = BASE_URLS[config.environment];
+    this.baseUrl = baseUrlFor(config.environment);
     this.nip = config.nip;
     this.ksefToken = config.ksefToken;
     this.tokenKeyPem = config.tokenEncryptionKeyPem;
