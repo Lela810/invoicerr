@@ -26,7 +26,7 @@ import { ReferenceField } from "./reference-field"
  */
 
 function jsonResponse(body: unknown): Response {
-  return { ok: true, status: 200, json: async () => body } as Response
+  return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } })
 }
 
 /** Routes the global `fetch` this field's own hooks (`useReferenceSearch`/`useReferenceResolve`,
