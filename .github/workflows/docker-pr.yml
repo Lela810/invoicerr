@@ -51,7 +51,7 @@ jobs:
           INPUT_TAG: ${{ inputs.tag }}
         run: |
           REPO_NAME_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
-          echo "image=${{ env.REGISTRY }}/${REPO_NAME_LOWER}" >> $GITHUB_OUTPUT
+          echo "image=${REGISTRY}/${REPO_NAME_LOWER}" >> "$GITHUB_OUTPUT"
 
           # The default tag is the branch name with every character a Docker tag rejects turned into
           # a dash -- `feat/compliance-engine-v2` is not a legal tag, `feat-compliance-engine-v2` is.
@@ -59,7 +59,7 @@ jobs:
           if [[ -z "$TAG" ]]; then
             TAG=$(echo "${GITHUB_REF_NAME}" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/-*$//')
           fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare
@@ -102,10 +102,11 @@ jobs:
           cache-from: type=gha,scope=${{ needs.prepare.outputs.tag }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ needs.prepare.outputs.tag }}-${{ matrix.platform }}
 
-      - run: |
+      - env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          touch "/tmp/digests/${DIGEST#sha256:}"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -122,6 +123,11 @@ jobs:
     # action-by-action check behind leaving `contents: read` out.
     permissions:
       packages: write
+    # The tag can come from the workflow_dispatch input: it reaches the scripts below as data, never
+    # as interpolated shell.
+    env:
+      IMAGE_NAME: ${{ needs.prepare.outputs.image }}
+      TAG: ${{ needs.prepare.outputs.tag }}
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -139,12 +145,13 @@ jobs:
 
       - working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create -t ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }} \
-            $(printf '${{ needs.prepare.outputs.image }}@sha256:%s ' *)
+          refs=()
+          for digest in *; do refs+=("$IMAGE_NAME@sha256:$digest"); done
+          docker buildx imagetools create -t "$IMAGE_NAME:$TAG" "${refs[@]}"
 
       - name: Publish pull command
         run: |
-          IMAGE="${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}"
+          IMAGE="$IMAGE_NAME:$TAG"
           docker buildx imagetools inspect "$IMAGE"
           DIGEST=$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}' | jq -r .digest)
           {
@@ -152,6 +159,6 @@ jobs:
             echo ""
             echo '```'
             echo "docker pull $IMAGE"
-            echo "${{ needs.prepare.outputs.image }}@$DIGEST"
+            echo "$IMAGE_NAME@$DIGEST"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

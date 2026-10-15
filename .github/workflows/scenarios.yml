@@ -52,7 +52,7 @@ jobs:
         image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
         env:
           POSTGRES_USER: invoicerr
-          POSTGRES_PASSWORD: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: invoicerr_db
         ports:
           - "5433:5432"
@@ -96,16 +96,18 @@ jobs:
           node-version: 24
 
       - name: Install backend dependencies
+        env:
+          DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
         run: |
           cd backend
-          npm ci
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" npx prisma generate
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" npx prisma migrate deploy
+          npm ci --ignore-scripts
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
           # See the same step in cypress.yml: `migrate deploy` never runs the seed hook, and
           # `npm run start:test` doesn't call syncDatabaseSchema() (production-only) either — without
           # this, the document country-action policy table stays empty and every document action
           # 403s for the whole scenario.
-          DATABASE_URL="postgresql://invoicerr:invoicerr@localhost:5433/invoicerr_db" npx prisma db seed
+          PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
 
       # See the same step in cypress.yml's `cypress-run` job: `full-lifecycle.cy.ts` sends real
       # documents, so this job renders real PDFs and needs a real Chromium — `ubuntu-latest` shipping
@@ -121,40 +123,38 @@ jobs:
       - name: Install Playwright Chromium
         # `install chromium` only — NOT `--with-deps` (sudo + apt system libraries this runner already
         # has); see cypress.yml's own step for why.
-        run: cd backend && npx playwright-core install chromium
+        run: cd backend && ./node_modules/.bin/playwright-core install chromium
 
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm ci
+          npm ci --ignore-scripts
 
       - name: Install e2e dependencies
         run: |
           cd e2e
-          npm ci
+          npm ci --ignore-scripts
+          ./node_modules/.bin/cypress install
 
       - name: Wait for DB
-        run: |
-          npx wait-on tcp:5433 --timeout 60000
-          npx wait-on tcp:8025 --timeout 60000
-          npx wait-on tcp:1025 --timeout 60000
-          npx wait-on tcp:6379 --timeout 60000
+        run: e2e/node_modules/.bin/wait-on tcp:5433 tcp:8025 tcp:1025 tcp:6379 --timeout 60000
 
       - name: Run backend, frontend & scenario
+        env:
+          SCENARIO: ${{ matrix.scenario }}
         run: |
-          mkdir -p $GITHUB_WORKSPACE/logs
-          npm install -D dotenv-cli
+          mkdir -p "$GITHUB_WORKSPACE/logs"
           # The schema is already applied: the install step ran `prisma migrate deploy`
           # against this same database. `migrate dev` used to run again here — it is a
           # developer-machine command that can prompt or fail without a TTY as soon as
           # the migrations drift from schema.prisma.
-          (cd $GITHUB_WORKSPACE/backend && npm run start:test > $GITHUB_WORKSPACE/logs/backend-${{ matrix.scenario }}.log 2>&1 &)
-          (cd $GITHUB_WORKSPACE/frontend && npm run start:test > /dev/null 2>&1 &)
+          (cd "$GITHUB_WORKSPACE/backend" && npm run start:test > "$GITHUB_WORKSPACE/logs/backend-$SCENARIO.log" 2>&1 &)
+          (cd "$GITHUB_WORKSPACE/frontend" && npm run start:test > /dev/null 2>&1 &)
           # wait-on above only checked the DB/mail/Redis ports were open, not that the
           # Nest app itself finished booting — a slow boot or a startup crash used to
           # go unnoticed until the scenario failed with a confusing auth error.
-          npx wait-on http-get://localhost:4000/api/health --timeout 120000
-          (cd $GITHUB_WORKSPACE/e2e && CYPRESS_scenario=${{ matrix.scenario }} npx cypress run --browser firefox --spec "cypress/e2e/scenarios/full-lifecycle.cy.ts")
+          "$GITHUB_WORKSPACE/e2e/node_modules/.bin/wait-on" http-get://localhost:4000/api/health --timeout 120000
+          (cd "$GITHUB_WORKSPACE/e2e" && CYPRESS_scenario="$SCENARIO" ./node_modules/.bin/cypress run --browser firefox --spec "cypress/e2e/scenarios/full-lifecycle.cy.ts")
 
       - name: Upload backend logs
         if: always()
@@ -191,7 +191,9 @@ jobs:
     if: always()
     steps:
       - name: Require the scenario matrix to have succeeded
+        env:
+          ANY_NOT_SUCCESS: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
         run: |
-          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" = "true" ]; then
+          if [ "$ANY_NOT_SUCCESS" = "true" ]; then
             exit 1
           fi

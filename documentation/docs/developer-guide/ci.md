@@ -35,6 +35,35 @@ SonarCloud's automatic analysis only analyzes pull requests and the default bran
 reports on a queue branch. Its result gates the pull request itself, before it is queued.
 :::
 
+## Workflow rules
+
+SonarCloud analyzes `.github/workflows/` too. A step added to a workflow follows the same rules as
+the existing ones:
+
+- **No lifecycle scripts.** Install with `npm ci --ignore-scripts`. A package that needs its
+  postinstall gets it as an explicit step instead: `./node_modules/.bin/cypress install` downloads
+  the Cypress binary, `./node_modules/.bin/playwright-core install chromium` the PDF browser.
+- **No `npx`.** Call the binary the lockfile installed, `./node_modules/.bin/<tool>`. `npx` installs
+  a missing package on demand, at whatever version the registry serves that day. A tool no project
+  depends on is installed once, at an exact version, with `npm install --prefix /tmp/ci-tools
+  --no-save --ignore-scripts <name>@<version>` (see `lighthouse.yml`).
+- **Actions pinned by commit SHA**, with the version in a trailing comment
+  (`uses: actions/checkout@<sha> # v4`). Renovate keeps both up to date.
+- **Least privilege.** The workflow declares a read-only floor at the top (`contents: read`,
+  `pull-requests: read` for `dco.yml`, or `{}`), and each job that needs more declares its own
+  block. A job-level block replaces the top-level one, so it restates `contents: read` when the job
+  checks out the repository. Examples: `packages: write` to push an image, `security-events: write`
+  to upload a SARIF report, `pages: read` for `actions/configure-pages`, `pages: write` and
+  `id-token: write` only on the job that deploys to GitHub Pages.
+- **No `${{ }}` inside a script.** A value from the event, an input, a matrix, `needs` or another
+  step's output goes through `env:` and is read as `"$NAME"`. GitHub substitutes `${{ }}` before the
+  shell parses the line, so a branch name or a tag containing shell syntax would run as code. The
+  rule applies to every expression, not only attacker-controlled ones, so a reviewer never has to
+  decide which values are safe.
+- **CI Postgres runs with trust auth.** Service containers set `POSTGRES_HOST_AUTH_METHOD: trust`
+  and connection strings carry no password. The database is reachable only from the runner and is
+  thrown away with the job.
+
 ## Release notes and the Discord announcement
 
 `.github/release.yml` groups pull requests into the categories GitHub's "Generate release notes"
@@ -48,6 +77,19 @@ every entry lands in "Other Changes" until that changes. Label a pull request wi
 above (or leave it unlabeled for "Other") before it merges if you want it to show up under the
 right heading in the next release's notes.
 :::
+
+## Documentation build
+
+The changelog at `/changelog` is generated at build time: `documentation/scripts/fetch-changelog.mjs`
+fetches every published release and writes one post per release into `documentation/changelog/`.
+Docusaurus compiles those posts as MDX, so `documentation/scripts/changelog-post.mjs` makes each
+release body MDX-safe first: HTML comments (GitHub's generated notes open with one) are dropped, and
+`{`, `}` and `<` outside code are escaped. Its tests run with `npm test` in `documentation/`.
+
+`docs.yml` runs those tests and the full site build on every pull request to `dev` or `main` that
+touches `documentation/`. `docs-deploy.yml` builds and publishes the site after a push to `dev`.
+A release body is not part of any pull request, so a new kind of breakage in release notes still
+shows up first on the next deploy or the next documentation pull request.
 
 ## DCO check
 
