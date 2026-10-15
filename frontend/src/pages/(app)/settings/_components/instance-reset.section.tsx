@@ -86,7 +86,7 @@ export default function InstanceResetSection() {
         onSuccess: () => {
           toast.success(t("settings.instanceReset.messages.actionSuccess"))
           setOtpModalOpen(false)
-          navigate("/auth/log-out")
+          void navigate("/auth/log-out")
         },
         onError: (error: ApiError) => {
           toast.error(t("settings.instanceReset.messages.actionError"), {

@@ -193,7 +193,7 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     await authClient.signOut()
-    navigate("/auth/sign-in")
+    void navigate("/auth/sign-in")
   }
 
   // ui/sidebar.tsx's own `side` prop ("left" | "right") is a PHYSICAL dock-side choice, independent

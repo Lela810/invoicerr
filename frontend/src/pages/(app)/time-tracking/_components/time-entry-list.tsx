@@ -84,7 +84,7 @@ export function TimeEntryList({ project }: TimeEntryListProps) {
     toast.success(
       t("timeTracking.generateInvoice.messages.viewInvoice", { count: result.billedEntryIds.length }),
     )
-    navigate("/documents/invoice")
+    void navigate("/documents/invoice")
   }
 
   return (

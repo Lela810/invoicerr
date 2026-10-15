@@ -70,7 +70,8 @@ export function useDocumentUpsert<TSchema extends z.ZodTypeAny, TEntity>(
 
   const submit = (data: z.infer<TSchema>) => {
     const trigger = isEdit ? updateTrigger : createTrigger
-    trigger(data).then((result) => {
+    // trigger toasts its own failure and resolves null, so this cannot reject.
+    void trigger(data).then((result) => {
       if (!result) return
       for (const queryKey of invalidateKeys ?? []) {
         queryClient.invalidateQueries({ queryKey })

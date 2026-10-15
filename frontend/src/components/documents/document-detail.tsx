@@ -142,7 +142,7 @@ export function DocumentDetail({ descriptor, instance }: DocumentDetailProps) {
       // result to ITS own page — `result.typeId`/`result.id` come off the action's own response;
       // nothing here names which types or actions might do this.
       if (result.typeId !== descriptor.id || result.id !== instance.id) {
-        navigate(`/documents/${result.typeId}/${result.id}`)
+        void navigate(`/documents/${result.typeId}/${result.id}`)
         return
       }
       // Same record: adopt the persisted data as the new baseline — UNLESS the user has unsaved

@@ -241,7 +241,7 @@ export default function OnBoarding({
     if (onSuccess) {
       onSuccess(company)
     } else {
-      navigate(destination)
+      void navigate(destination)
     }
   }
 

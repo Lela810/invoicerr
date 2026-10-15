@@ -40,7 +40,7 @@ export default function PortalTokenBootstrap() {
   useEffect(() => {
     if (token) setPortalToken(token)
     const search = searchParams.toString()
-    navigate({ pathname: "/portal", search: search ? `?${search}` : "" }, { replace: true })
+    void navigate({ pathname: "/portal", search: search ? `?${search}` : "" }, { replace: true })
     // biome-ignore lint/correctness/useExhaustiveDependencies: run once on mount, against whatever
     // search string this page itself landed with — never re-armed by searchParams changing identity.
   }, [token, navigate])

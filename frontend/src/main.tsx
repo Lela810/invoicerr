@@ -82,4 +82,5 @@ async function bootstrap() {
   )
 }
 
-bootstrap()
+// loadRuntimeConfig never throws; only a missing #root could, and nothing would recover from that.
+void bootstrap()

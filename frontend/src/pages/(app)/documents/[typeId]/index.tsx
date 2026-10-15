@@ -183,7 +183,7 @@ export default function DocumentTypePage() {
     if (!seed) return
     setCreateInitialData(seed)
     setCreateOpen(true)
-    navigate(location.pathname, { replace: true, state: null })
+    void navigate(location.pathname, { replace: true, state: null })
   }, [location.state])
 
   usePageHeader(descriptor?.label ?? typeId)
@@ -218,7 +218,7 @@ export default function DocumentTypePage() {
     // Same-type success needs nothing here at all: the list refetches on its own
     // (useRunDocumentAction invalidates the "documents" query) and the row simply updates in place.
     if (result.typeId !== typeId) {
-      navigate(`/documents/${result.typeId}/${result.id}`)
+      void navigate(`/documents/${result.typeId}/${result.id}`)
     }
   }
 

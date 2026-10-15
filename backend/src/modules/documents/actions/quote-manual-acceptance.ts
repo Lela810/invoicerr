@@ -44,7 +44,7 @@ import { ActionRegistry } from './action-registry';
  *     same race-safety `documents/persistence.ts#updateDocumentStatus`'s own header documents for
  *     every other conditional write in this module; a concurrent second call (a double click, a
  *     second tab) loses with a named 409 rather than silently re-recording the same fact twice.
- *  2. An `Log` row (`logger.info`, category "documents") - the AUDIT TRAIL: who, when, what note,
+ *  2. An `Log` row (`logger.audit`, category "documents") - the AUDIT TRAIL: who, when, what note,
  *     found the same way `grep audit` finds every other audit-adjacent write in this codebase.
  *  3. A `DocumentArchive` row of `kind: ACCEPTANCE` (`archive/persistence.ts#
  *     createManualAcceptanceArchive`) - the LEGAL record: this file's own header states at length why
@@ -165,12 +165,8 @@ export function registerAcceptManuallyAction(registry: ActionRegistry): void {
       ),
     };
 
-    // The AUDIT TRAIL - see this file's own header, point 2. Awaited (unlike the archive write right
-    // below): a lost audit row is a silent gap in "who did this, and when", never something to risk
-    // for a client that isn't waiting on it any longer than the archive write already takes; `logger`
-    // itself never throws even on a DB failure (`logger.service.ts`'s own header), so this can never
-    // fail the action either.
-    await logger.info('Quote marked as accepted manually (not an electronic signature)', {
+    // The AUDIT TRAIL - see this file's own header, point 2.
+    await logger.audit('Quote marked as accepted manually (not an electronic signature)', {
       category: 'documents',
       userId: ctx.actor.id,
       details: {
