@@ -404,24 +404,8 @@ describe("Correct — the screen, browser level", () => {
 						timeout: 10000,
 					}).should("be.visible");
 
-					// What the descriptor still requires UNCONDITIONALLY: only the credit note's own
-					// issue date sits on "Details" now (`invoice` itself is OPTIONAL at the descriptor
-					// level: a credit note can now be FREE, with nothing to correct at all). `invoice`
-					// moved to the "Lines" step instead of "Options" — document-create-dialog.tsx's own
-					// `buildFieldGroups` groups an OPTIONAL field with whatever `rowSelection` field
-					// names it as `sourceField` — `correctedLines` has nothing useful to offer before
-					// "invoice" resolves. `currency` FOLLOWS `invoice` onto that same step for the
-					// identical reason (its own `lockedFromReference` lock only re-applies while both
-					// fields are mounted together — `buildFieldGroups`'s own header spells out why).
-					// Three `Continue` clicks still stand between here and the Summary step that
-					// actually carries the `document-action-save-draft` button.
-					cy.pickToday('[data-cy="document-field-issueDate-input"]');
-					cy.continueDocumentWizard(); // Details -> Lines
-
-					// "Lines" is where `invoice` AND `currency` both now live — `invoice` still
-					// pre-filled and resolved to the client's own label (never a bare id or an empty
-					// picker), and `currency` already locked to it (EUR, disabled) since the two are
-					// mounted together on this same step.
+					// "Details" opens on the pre-linked invoice, resolved to the client's own label,
+					// with the currency locked to it.
 					cy.get('[data-cy="document-field-invoice-input"] button', {
 						timeout: 10000,
 					}).should("contain.text", clientName);
@@ -430,6 +414,9 @@ describe("Correct — the screen, browser level", () => {
 					})
 						.should("be.disabled")
 						.and("contain.text", "EUR");
+					cy.pickToday('[data-cy="document-field-issueDate-input"]');
+					cy.continueDocumentWizard(); // Details -> Lines
+
 					cy.get(
 						'[data-cy^="document-field-correctedLines-row-"][data-cy$="-checkbox"]',
 						{ timeout: 10000 },
@@ -486,6 +473,8 @@ describe("Correct — the screen, browser level", () => {
 			"eq",
 			"/documents/credit-note",
 		);
+		// The pre-linked invoice has resolved once it locks the currency.
+		cy.get('[data-cy="document-field-currency-input"] button', { timeout: 10000 }).should("be.disabled");
 		cy.pickToday('[data-cy="document-field-issueDate-input"]');
 		cy.continueDocumentWizard();
 	}

@@ -16,6 +16,7 @@ import type { DocumentTypeDescriptor } from "@/components/documents/types"
  */
 vi.mock("@/hooks/queries", () => ({
   useDocumentType: vi.fn(),
+  useFetchSelectableRows: vi.fn(() => vi.fn()),
   useReferenceFields: vi.fn(),
   useRunDocumentAction: vi.fn(),
   useResolveActionParamsDefaults: vi.fn(),

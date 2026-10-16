@@ -9,6 +9,7 @@ import { isOfferedOnRecord } from "@/components/documents/action-presentation"
 import { isActionAvailable } from "@/components/documents/types"
 import { useDueDateDefault } from "@/components/documents/use-due-date-default"
 import { useDocumentActionRunner } from "@/components/documents/use-document-action-runner"
+import { useSelectAllRowsOfSource } from "@/components/documents/use-select-all-rows-of-source"
 import { useDocumentType, useReferenceFields } from "@/hooks/queries"
 
 /**
@@ -132,6 +133,8 @@ export function useDocumentForm({
     resolver: zodResolver(schema),
     defaultValues: initialData ?? defaultValuesFor(descriptor.fields),
   })
+
+  useSelectAllRowsOfSource(form, descriptor.id, effectiveDescriptor.fields)
 
   useDueDateDefault(
     form,

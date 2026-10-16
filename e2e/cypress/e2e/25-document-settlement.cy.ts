@@ -411,17 +411,6 @@ describe("A credit note created ON SCREEN follows the currency of the invoice it
 						timeout: 5000,
 					}).should("be.visible");
 
-					// "issueDate" (still unconditionally `required`) is the only field left on
-					// "Details" now: "invoice" (OPTIONAL now that a credit note can be a FREE one, with
-					// nothing to correct at all) shares the "Lines" step with "correctedLines" instead —
-					// the `rowSelection` field it feeds has nothing to offer before it resolves — and
-					// "currency" FOLLOWS "invoice" onto that SAME step too (both moves are
-					// document-create-dialog.tsx's own `buildFieldGroups`, see that function's own
-					// header for the full "why": a lock that only re-applies while both fields are
-					// mounted together must never be split across two different steps).
-					cy.pickToday('[data-cy="document-field-issueDate-input"]');
-					cy.continueDocumentWizard(); // Details -> Lines
-
 					// BEFORE picking an invoice: the currency select is a normal, EDITABLE, empty
 					// select — the lock only engages once there is something concrete to follow.
 					cy.get('[data-cy="document-field-currency-input"] button')
@@ -474,6 +463,8 @@ describe("A credit note created ON SCREEN follows the currency of the invoice it
 							).should("exist");
 						});
 
+					cy.pickToday('[data-cy="document-field-issueDate-input"]');
+					cy.continueDocumentWizard(); // Details -> Lines
 					cy.get(
 						'[data-cy^="document-field-correctedLines-row-"][data-cy$="-checkbox"]',
 						{
