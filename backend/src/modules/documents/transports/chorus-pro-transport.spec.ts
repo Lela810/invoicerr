@@ -14,7 +14,7 @@ import { BadRequestException, NotImplementedException } from '@nestjs/common';
 import prisma from '@/prisma/prisma.service';
 import { ChannelCredentialsService } from '@/modules/company/channels/channels.service';
 
-import { buildChorusProTransport } from './chorus-pro-transport';
+import { buildChorusProTransport, chorusProUrlsFor } from './chorus-pro-transport';
 import { DocumentFormatProvider } from '../formats/format-provider';
 import { listCompanyPaymentMethods } from '../payment-methods/persistence';
 import { DocumentTransportContext } from './transport-registry';
@@ -404,6 +404,36 @@ describe('buildChorusProTransport', () => {
       await expect(transport.send(CTX)).rejects.toThrow(
         /Chorus Pro deposit failed: Chorus Pro PISTE authentication failed \(HTTP 400\)/,
       );
+    });
+  });
+});
+
+describe('chorusProUrlsFor', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('targets the public PISTE sandbox by default', () => {
+    vi.stubEnv('CHORUS_PRO_SANDBOX_URL', '');
+    expect(chorusProUrlsFor('sandbox')).toEqual({
+      oauthBaseUrl: 'https://sandbox-oauth.piste.gouv.fr',
+      apiBaseUrl: 'https://sandbox-api.piste.gouv.fr',
+    });
+  });
+
+  it('CHORUS_PRO_SANDBOX_URL repoints both sandbox hosts', () => {
+    vi.stubEnv('CHORUS_PRO_SANDBOX_URL', 'http://127.0.0.1:19878');
+    expect(chorusProUrlsFor('sandbox')).toEqual({
+      oauthBaseUrl: 'http://127.0.0.1:19878',
+      apiBaseUrl: 'http://127.0.0.1:19878',
+    });
+  });
+
+  it('CHORUS_PRO_SANDBOX_URL never repoints production', () => {
+    vi.stubEnv('CHORUS_PRO_SANDBOX_URL', 'http://127.0.0.1:19878');
+    expect(chorusProUrlsFor('prod')).toEqual({
+      oauthBaseUrl: 'https://oauth.piste.gouv.fr',
+      apiBaseUrl: 'https://api.piste.gouv.fr',
     });
   });
 });
