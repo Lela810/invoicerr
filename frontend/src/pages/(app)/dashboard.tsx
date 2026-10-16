@@ -104,7 +104,12 @@ function DashboardPeriodSelector() {
           never "Showing all time" next to two filled date pickers: that reads as the dates having been
           applied. Seen on the #418 screenshots with an inverted range. */}
       <span
-        className={cn("text-sm text-muted-foreground", customRangeInverted && "text-destructive")}
+        // Two lines held on a phone, where a dated range wraps and "all time" does not: picking a
+        // period must not push the cards down.
+        className={cn(
+          "min-h-[2lh] text-sm text-muted-foreground sm:min-h-0",
+          customRangeInverted && "text-destructive",
+        )}
         data-cy="dashboard-period-range"
       >
         {range
@@ -140,14 +145,20 @@ export default function Dashboard() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const range = resolveDashboardPeriod(parseDashboardPeriodParams(searchParams))
-  const { data: widgets = [], isLoading } = useDashboardWidgets(range)
+  const { data: widgets = [], isLoading, isPlaceholderData } = useDashboardWidgets(range)
 
   usePageHeader(t("dashboard.title"))
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 p-6">
       <DashboardPeriodSelector />
-      <WidgetGrid widgets={widgets} isLoading={isLoading} emptyDataCy="dashboard-empty" />
+      <WidgetGrid
+        widgets={widgets}
+        isLoading={isLoading}
+        isRefreshing={isPlaceholderData}
+        location="dashboard"
+        emptyDataCy="dashboard-empty"
+      />
     </div>
   )
 }

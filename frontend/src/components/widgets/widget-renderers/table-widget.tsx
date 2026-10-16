@@ -4,6 +4,7 @@ import { DocumentStatusBadge } from "@/components/documents/document-status-badg
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+import { WidgetValue } from "@/components/widgets/widget-value"
 import { AmountBasisCaption } from "./amount-basis"
 import type { TableWidget } from "@/components/widgets/types"
 import type { WidgetRendererProps } from "./registry"
@@ -59,7 +60,9 @@ export function TableWidgetRenderer({ widget }: WidgetRendererProps) {
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {table.rows.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">{t("widgets.table.empty")}</p>
+          <WidgetValue className="m-4">
+            <p className="text-sm text-muted-foreground">{t("widgets.table.empty")}</p>
+          </WidgetValue>
         ) : (
           <Table>
             <TableHeader>
@@ -83,11 +86,13 @@ export function TableWidgetRenderer({ widget }: WidgetRendererProps) {
                 <TableRow key={index}>
                   {table.columns.map((column) => (
                     <TableCell key={column.key}>
-                      <TableCellValue
-                        columnKey={column.key}
-                        value={row[column.key]}
-                        optionsCount={typeof row.optionsCount === "number" ? row.optionsCount : undefined}
-                      />
+                      <WidgetValue>
+                        <TableCellValue
+                          columnKey={column.key}
+                          value={row[column.key]}
+                          optionsCount={typeof row.optionsCount === "number" ? row.optionsCount : undefined}
+                        />
+                      </WidgetValue>
                     </TableCell>
                   ))}
                 </TableRow>

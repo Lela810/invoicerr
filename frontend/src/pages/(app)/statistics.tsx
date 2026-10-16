@@ -123,7 +123,12 @@ export default function Statistics() {
           ))}
         </div>
       )}
-      <WidgetGrid widgets={filteredWidgets} isLoading={isLoading} emptyDataCy="statistics-empty" />
+      <WidgetGrid
+        widgets={filteredWidgets}
+        isLoading={isLoading}
+        location="statistics"
+        emptyDataCy="statistics-empty"
+      />
     </div>
   )
 }

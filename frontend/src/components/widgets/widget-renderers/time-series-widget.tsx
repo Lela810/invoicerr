@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 import type { TimeSeriesWidget } from "@/components/widgets/types"
+import { WidgetValue } from "@/components/widgets/widget-value"
 import type { WidgetRendererProps } from "./registry"
 
 const CHART_CONFIG: ChartConfig = {
@@ -23,29 +24,33 @@ export function TimeSeriesWidgetRenderer({ widget }: WidgetRendererProps) {
     <Card data-cy={`widget-${series.id}`} data-widget-kind="timeSeries">
       <CardHeader className="gap-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{series.label}</CardTitle>
-        <p className="amount text-xl font-semibold text-foreground">
-          {total.toLocaleString()}
-          {series.unit ? (
-            <span className="ms-1 text-sm font-normal text-muted-foreground">{series.unit}</span>
-          ) : null}
-        </p>
+        <WidgetValue>
+          <p className="amount text-xl font-semibold text-foreground">
+            {total.toLocaleString()}
+            {series.unit ? (
+              <span className="ms-1 text-sm font-normal text-muted-foreground">{series.unit}</span>
+            ) : null}
+          </p>
+        </WidgetValue>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={CHART_CONFIG} className="aspect-auto h-48 w-full">
-          <LineChart data={series.points} margin={{ left: 8, right: 8 }}>
-            <CartesianGrid vertical={false} stroke="var(--border)" />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Line
-              dataKey="value"
-              type="monotone"
-              stroke="var(--color-value)"
-              strokeWidth={2}
-              dot={{ r: 3, fill: "var(--color-value)", strokeWidth: 0 }}
-              activeDot={{ r: 4 }}
-            />
-          </LineChart>
-        </ChartContainer>
+        <WidgetValue>
+          <ChartContainer config={CHART_CONFIG} className="aspect-auto h-48 w-full">
+            <LineChart data={series.points} margin={{ left: 8, right: 8 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                dataKey="value"
+                type="monotone"
+                stroke="var(--color-value)"
+                strokeWidth={2}
+                dot={{ r: 3, fill: "var(--color-value)", strokeWidth: 0 }}
+                activeDot={{ r: 4 }}
+              />
+            </LineChart>
+          </ChartContainer>
+        </WidgetValue>
       </CardContent>
     </Card>
   )

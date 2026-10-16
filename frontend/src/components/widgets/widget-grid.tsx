@@ -1,26 +1,34 @@
 import { LayoutDashboard } from "lucide-react"
-import { useMemo } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Widget as WidgetComponent } from "@/components/widgets/widget"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
+
+import { readWidgetLayout, saveWidgetLayout, type WidgetLayout } from "@/components/widgets/widget-layout"
+import { WidgetReloadingProvider } from "@/components/widgets/widget-value"
 
 import type { Widget } from "@/components/widgets/types"
 
 interface WidgetGridProps {
   widgets: Widget[]
+  /** Nothing to show yet: skeletons stand in for the cards. */
   isLoading: boolean
+  /** The widgets on screen belong to a previous request while a new one loads. */
+  isRefreshing?: boolean
+  /** Names the stored skeleton layout and the grid's `data-cy` (`<location>-widgets`). */
+  location: string
   emptyDataCy: string
 }
 
-/** A tile-shaped placeholder — the same left accent stripe (transparent, since a skeleton has no
- *  tone to show yet) and header/body split as MetricWidgetRenderer, so the KPI row doesn't jump once
- *  real tiles land. */
-function MetricSkeletonTile() {
+/** The same left accent stripe (transparent, a skeleton has no tone yet) and header/body split as
+ *  MetricWidgetRenderer. */
+function MetricSkeletonTile({ height }: { height?: number }) {
   return (
-    <Card className="gap-2 border-s-4 border-s-transparent py-4" aria-hidden="true">
+    <Card className="gap-2 border-s-4 border-s-transparent py-4" style={{ height }}>
       <CardHeader className="gap-0 px-4">
         <Skeleton className="h-3 w-20" />
       </CardHeader>
@@ -31,20 +39,56 @@ function MetricSkeletonTile() {
   )
 }
 
-/** A card-shaped placeholder for everything that isn't a metric tile — a list, a curve, a table:
- *  header title bar, then a body block tall enough to read as "a chart or a list is coming", never
- *  a bare grey rectangle with no relation to the card it will become. */
-function CardSkeleton() {
+/** A list, a curve or a table: a title bar, then a body filling whatever height the card had. */
+function CardSkeleton({ height, className }: { height?: number; className?: string }) {
   return (
-    <Card aria-hidden="true">
+    <Card className={cn("overflow-hidden", className)} style={{ height }}>
       <CardHeader className="pb-2">
         <Skeleton className="h-4 w-32" />
       </CardHeader>
-      <CardContent>
-        <Skeleton className="h-40 w-full" />
+      <CardContent className={cn("min-h-0", height ? "flex-1" : "h-40")}>
+        <Skeleton className="h-full w-full" />
       </CardContent>
     </Card>
   )
+}
+
+const METRICS_GRID = "grid grid-cols-2 gap-4 sm:grid-cols-4"
+const REST_GRID = "grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+
+/** Skeletons in the exact shape last measured at this width, or a generic row of tiles and two cards
+ *  the first time. */
+function WidgetGridSkeleton({ layout }: { layout: WidgetLayout | null }) {
+  const metrics = layout?.metrics ?? [undefined, undefined, undefined, undefined]
+  const rest = layout?.rest ?? [{ kind: "shortList" }, { kind: "timeSeries" }]
+  return (
+    <div className="flex flex-col gap-4" aria-hidden="true">
+      {metrics.length > 0 && (
+        <div className={METRICS_GRID}>
+          {metrics.map((height, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: placeholders have no identity
+            <MetricSkeletonTile key={index} height={height} />
+          ))}
+        </div>
+      )}
+      {rest.length > 0 && (
+        <div className={REST_GRID}>
+          {rest.map((item, index) => (
+            <CardSkeleton
+              // biome-ignore lint/suspicious/noArrayIndexKey: placeholders have no identity
+              key={index}
+              height={"height" in item ? item.height : undefined}
+              className={item.kind === "table" ? "col-span-full" : undefined}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function measureHeights(grid: HTMLElement | null) {
+  return grid ? [...grid.children].map((child) => Math.round(child.getBoundingClientRect().height)) : []
 }
 
 /**
@@ -58,8 +102,17 @@ function CardSkeleton() {
  * poorly squeezed into a narrow column. A location that contributes ONLY metrics (or none at all)
  * still renders correctly: an empty second grid collapses to nothing, never a stray empty band.
  */
-export function WidgetGrid({ widgets, isLoading, emptyDataCy }: WidgetGridProps) {
+export function WidgetGrid({
+  widgets,
+  isLoading,
+  isRefreshing = false,
+  location,
+  emptyDataCy,
+}: WidgetGridProps) {
   const { t } = useTranslation()
+  const metricsRef = useRef<HTMLDivElement>(null)
+  const restRef = useRef<HTMLDivElement>(null)
+  const [skeletonLayout, setSkeletonLayout] = useState<WidgetLayout | null>(null)
 
   const { metrics, rest } = useMemo(() => {
     const metrics = widgets.filter((widget) => widget.kind === "metric")
@@ -67,24 +120,21 @@ export function WidgetGrid({ widgets, isLoading, emptyDataCy }: WidgetGridProps)
     return { metrics, rest }
   }, [widgets])
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4" aria-hidden="true">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <MetricSkeletonTile />
-          <MetricSkeletonTile />
-          <MetricSkeletonTile />
-          <MetricSkeletonTile />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <CardSkeleton />
-          <CardSkeleton />
-        </div>
-      </div>
-    )
-  }
+  useLayoutEffect(() => {
+    if (isLoading) setSkeletonLayout(readWidgetLayout(location, window.innerWidth))
+  }, [isLoading, location])
 
-  if (widgets.length === 0) {
+  useEffect(() => {
+    if (isLoading || isRefreshing || widgets.length === 0) return
+    const restHeights = measureHeights(restRef.current)
+    saveWidgetLayout(location, {
+      width: window.innerWidth,
+      metrics: measureHeights(metricsRef.current),
+      rest: rest.map((widget, index) => ({ kind: widget.kind, height: restHeights[index] ?? 0 })),
+    })
+  }, [isLoading, isRefreshing, widgets, rest, location])
+
+  if (!isLoading && widgets.length === 0) {
     return (
       <EmptyState
         icon={LayoutDashboard}
@@ -95,21 +145,34 @@ export function WidgetGrid({ widgets, isLoading, emptyDataCy }: WidgetGridProps)
     )
   }
 
+  const busy = isLoading || isRefreshing
+
   return (
-    <div className="flex flex-col gap-4">
-      {metrics.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {metrics.map((widget) => (
-            <WidgetComponent key={widget.id} widget={widget} />
-          ))}
-        </div>
-      )}
-      {rest.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {rest.map((widget) => (
-            <WidgetComponent key={widget.id} widget={widget} />
-          ))}
-        </div>
+    <div className="relative" aria-busy={busy} data-cy={`${location}-widgets`}>
+      <span role="status" className="sr-only">
+        {busy ? t("widgets.loading") : ""}
+      </span>
+      {isLoading ? (
+        <WidgetGridSkeleton layout={skeletonLayout} />
+      ) : (
+        <WidgetReloadingProvider value={isRefreshing}>
+          <div className="flex flex-col gap-4">
+            {metrics.length > 0 && (
+              <div ref={metricsRef} className={METRICS_GRID}>
+                {metrics.map((widget) => (
+                  <WidgetComponent key={widget.id} widget={widget} />
+                ))}
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div ref={restRef} className={REST_GRID}>
+                {rest.map((widget) => (
+                  <WidgetComponent key={widget.id} widget={widget} />
+                ))}
+              </div>
+            )}
+          </div>
+        </WidgetReloadingProvider>
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { keepPreviousData } from "@tanstack/react-query"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -20,8 +21,9 @@ import type { Widget } from "@/components/widgets/types"
  * bounds by `lib/dashboard-period.ts` - this hook never resolves a preset itself, it only forwards
  * whatever the caller already resolved. `undefined` (the default) is the pre-#418 request shape,
  * byte-identical: no query string appended at all. The range is part of the query KEY too, so
- * picking a different period is a genuinely different query - a stale cached response for "this
- * month" is never shown while "this year" is loading.
+ * picking a different period is a genuinely different query. While it loads, the previous period's
+ * widgets stay as placeholder data (`isPlaceholderData`): the grid keeps their cards and titles, at
+ * their size, and replaces every figure with a skeleton.
  */
 export function useDashboardWidgets(range?: DashboardPeriodRange) {
   const { t } = useTranslation()
@@ -30,7 +32,7 @@ export function useDashboardWidgets(range?: DashboardPeriodRange) {
   return useApiQuery<Widget[]>(
     ["widgets", "dashboard", range?.dateFrom, range?.dateTo],
     `/api/documents/dashboard${query}`,
-    { select },
+    { select, placeholderData: keepPreviousData },
   )
 }
 
