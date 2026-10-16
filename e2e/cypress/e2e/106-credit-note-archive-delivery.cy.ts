@@ -35,10 +35,8 @@ const CREDITED_GROSS = "144.00 EUR";
 const INVOICE_GROSS = "240.00 EUR";
 
 /** France's fixed credit-note format (issue #496, `countries/data/fr.json (section "policy")`): "CN-{year}-{number:4}",
- *  its own series, counted from 1 after `resetAndSeed`. The linked note is issued first, the free one
- *  second; the refused one consumes no number. */
+ *  its own series, counted from 1 after `resetAndSeed`. The refused ones consume no number. */
 const FIRST_CREDIT_NOTE = "CN-2026-0001";
-const SECOND_CREDIT_NOTE = "CN-2026-0002";
 
 function toBase64(body: unknown): string {
 	return Cypress.Buffer.from(body as string, "binary").toString("base64");
@@ -241,26 +239,27 @@ describe("An issued credit note is archived and delivered (issue #499)", () => {
 		});
 	});
 
-	it("a free credit note (no invoice, so no client) is archived at issuance and served unchanged after a branding change", () => {
-		changeBranding("classic");
+	it("a free credit note (no invoice, so no client) is refused before numbering, and nothing is archived", () => {
 		saveDraft("credit-note", {
 			issueDate: PRE_MANDATE,
 			currency: "EUR",
 			reason: "Goodwill gesture, issue 499.",
 			lines: [{ description: "Goodwill 499", quantity: 1, unitPrice: 30, vatRate: "0" }],
 		}).then(({ id, data }) => {
-			sendAndWait("credit-note", id, data);
-			displayNumberOf("credit-note", id).then((number) => {
-				expect(number, "the next number of the same series").to.eq(SECOND_CREDIT_NOTE);
-				downloadPdf(id).then((issued) => {
-					pdfText(issued).then((text) => expect(text, "the issued PDF is this credit note").to.contain(number));
-					changeBranding("modern");
-					downloadPdf(id).then((later) => {
-						expectSameBytes(later, issued, "the issued copy, not a re-render with the new branding");
-					});
-				});
-				archiveCount(id).should("eq", 1);
+			cy.request({
+				method: "POST",
+				url: `${api}/api/documents/types/credit-note/actions/send`,
+				body: { documentId: id, data },
+				failOnStatusCode: false,
+			}).then((res) => {
+				expect(res.status, "refused, never issued to nobody").to.eq(400);
+				expect(String(res.body?.message)).to.contain("no client to send it to");
 			});
+			cy.request({ url: `${api}/api/documents/${id}?typeId=credit-note` }).then((res) => {
+				expect(res.body.status, "still a draft").to.eq("draft");
+				expect(res.body.displayNumber ?? null, "no number consumed").to.eq(null);
+			});
+			archiveCount(id).should("eq", 0);
 		});
 	});
 

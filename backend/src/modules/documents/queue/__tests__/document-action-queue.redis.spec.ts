@@ -55,6 +55,7 @@ import { DocumentTypeRegistry } from '../../descriptors/type-registry';
 import { DocumentsService } from '../../documents.service';
 import { buildDocumentReferenceProvider } from '../../references/document-reference.provider';
 import { EntityReferenceRegistry } from '../../references/reference-registry';
+import { takeDocumentNumberForTransitionWithStatus } from '../../numbering/take-number';
 import { buildEmailTransport } from '../../transports/email-transport';
 import { TransportRegistry } from '../../transports/transport-registry';
 import { DocumentQueueDispatcher } from '../document-queue.dispatcher';
@@ -204,6 +205,7 @@ describeWithRedis('document-action queue — real Redis, real Postgres, real Mai
 
   let moduleRef: TestingModule;
   let documentsService: DocumentsService;
+  let queueDispatcher: DocumentQueueDispatcher;
   let queue: Queue;
   let companyId: string;
   // A real "send" now really archives (archive/archive-on-send.ts).
@@ -241,6 +243,7 @@ describeWithRedis('document-action queue — real Redis, real Postgres, real Mai
     await moduleRef.init();
 
     documentsService = moduleRef.get(DocumentsService);
+    queueDispatcher = moduleRef.get(DocumentQueueDispatcher);
     queue = moduleRef.get<Queue>(getQueueToken(Q_DOCUMENT_ACTION));
 
     const company = await prisma.company.create({
@@ -400,5 +403,40 @@ describeWithRedis('document-action queue — real Redis, real Postgres, real Mai
     expect((stored.data as Record<string, unknown>).client).toBe(noEmailClient.id);
 
     await prisma.client.delete({ where: { id: otherClient.id } }).catch(() => undefined);
+  });
+
+  it('a free credit note queued before "send" refused it ends "send_failed" with the reason, keeping its number', async () => {
+    const creditNoteData = {
+      issueDate: '2026-01-01',
+      currency: 'EUR',
+      reason: 'Goodwill gesture.',
+      lines: [{ description: 'Refund', quantity: 1, unit: 'unit', unitPrice: 50, vatRate: '20' }],
+    };
+    const created = await documentsService.runAction(companyId, 'credit-note', 'save-draft', {
+      data: creditNoteData,
+    });
+    const documentId = created.document!.id;
+
+    // The state an older version's phase 1 left behind: numbered, "sending", its job in the queue.
+    const { numbered } = await takeDocumentNumberForTransitionWithStatus(
+      companyId,
+      'credit-note',
+      documentId,
+      ['draft'],
+      'sending',
+      creditNoteData,
+    );
+    await queueDispatcher.enqueueAction({
+      companyId,
+      typeId: 'credit-note',
+      documentId,
+      actionId: 'send',
+      payload: { data: creditNoteData, params: {} },
+    });
+
+    const settled = await waitForStatus(documentId, ['sent', 'send_failed']);
+    expect(settled.status).toBe('send_failed');
+    expect(settled.lastActionError).toMatch(/no client to send it to/);
+    expect(settled.displayNumber).toBe(numbered!.displayNumber);
   });
 });

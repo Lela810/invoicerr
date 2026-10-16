@@ -19,14 +19,14 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  * Four independent journeys, each through the real API AND the real screen - never a mock:
  *  a) a SENT invoice: "save-draft" 409s with the code-guard message, on screen the save is gone and
  *     the locked notice is shown;
- *  b) the same for a SENT credit note (free - no `invoice` to correct, same shape 50-credit-note-
- *     free.cy.ts already uses for France, the default seeded company's own country);
+ *  b) the same for a SENT credit note, correcting an invoice sent to its client;
  *  c) a SIGNED quote (the real OTP e-signature flow - see 45-signature.cy.ts / 89-quote-manual-
  *     acceptance.cy.ts for the same journey) - "save-draft" 409s too, same notice;
  *  d) a SENT quote (never locked, unlike a) and b)): "save-draft" still succeeds, and the screen
  *     still offers it with no locked notice at all.
  */
 import { FRENCH_BUYER_IDENTIFIERS } from "../fixtures/identifiers";
+import { issueCreditNote } from "../support/credit-notes";
 
 const api = Cypress.env("apiUrl");
 const appOrigin = Cypress.config("baseUrl");
@@ -157,63 +157,44 @@ describe('Issue #468 - "save-draft" refuses to rewrite an issued document', () =
 		});
 	});
 
-	it('a SENT free credit note: "save-draft" 409s with the CODE-guard message, status stays "sent", and the screen shows the locked notice', () => {
-		cy.request({
-			method: "POST",
-			url: `${api}/api/documents/types/credit-note/actions/save-draft`,
-			body: {
-				data: {
-					issueDate: "2026-09-20",
-					currency: "EUR",
-					reason: "Goodwill refund of an overpayment not tied to any invoice.",
-					lines: [{ description: "Remboursement", quantity: 1, unitPrice: 42, vatRate: "0" }],
-				},
-			},
-		}).then((saved) => {
-			const creditNoteId = saved.body?.document?.id as string;
-			expect(creditNoteId, "credit note draft created").to.be.a("string");
+	it('a SENT credit note: "save-draft" 409s with the CODE-guard message, status stays "sent", and the screen shows the locked notice', () => {
+		issueCreditNote("468").then((creditNoteId) => {
+			cy.request({ url: `${api}/api/documents/${creditNoteId}?typeId=credit-note` }).then((issued) => {
+				const creditNoteData = issued.body.data;
 
-			const creditNoteData = saved.body?.document?.data;
+				cy.request({
+					method: "POST",
+					url: `${api}/api/documents/types/credit-note/actions/save-draft`,
+					body: { documentId: creditNoteId, data: creditNoteData },
+					failOnStatusCode: false,
+				}).then((res) => {
+					expect(res.status, `refused - ${JSON.stringify(res.body).slice(0, 200)}`).to.eq(409);
+					expect(
+						String(res.body?.message ?? ""),
+						"the message names the TYPE-level refusal for the credit note",
+					).to.match(
+						/refused once the document has left draft.*status "sent".*an issued document is never rewritten/i,
+					);
+				});
 
-			cy.request({
-				method: "POST",
-				url: `${api}/api/documents/types/credit-note/actions/send`,
-				body: { documentId: creditNoteId, data: creditNoteData },
-			}).then((sent) => {
-				expect(sent.status, "send accepted").to.be.oneOf([200, 201]);
+				cy.request({ url: `${api}/api/documents/${creditNoteId}?typeId=credit-note` })
+					.its("body.status")
+					.should("eq", "sent");
+
+				cy.visit(`${appOrigin}/documents/credit-note/${creditNoteId}`);
+				cy.get('[data-cy="document-status-badge"]', { timeout: 15000 }).should("contain.text", "Sent");
+				cy.get('[data-cy="document-save-locked-notice"]', { timeout: 10000 })
+					.should("be.visible")
+					.and("contain.text", "credit note");
+				cy.get('[data-cy="document-action-save-draft"]').should("not.exist");
+
+				// Point 3 - see the invoice test's own comment just above for the full "why".
+				cy.get('[data-cy="document-form-readonly"]').should("exist");
+				cy.get('[data-cy="document-field-issueDate-input"]').should("be.disabled");
+				cy.get('[data-cy^="document-field-correctedLines-row-"][data-cy$="-checkbox"]')
+					.should("have.length.at.least", 1)
+					.each(($checkbox) => cy.wrap($checkbox).should("be.disabled"));
 			});
-			cy.waitForDocumentStatus(`${api}/api/documents/${creditNoteId}?typeId=credit-note`, ["sent"]);
-
-			cy.request({
-				method: "POST",
-				url: `${api}/api/documents/types/credit-note/actions/save-draft`,
-				body: { documentId: creditNoteId, data: creditNoteData },
-				failOnStatusCode: false,
-			}).then((res) => {
-				expect(res.status, `refused - ${JSON.stringify(res.body).slice(0, 200)}`).to.eq(409);
-				expect(
-					String(res.body?.message ?? ""),
-					"the message names the TYPE-level refusal for the credit note",
-				).to.match(
-					/refused once the document has left draft.*status "sent".*an issued document is never rewritten/i,
-				);
-			});
-
-			cy.request({ url: `${api}/api/documents/${creditNoteId}?typeId=credit-note` })
-				.its("body.status")
-				.should("eq", "sent");
-
-			cy.visit(`${appOrigin}/documents/credit-note/${creditNoteId}`);
-			cy.get('[data-cy="document-status-badge"]', { timeout: 15000 }).should("contain.text", "Sent");
-			cy.get('[data-cy="document-save-locked-notice"]', { timeout: 10000 })
-				.should("be.visible")
-				.and("contain.text", "credit note");
-			cy.get('[data-cy="document-action-save-draft"]').should("not.exist");
-
-			// Point 3 - see the invoice test's own comment just above for the full "why".
-			cy.get('[data-cy="document-form-readonly"]').should("exist");
-			cy.get('[data-cy="document-field-issueDate-input"]').should("be.disabled");
-			cy.get('[data-cy="document-field-lines-add-row"]').should("be.disabled");
 		});
 	});
 

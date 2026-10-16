@@ -195,6 +195,7 @@ export async function seedCountryCompany(
 
   // ── quote ────────────────────────────────────────────────────────────────────────────────────
   let invoiceToSettle: { id: string; data: unknown } | undefined;
+  let invoiceToCorrect: { id: string; data: unknown } | undefined;
   const outstandingOf = async (invoiceId: string): Promise<number> => {
     const { totals, settlement } = await deps.documentsService.getSettlement(companyId, 'invoice', invoiceId);
     return fromMinor(settlement.outstandingMinor, totals.currency ?? domesticCurrency);
@@ -283,7 +284,8 @@ export async function seedCountryCompany(
     };
 
     // Sent, not yet due: "pending".
-    await createSentInvoice(20);
+    const pending = await createSentInvoice(20);
+    invoiceToCorrect = { id: pending.id, data: pending.data };
 
     // Sent, past due, nothing paid: "overdue".
     await createSentInvoice(-10);
@@ -331,29 +333,34 @@ export async function seedCountryCompany(
   // country would itself refuse to accept.
   if (typeIds.has('credit-note')) {
     try {
-      // #1: standalone (no corrected invoice), own reason + lines.
-      await run('credit-note', 'save-draft', {
-        data: {
-          issueDate: isoDate(now),
-          currency: domesticCurrency,
-          reason: 'Pricing correction agreed with the client.',
-          lines: [{ ...baseLine(rng, meta, articlesInCatalog[0]), quantity: 1 }],
-        },
-      });
-      bump('credit-note');
-
-      // #2: linked to the invoice settled below, crediting its first line only. `correctedLines`
-      // (kind 'rowSelection') stores the corrected invoice's OWN line ids (`$rowId`, see
-      // row-selection.ts#ROW_ID_KEY), stamped onto every 'array' row the moment it is saved through
-      // an action a 'rowSelection' field points at, which the invoice's own earlier "save-draft" call
-      // already was. Crediting the whole invoice and then also paying it would leave an excess.
-      if (invoiceToSettle) {
-        const invoiceLines =
-          (invoiceToSettle.data as { lines?: Record<string, unknown>[] } | null)?.lines ?? [];
-        const correctedLines = invoiceLines
+      // `correctedLines` (kind 'rowSelection') stores the corrected invoice's OWN line ids (`$rowId`,
+      // see row-selection.ts#ROW_ID_KEY), stamped onto every 'array' row the moment it is saved
+      // through an action a 'rowSelection' field points at, which the invoice's own earlier
+      // "save-draft" call already was. Every credit note corrects an invoice: that invoice's client is
+      // who it is sent to, and one with no client could never be sent.
+      const rowIdsOf = (invoice: { data: unknown }) =>
+        ((invoice.data as { lines?: Record<string, unknown>[] } | null)?.lines ?? [])
           .map((line) => line.$rowId)
-          .filter((id): id is string => typeof id === 'string')
-          .slice(0, 1);
+          .filter((id): id is string => typeof id === 'string');
+
+      // #1: draft, correcting the pending invoice's last line.
+      if (invoiceToCorrect) {
+        await run('credit-note', 'save-draft', {
+          data: {
+            invoice: invoiceToCorrect.id,
+            correctedLines: rowIdsOf(invoiceToCorrect).slice(-1),
+            issueDate: isoDate(now),
+            currency: domesticCurrency,
+            reason: 'Pricing correction agreed with the client.',
+          },
+        });
+        bump('credit-note');
+      }
+
+      // #2: sent, linked to the invoice settled below, crediting its first line only. Crediting the
+      // whole invoice and then also paying it would leave an excess.
+      if (invoiceToSettle) {
+        const correctedLines = rowIdsOf(invoiceToSettle).slice(0, 1);
         const created = await run('credit-note', 'save-draft', {
           data: {
             invoice: invoiceToSettle.id,
@@ -368,10 +375,9 @@ export async function seedCountryCompany(
         bump('credit-note');
       }
     } catch (error) {
-      // The exact `correctedLines` (rowSelection) shape a credit note linked to an invoice needs is
-      // stricter than a standalone one's, AND a country can forbid the action outright (Poland,
-      // above), either way, whatever credit notes were already created before the failure (`bump`
-      // already ran for them) stand; this only stops trying further ones for this company.
+      // A country can forbid the action outright (Poland, above): whatever credit notes were already
+      // created before the failure (`bump` already ran for them) stand; this only stops trying further
+      // ones for this company.
       const detail = (error as { getResponse?: () => unknown })?.getResponse?.();
       loggerForSeed.warn(
         `credit-note seeding stopped early for ${countryCode}: ${

@@ -209,12 +209,20 @@ describe("Issue #507 - a linked credit note is worth the invoice lines it correc
 	});
 
 	it("a FREE credit note keeps pricing its own lines", () => {
-		issueCreditNote({
-			issueDate: "2026-09-21",
-			currency: "EUR",
-			reason: "Geste commercial",
-			lines: [{ description: "Remise fidelite", quantity: 1, unitPrice: 50, vatRate: "20" }],
-		}).then((noteId) => {
+		// A draft: a free credit note has no client, so it is never sent.
+		cy.request({
+			method: "POST",
+			url: `${api}/api/documents/types/credit-note/actions/save-draft`,
+			body: {
+				data: {
+					issueDate: "2026-09-21",
+					currency: "EUR",
+					reason: "Geste commercial",
+					lines: [{ description: "Remise fidelite", quantity: 1, unitPrice: 50, vatRate: "20" }],
+				},
+			},
+		}).then((saved) => {
+			const noteId = saved.body.document.id as string;
 			downloadPdfText(noteId, "507-free-credit-note.pdf").then((text) => {
 				expect(text, "the free note's own line").to.contain("Remise fidelite");
 				expect(text).to.match(/Total\s*60\.00 EUR/);

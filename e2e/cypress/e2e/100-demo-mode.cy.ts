@@ -233,6 +233,94 @@ describe("Demo mode (issue #533)", () => {
 		cy.contains(/no transport is configured/i).should("not.exist");
 	});
 
+	it('refuses to send the seeded draft credit note: it ends "Send failed" with the demo reason, never "Sent"', () => {
+		signInAsDemo();
+		cy.request<{ items: Array<{ id: string; status: string }> }>(
+			`${api}/api/documents?typeId=credit-note&page=1&pageSize=50`,
+		)
+			.its("body.items")
+			.then((items: Array<{ id: string; status: string }>) => {
+				const draft = items.find((item) => item.status === "draft");
+				expect(draft, "a seeded draft credit note").to.exist;
+				const id = draft!.id;
+
+				cy.visit("/documents/credit-note");
+				cy.runDocumentRowAction(id, "send");
+
+				cy.get(`[data-cy="document-list-row-${id}"]`, { timeout: 20000 })
+					.find('[data-cy="document-status-badge"]', { timeout: 20000 })
+					.should("contain.text", "Send failed");
+				cy.get(`[data-cy="document-row-last-error-${id}"]`)
+					.should("exist")
+					.and("contain.text", "is disabled in this demo");
+				cy.request(`${api}/api/documents/${id}?typeId=credit-note`)
+					.its("body.status")
+					.should("eq", "send_failed");
+			});
+	});
+
+	it('refuses to send a credit note that corrects no invoice: it stays a draft, never "Sent"', () => {
+		signInAsDemo();
+		cy.request(`${api}/api/documents/types/credit-note`)
+			.its("body.fields")
+			.then(
+				(
+					fields: {
+						key: string;
+						fields?: { key: string; options?: { value: string }[] }[];
+					}[],
+				) => {
+					const vatRate = fields
+						.find((f) => f.key === "lines")
+						?.fields?.find((f) => f.key === "vatRate")?.options?.[0]?.value;
+					expect(vatRate, "the active company has a VAT rate").to.be.a("string");
+
+					cy.request({
+						method: "POST",
+						url: `${api}/api/documents/types/credit-note/actions/save-draft`,
+						body: {
+							data: {
+								issueDate: new Date().toISOString().slice(0, 10),
+								currency: "EUR",
+								reason: "Pricing correction agreed with the client.",
+								lines: [
+									{
+										description: "Consulting day",
+										quantity: 1,
+										unit: "unit",
+										unitPrice: 100,
+										vatRate,
+									},
+								],
+							},
+						},
+					}).then((saved) => {
+						const id = saved.body.document.id as string;
+
+						cy.intercept("POST", "**/api/documents/types/credit-note/actions/send").as(
+							"send",
+						);
+						cy.visit("/documents/credit-note");
+						cy.runDocumentRowAction(id, "send");
+
+						cy.wait("@send").its("response.statusCode").should("eq", 400);
+						cy.contains(/no client to send it to/i, { timeout: 10000 }).should(
+							"exist",
+						);
+						cy.get(`[data-cy="document-list-row-${id}"]`)
+							.find('[data-cy="document-status-badge"]')
+							.should("contain.text", "Draft");
+						cy.request(`${api}/api/documents/${id}?typeId=credit-note`)
+							.its("body")
+							.then((doc: { status: string; number: number | null }) => {
+								expect(doc.status, "still a draft, never sent").to.eq("draft");
+								expect(doc.number, "no number spent").to.eq(null);
+							});
+					});
+				},
+			);
+	});
+
 	// Issue #581 - "Validate" never reaches a DEMO_MODE chokepoint (it is a plain Postgres write,
 	// never `TransportRegistry.register`'s own wrap) UNLESS a country channel mandate routes it
 	// through the real send, the same branch "Send" itself always takes - see

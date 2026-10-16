@@ -87,7 +87,7 @@
  * `deliver` is the only thing that genuinely varies by type: the quote's unconditional email
  * (quote-actions.ts), the invoice's company-configured transport (invoice-actions.ts), or the
  * credit note's (credit-note-actions.ts): the channel its corrected invoice's client is reached
- * through since issue #499, and an archive-only issuance for a free credit note, which names no client.
+ * through since issue #499; a free credit note names no client and is refused.
  */
 import { ConflictException } from '@nestjs/common';
 
