@@ -104,9 +104,9 @@ const CURRENCY_OPTIONS = Object.values(Currency).map((code) => ({ value: code, l
  *    (the invoice's own transport resolution: B2G routing, channel mandate, the company's choice),
  *    by email with its PDF attached or in its credit-note e-invoice form (issue #472);
  *  - archives its own PDF at issuance, whatever the channel, so its download serves the copy issued;
- *  - issues and archives a FREE credit note without delivering it: this type has no "client" field
- *    (see the `invoice` field's own comment above), and a note correcting no invoice names nobody
- *    to send it to. The action's result message says so.
+ *  - refuses a FREE credit note: this type has no "client" field (see the `invoice` field's own
+ *    comment above), so a note correcting no invoice names nobody to send it to. It can be saved as a
+ *    draft but not sent.
  * It is still the verb "send" the frontend already renders a button for on every other type. A
  * credit note only REDUCES what the invoice it corrects still owes once it is no longer a draft
  * (settlement/credits.ts), which is the other reason "send" has to exist; a FREE credit note settles
@@ -273,7 +273,10 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         required: false,
         entity: 'invoice',
         helpText:
-          "The invoice this credit note corrects. Leave empty for a free credit note (a commercial gesture, a refund of an overpayment): a reason is then required below, and some countries do not recognise a credit note with nothing to reference (saving then refuses it with that country's rule).",
+          'The invoice this credit note corrects. A credit note without an invoice can be saved but ' +
+          'not sent yet: it has no client to send it to. Without an invoice, a reason is required ' +
+          'below, and some countries do not recognise a credit note with nothing to reference (this ' +
+          "screen refuses those with the country's own rule once you try to save).",
       },
       {
         key: 'issueDate',

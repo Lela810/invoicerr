@@ -4,18 +4,22 @@ sidebar_position: 4.5
 
 # Credit notes
 
-The **Credit notes** page is where you correct an invoice you already sent, or issue a standalone refund. A credit note is legally an invoice in its own right: once issued it is delivered to the client and archived the same way an invoice is, and it can no longer be edited.
+The **Credit notes** page is where you correct an invoice you already sent. A credit note is legally an invoice in its own right: once issued it is delivered to the client and archived the same way an invoice is, and it can no longer be edited.
 
 ## Two kinds of credit note
 
 - **Linked** - corrects a specific invoice. Set **Invoice**, then pick the **Corrected lines**: the rows on that invoice this credit note credits. Amount, currency and the rendered PDF all come from the invoice's own selected rows, priced with the invoice's own per-line discount, so you never re-type figures. Every line of the invoice is checked as soon as the invoice is set, whether you start from the invoice's **Issue credit note** button or pick the invoice in a new credit note; picking another invoice checks all of its lines instead. Uncheck the ones you do not want to credit for a partial credit note.
-- **Free** - no invoice to correct (an overpayment refund, a commercial gesture). Leave **Invoice** empty and fill in your own **Lines** instead, plus a **Reason** explaining the deduction. These lines have the same fields as an invoice line, Unit included.
+- **Free** - no invoice to correct (an overpayment refund, a commercial gesture). Leave **Invoice** empty and fill in your own **Lines** instead, plus a **Reason** explaining the deduction. These lines have the same fields as an invoice line, Unit included. A free credit note can be saved as a draft but not sent, see below.
 
-A linked credit note's **Currency** always matches the invoice it corrects and isn't editable independently. A free credit note has no client of its own (the type carries no client field), so it is archived but not delivered to anyone; deliver it yourself if the client needs a copy.
+A linked credit note's **Currency** always matches the invoice it corrects and isn't editable independently.
+
+:::info[A free credit note cannot be sent]
+A credit note reaches its client through the invoice it corrects; the type carries no client field of its own. A free credit note therefore has nobody to be sent to, and **Send** refuses it before a number is spent, rather than marking it **Sent** when nothing was delivered. Set **Invoice** to the invoice it corrects, then send it.
+:::
 
 ## Actions
 
-- **Add New** - start a free credit note
+- **Add New** - start a credit note; set **Invoice** to the invoice it corrects before sending it
 - **Issue credit note** - from an invoice's own action menu, starts a linked credit note pre-filled with that invoice, including against an imported one (see below)
 - **Import** / **Import CSV** - record a past credit note from a previous tool; see
   [Migrating from another tool](migrating-from-another-tool.md). A CSV-imported credit note is always free (no invoice link); a linked import needs the one-at-a-time form
@@ -58,7 +62,8 @@ Before any number is spent, a credit note is refused rather than issued half-way
 | The invoice's channel has no lawful way to carry a credit note (for example a French domestic credit note by email after the e-invoicing mandate date) | Refused, naming the channel and the reason |
 | The invoice you're correcting has no number of its own | Refused: nothing to correct yet |
 | Your country gives sellers no credit-note instrument at all (Poland) | Refused: use a corrective invoice instead |
-| A linked credit note has no corrected lines selected, or a free one has no lines | Refused: nothing to credit |
+| A linked credit note has no corrected lines selected | Refused: nothing to credit |
+| A free credit note (no **Invoice**) | Refused: it has no client to send it to |
 
 ## Statuses
 
@@ -66,8 +71,12 @@ Before any number is spent, a credit note is refused rather than issued half-way
 | --- | --- |
 | **Draft** | Created, not yet sent. Editable |
 | **Sending** | Send in progress |
-| **Sent** | Delivered (or, for a free credit note, archived). Also when it is settled against the invoice's own balance |
+| **Sent** | Delivered and archived. Also when it is settled against the invoice's own balance |
 | **Send failed** | The last delivery attempt failed |
+
+:::info[Free credit notes sent by an earlier version]
+Before free credit notes were refused at **Send**, sending one marked it **Sent** although it was delivered to nobody. If you self-host and sent free credit notes on an earlier version, download each one's PDF and send it to the client yourself.
+:::
 
 ## First use
 

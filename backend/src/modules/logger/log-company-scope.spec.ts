@@ -54,7 +54,7 @@ describe('LoggerService — the tripwire itself, exercised directly', () => {
     async function actionHandlerThatForgotItHadACompany(): Promise<void> {
       // The exact shape a developer might paste from a genuinely instance-level boot log without
       // noticing this code path is actually running inside `runAction` for a real company.
-      await logger.error('Document action declared but not implemented', {
+      logger.error('Document action declared but not implemented', {
         category: 'documents',
         companyId: null,
       });
@@ -67,16 +67,16 @@ describe('LoggerService — the tripwire itself, exercised directly', () => {
 
   it('the correct fix — omitting the field instead — passes cleanly', async () => {
     async function actionHandlerFixed(): Promise<void> {
-      await logger.error('Document action declared but not implemented', { category: 'documents' });
+      logger.error('Document action declared but not implemented', { category: 'documents' });
     }
 
     await expect(runWithCompanyId('company-42', actionHandlerFixed)).resolves.not.toThrow();
   });
 
-  it('a genuinely instance-level call (no active company at all) is unaffected either way', async () => {
-    await expect(
+  it('a genuinely instance-level call (no active company at all) is unaffected either way', () => {
+    expect(() =>
       logger.warn('MAIL_PROVIDER is "smtp" but SMTP_HOST is empty', { category: 'mail', companyId: null }),
-    ).resolves.not.toThrow();
+    ).not.toThrow();
   });
 });
 

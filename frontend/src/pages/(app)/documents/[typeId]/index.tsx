@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDocumentInstances, useDocumentType } from "@/hooks/queries"
 import { usePageHeader } from "@/hooks/use-page-header"
+import { createPendingEchoes } from "@/lib/pending-echoes"
 
 /** Default page size for `GET /documents` — mirrors the backend's own default
  *  (`dto/list-documents.dto.ts#DOCUMENT_LIST_DEFAULT_PAGE_SIZE`). */
@@ -99,12 +100,15 @@ export default function DocumentTypePage() {
   }
 
   // The search box's own visible value — every keystroke, immediately, independent of the URL's own
-  // `q` (which only updates after the debounce below). Resynced from `q` on an EXTERNAL change (a
-  // shared link, the back button, "Clear filters") — the effect depends on `q` alone, never on
-  // `searchInput`, so it never fights the debounce timer below.
+  // `q` (which only updates after the debounce below). Resynced from `q` on an EXTERNAL change only (a
+  // shared link, the back button, "Clear filters"): the echo of a `q` this box pushed itself is
+  // skipped, since keystrokes typed while that URL update was committing would otherwise be wiped.
   const [searchInput, setSearchInput] = useState(q ?? "")
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => setSearchInput(q ?? ""), [q])
+  const [searchEchoes] = useState(() => createPendingEchoes<string | undefined>())
+  useEffect(() => {
+    if (!searchEchoes.isEcho(q)) setSearchInput(q ?? "")
+  }, [q, searchEchoes])
   useEffect(
     () => () => {
       if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
@@ -118,10 +122,14 @@ export default function DocumentTypePage() {
     // Clearing the box is an explicit intent, not a keystroke to smooth over — applied immediately,
     // never left waiting out the same debounce a fresh search term gets.
     if (value.trim() === "") {
+      searchEchoes.sent(undefined)
       applyParams({ q: undefined })
       return
     }
-    searchDebounceRef.current = setTimeout(() => applyParams({ q: value }), SEARCH_DEBOUNCE_MS)
+    searchDebounceRef.current = setTimeout(() => {
+      searchEchoes.sent(value)
+      applyParams({ q: value })
+    }, SEARCH_DEBOUNCE_MS)
   }
 
   const { sort: sortField, order } = sortKeyToQuery(sort)
@@ -175,7 +183,7 @@ export default function DocumentTypePage() {
     if (!seed) return
     setCreateInitialData(seed)
     setCreateOpen(true)
-    navigate(location.pathname, { replace: true, state: null })
+    void navigate(location.pathname, { replace: true, state: null })
   }, [location.state])
 
   usePageHeader(descriptor?.label ?? typeId)
@@ -210,7 +218,7 @@ export default function DocumentTypePage() {
     // Same-type success needs nothing here at all: the list refetches on its own
     // (useRunDocumentAction invalidates the "documents" query) and the row simply updates in place.
     if (result.typeId !== typeId) {
-      navigate(`/documents/${result.typeId}/${result.id}`)
+      void navigate(`/documents/${result.typeId}/${result.id}`)
     }
   }
 

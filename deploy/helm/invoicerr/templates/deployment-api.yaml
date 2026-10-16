@@ -26,6 +26,7 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "invoicerr.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -54,7 +55,7 @@ spec:
               echo "redis is reachable. Starting the api container.";
       containers:
         - name: invoicerr
-          image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{ end }}"
+          image: {{ include "invoicerr.appImage" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

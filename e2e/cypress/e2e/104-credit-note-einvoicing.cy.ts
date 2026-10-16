@@ -10,7 +10,7 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *     <CreditNote> with type code 381, the credit note's own number, the corrected invoice's number
  *     in BG-3 (BillingReference), and the amount of the corrected line only. CII carries 381 too.
  *  b) a LEGACY credit note (issued before #471, so "sent" with no number) gets NO file: 409.
- *  c) a FREE credit note (no invoice, so no buyer) gets no file either: 400, saying why.
+ *  c) a FREE credit note (no invoice, so no buyer) is refused at "send", so it never gets a file.
  */
 import { FRENCH_BUYER_IDENTIFIERS } from "../fixtures/identifiers";
 
@@ -198,20 +198,35 @@ describe("Issue #472 - a credit note in the electronic invoice formats", () => {
 		});
 	});
 
-	it("a FREE credit note (no invoice, hence no buyer) gets no file, and the refusal says why (400)", () => {
-		issueCreditNote({
-			issueDate: "2026-09-22",
-			currency: "EUR",
-			reason: "Geste commercial",
-			lines: [{ description: "Remboursement", quantity: 1, unitPrice: 42, vatRate: "20" }],
-		}).then((note) => {
+	it("a FREE credit note (no invoice, hence no buyer) is never issued, so it never gets a file", () => {
+		cy.request({
+			method: "POST",
+			url: `${api}/api/documents/types/credit-note/actions/save-draft`,
+			body: {
+				data: {
+					issueDate: "2026-08-31",
+					currency: "EUR",
+					reason: "Geste commercial",
+					lines: [{ description: "Remboursement", quantity: 1, unitPrice: 42, vatRate: "20" }],
+				},
+			},
+		}).then((saved) => {
+			const id = saved.body.document.id as string;
 			cy.request({
-				url: `${api}/api/documents/${note.id}/formats/ubl?typeId=credit-note`,
+				method: "POST",
+				url: `${api}/api/documents/types/credit-note/actions/send`,
+				body: { documentId: id, data: saved.body.document.data },
 				failOnStatusCode: false,
 			}).then((res) => {
-				expect(res.status).to.eq(400);
-				expect(JSON.stringify(res.body)).to.contain("FREE credit note");
+				expect(res.status, "refused before numbering").to.eq(400);
+				expect(String(res.body?.message)).to.contain("no client to send it to");
 			});
+			cy.request({
+				url: `${api}/api/documents/${id}/formats/ubl?typeId=credit-note`,
+				failOnStatusCode: false,
+			})
+				.its("status")
+				.should("eq", 409);
 		});
 	});
 });

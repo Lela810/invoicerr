@@ -71,8 +71,9 @@ An imported document gets its own status, **Imported**:
 - **You can still record a payment against it, send reminders on it, and issue a credit note against
   it.** A credit note against an imported invoice is priced from the invoice's own lines, exactly like
   against any other invoice, provided the import carried lines (the per-document form always does;
-  a CSV row does too, if you filled in its line columns). Without lines, only a free credit note citing
-  it is possible.
+  a CSV row does too, if you filled in its line columns). Without lines, there are no rows to credit, so
+  no credit note against it can be sent (a free credit note can be drafted, but not sent: see
+  [Credit notes](credit-notes.md)).
 - **It is excluded from the accounting export by default**: your previous tool's own export already
   has it; re-exporting it from Invoicerr would count it twice.
 

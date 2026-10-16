@@ -35,7 +35,9 @@ lives in the shared chokepoint, not in each caller.
 | Every Polar billing call | `getPolarClient` (`backend/src/modules/billing/polar-client.ts`) |
 
 A refused action never looks like it worked: it returns a clear `403` naming what is disabled
-(`DEMO_MODE_BLOCKED`), never a silent success.
+(`DEMO_MODE_BLOCKED`), never a silent success. A send that would reach nobody at all never gets as
+far as a chokepoint: a credit note that corrects no invoice has no client, so its **Send** is refused
+before it is numbered, on every install, demo or not.
 
 Billing is forced off outright, independently of `WARNING__ENABLE_BILLING_FOR_USERS__WARNING`: no
 paywall, no seat gate, no Polar call, whatever that flag happens to be set to in the same environment.
@@ -79,8 +81,10 @@ visitor never has to look for them elsewhere.
 - For each company, at least two documents of **every document type that country's own policy
   offers** (`defaultCountryPolicyCatalog.typesFor(countryCode)`, also discovered at runtime): quotes
   (one with named options, one manually accepted/"signed"), invoices in several states (draft, sent,
-  overdue, partly paid, paid in full, and one credited for one line then paid for the balance), a
-  credit note on that last invoice where the country's own law allows a standalone one, expenses,
+  overdue, partly paid, paid in full, and one credited for one line then paid for the balance), where
+  the country's own law has a credit note, a sent one crediting one line of that last invoice and a
+  draft correcting one line of the pending invoice (every seeded credit note corrects an invoice, so
+  each has a client to be sent to), expenses,
   received invoices, a purchase order and a goods receipt. Every payment amount is read from the
   invoice's own settlement (VAT included), so no seeded invoice ends with an excess. Where the country
   has no credit note, the last invoice is simply paid in full too.

@@ -195,6 +195,31 @@ const validCreditNoteData = {
   correctedLines: ['line-1'],
 };
 
+/** The worker's replay of a linked credit note: the note itself is "sending", the invoice it corrects
+ *  is read for the row-selection check, and the status write returns it "sent". */
+function givenLinkedCreditNoteBeingDelivered() {
+  (persistence.findOwnedDocument as Mock).mockImplementation((_companyId, typeId) =>
+    Promise.resolve(
+      typeId === 'invoice'
+        ? invoiceDocument('invoice-doc-1', ['line-1'])
+        : {
+            ...invoiceDocument('cn-1', []),
+            typeId: 'credit-note',
+            status: 'sending',
+            data: validCreditNoteData,
+          },
+    ),
+  );
+  (persistence.updateDocumentStatus as Mock).mockResolvedValue({
+    id: 'cn-1',
+    typeId: 'credit-note',
+    status: 'sent',
+    data: validCreditNoteData,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+}
+
 describe('DocumentsService — the credit note type, the THIRD descriptor-only type', () => {
   beforeEach(() => {
     (countryPolicy.evaluateCountryPolicy as Mock).mockResolvedValue({ allowed: true });
@@ -237,7 +262,9 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
     // async-send.ts's own re-read of the credit note ALL call `findOwnedDocument` — none of them
     // reads `.typeId` off what comes back, only `.status`/`.data`, so one fixture (status "draft")
     // serves every purpose here, exactly like the pre-existing coverage already relied on.
-    (persistence.findOwnedDocument as Mock).mockResolvedValue(invoiceDocument('invoice-doc-1', ['line-1']));
+    const invoice = invoiceDocument('invoice-doc-1', ['line-1']);
+    (invoice.data.lines[0] as Record<string, unknown>).articleId = 'article-1';
+    (persistence.findOwnedDocument as Mock).mockResolvedValue(invoice);
     // PR #473 review point 1: the status write and the number are now ONE atomic call - this
     // fixture's `existing.status` ("draft", from `invoiceDocument` above) is eligible for it, so
     // `runAsyncSendAction` (async-send.ts) calls THIS instead of `persistence.upsertDocument`.
@@ -279,30 +306,13 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
       actionId: 'send',
       payload: { data: validCreditNoteData, params: {} },
     });
+    // A credit note never decrements stock, even when the line it corrects names an article.
+    expect(stock.applyStockOnIssuance).not.toHaveBeenCalled();
   });
 
   it('"send" (phase 2, the worker\'s replay): "sending" -> "sent", delivered on the invoice channel and archived, never re-enqueued', async () => {
     // The worker re-reads the CREDIT NOTE (linked, "sending"); the row-selection check reads the invoice.
-    (persistence.findOwnedDocument as Mock).mockImplementation((_companyId, typeId) =>
-      Promise.resolve(
-        typeId === 'invoice'
-          ? invoiceDocument('invoice-doc-1', ['line-1'])
-          : {
-              ...invoiceDocument('cn-1', []),
-              typeId: 'credit-note',
-              status: 'sending',
-              data: validCreditNoteData,
-            },
-      ),
-    );
-    (persistence.updateDocumentStatus as Mock).mockResolvedValue({
-      id: 'cn-1',
-      typeId: 'credit-note',
-      status: 'sent',
-      data: validCreditNoteData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    givenLinkedCreditNoteBeingDelivered();
 
     const { service, queueDispatcher, emailTransport } = buildService();
     const result = await service.runAction('company-1', 'credit-note', 'send', {
@@ -347,53 +357,56 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
     expect(queueDispatcher.enqueueAction).not.toHaveBeenCalled();
   });
 
-  it('"send" (phase 2) of a FREE credit note: archived, delivered to nobody, and the message says so', async () => {
+  describe('"send" of a FREE credit note: it names no client, so it is never sent', () => {
     const freeData = {
       issueDate: '2026-02-01',
       currency: 'EUR',
       reason: 'Goodwill gesture',
       lines: [{ description: 'Refund', quantity: 1, unitPrice: 10, vatRate: '0' }],
     };
-    (persistence.findOwnedDocument as Mock).mockResolvedValue({
+    const freeNote = (status: string) => ({
       ...invoiceDocument('cn-2', []),
       id: 'cn-2',
       typeId: 'credit-note',
-      status: 'sending',
-      data: freeData,
-    });
-    (persistence.updateDocumentStatus as Mock).mockResolvedValue({
-      id: 'cn-2',
-      typeId: 'credit-note',
-      status: 'sent',
-      data: freeData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    const { service, emailTransport } = buildService();
-    const result = await service.runAction('company-1', 'credit-note', 'send', {
-      documentId: 'cn-2',
+      status,
       data: freeData,
     });
 
-    expect(result.document).toMatchObject({ id: 'cn-2', status: 'sent' });
-    expect(result.message).toMatch(/not delivered: a credit note that corrects no invoice names no client/);
-    expect(emailTransport.send).not.toHaveBeenCalled();
-    expect(renderDocumentInstance).toHaveBeenCalledWith(
-      expect.anything(),
-      'company-1',
-      expect.objectContaining({ id: 'credit-note' }),
-      expect.objectContaining({ id: 'cn-2' }),
-      'delivery',
-    );
-    expect(archiveDeliveredArtifactsIfAny).toHaveBeenCalledWith(
-      expect.objectContaining({
+    it('is refused before it is numbered, queued or rendered', async () => {
+      (persistence.findOwnedDocument as Mock).mockResolvedValue(freeNote('draft'));
+      const { service, queueDispatcher, emailTransport } = buildService();
+
+      const attempt = service.runAction('company-1', 'credit-note', 'send', {
         documentId: 'cn-2',
-        artifacts: [
-          { role: 'pdf', mime: 'application/pdf', bytes: new Uint8Array(Buffer.from('%PDF-rendered')) },
-        ],
-      }),
-    );
+        data: freeData,
+      });
+
+      await expect(attempt).rejects.toBeInstanceOf(BadRequestException);
+      await expect(attempt).rejects.toThrow(/corrects no invoice, so it has no client to send it to/);
+      expect(takeNumber.takeDocumentNumberForTransitionWithStatus).not.toHaveBeenCalled();
+      expect(persistence.upsertDocument).not.toHaveBeenCalled();
+      expect(queueDispatcher.enqueueAction).not.toHaveBeenCalled();
+      expect(emailTransport.send).not.toHaveBeenCalled();
+      expect(renderDocumentInstance).not.toHaveBeenCalled();
+    });
+
+    it('never reaches "sent" when the worker replays one already "sending"', async () => {
+      (persistence.findOwnedDocument as Mock).mockResolvedValue(freeNote('sending'));
+      const { service, emailTransport } = buildService();
+
+      await expect(
+        service.runAction('company-1', 'credit-note', 'send', { documentId: 'cn-2', data: freeData }),
+      ).rejects.toThrow(/no client to send it to/);
+      expect(persistence.updateDocumentStatus).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        'sent',
+        expect.anything(),
+      );
+      expect(emailTransport.send).not.toHaveBeenCalled();
+      expect(archiveDeliveredArtifactsIfAny).not.toHaveBeenCalled();
+    });
   });
 
   it('"send" (phase 1) of a LINKED credit note is refused before numbering when its channel cannot carry one', async () => {
@@ -418,18 +431,7 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
   // `DOCUMENT_SENT` removes the need for a per-type event, so the credit note gets one for free the
   // moment `deps.webhooks` is passed — the SAME wiring invoice/quote already have, no new mechanism.
   it('"send" (phase 2) dispatches DOCUMENT_SENT — the type left webhook-less gets one for free', async () => {
-    (persistence.findOwnedDocument as Mock).mockResolvedValue({
-      ...invoiceDocument('invoice-doc-1', ['line-1']),
-      status: 'sending',
-    });
-    (persistence.updateDocumentStatus as Mock).mockResolvedValue({
-      id: 'cn-1',
-      typeId: 'credit-note',
-      status: 'sent',
-      data: validCreditNoteData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    givenLinkedCreditNoteBeingDelivered();
 
     const webhooks = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const { service } = buildService(webhooks);
@@ -490,19 +492,20 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
       updatedAt: new Date(),
     };
 
-    it('the invoice was already 100.00 EUR paid — this credit note (100.00 EUR, the other line) COMPLETES it: DOCUMENT_SETTLED fires once', async () => {
-      // Phase 2's OWN re-read (async-send.ts) needs "sending"; the settlement check's re-fetch of the
-      // INVOICE (a DIFFERENT id, 'invoice-doc-1') needs the settled-friendly fixture above — the SAME
-      // shared mock serves both, exactly like this file's own header already documents for the "send"
-      // tests above (neither call site reads `.typeId`/`.id` off the fixture to pick a branch).
+    // Phase 2's re-read of the credit note needs it "sending"; the settlement check re-reads the
+    // invoice it corrects.
+    beforeEach(() => {
       (persistence.findOwnedDocument as Mock).mockImplementation((_companyId, typeId, id) =>
         Promise.resolve(
           typeId === 'invoice' && id === 'invoice-doc-1'
             ? settledInvoiceDocument()
-            : { ...settledInvoiceDocument(), id: 'cn-1', typeId: 'credit-note', status: 'sending' },
+            : { ...sentCreditNoteRow, status: 'sending' },
         ),
       );
       (persistence.updateDocumentStatus as Mock).mockResolvedValue(sentCreditNoteRow);
+    });
+
+    it('the invoice was already 100.00 EUR paid — this credit note (100.00 EUR, the other line) COMPLETES it: DOCUMENT_SETTLED fires once', async () => {
       (settlementPayments.listPayments as Mock).mockResolvedValue([
         { id: 'payment-1', documentId: 'invoice-doc-1', documentAmountMinor: 10000, currency: 'EUR' },
       ]);
@@ -541,14 +544,6 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
     });
 
     it('the invoice still owes money after this credit note (only a PARTIAL correction) — zero DOCUMENT_SETTLED emissions', async () => {
-      (persistence.findOwnedDocument as Mock).mockImplementation((_companyId, typeId, id) =>
-        Promise.resolve(
-          typeId === 'invoice' && id === 'invoice-doc-1'
-            ? settledInvoiceDocument()
-            : { ...settledInvoiceDocument(), id: 'cn-1', typeId: 'credit-note', status: 'sending' },
-        ),
-      );
-      (persistence.updateDocumentStatus as Mock).mockResolvedValue(sentCreditNoteRow);
       // NOTHING paid at all — correcting line-1 (100 EUR) still leaves line-2 (100 EUR) owed.
       (settlementPayments.listPayments as Mock).mockResolvedValue([]);
       (settlementCredits.listCreditNotes as Mock).mockResolvedValue([sentCreditNoteRow]);
@@ -565,14 +560,6 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
     });
 
     it('the invoice was ALREADY settled before this credit note (an excess credit on top) — no NEW crossing, zero emissions', async () => {
-      (persistence.findOwnedDocument as Mock).mockImplementation((_companyId, typeId, id) =>
-        Promise.resolve(
-          typeId === 'invoice' && id === 'invoice-doc-1'
-            ? settledInvoiceDocument()
-            : { ...settledInvoiceDocument(), id: 'cn-1', typeId: 'credit-note', status: 'sending' },
-        ),
-      );
-      (persistence.updateDocumentStatus as Mock).mockResolvedValue(sentCreditNoteRow);
       // Already fully paid BEFORE this credit note — the crossing already happened at that payment.
       (settlementPayments.listPayments as Mock).mockResolvedValue([
         { id: 'payment-1', documentId: 'invoice-doc-1', documentAmountMinor: 20000, currency: 'EUR' },
@@ -856,54 +843,6 @@ describe('DocumentsService — the credit note type, the THIRD descriptor-only t
         freeCreditNoteData,
         ['draft'], // the CAS argument - see this file's own earlier comment on it.
       );
-    });
-
-    // PR #473 review point 2: an `articleId` on a credit-note line is NOT rejected by the line
-    // validator (it keeps any undeclared key - see credit-note.descriptor.ts's own "Lines" field,
-    // which declares no article-reference field at all) - so the API genuinely accepts one, and the
-    // stock effect must be the thing that refuses to act on it, never validation.
-    it('"send" with an articleId on a free line accepts it (the line validator keeps undeclared keys) but never decrements stock', async () => {
-      const dataWithArticleId = {
-        ...freeCreditNoteData,
-        lines: [{ ...freeCreditNoteData.lines[0], articleId: 'article-1' }],
-      };
-      (persistence.findOwnedDocument as Mock).mockResolvedValue({
-        id: 'cn-free-1',
-        typeId: 'credit-note',
-        status: 'draft',
-        data: dataWithArticleId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      (takeNumber.takeDocumentNumberForTransitionWithStatus as Mock).mockResolvedValue({
-        document: {
-          id: 'cn-free-1',
-          typeId: 'credit-note',
-          status: 'sending',
-          data: dataWithArticleId,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          number: 1,
-          displayNumber: 'CN-2026-0001',
-        },
-        numbered: { number: 1, displayNumber: 'CN-2026-0001' },
-      });
-
-      const { service } = buildService();
-      const result = await service.runAction('company-1', 'credit-note', 'send', {
-        documentId: 'cn-free-1',
-        data: dataWithArticleId,
-      });
-
-      // Accepted, numbered, and the `articleId` genuinely survived validation - the premise this test
-      // proves the FIX does not rely on refusing.
-      expect(result.document).toMatchObject({ status: 'sending', number: 1 });
-      expect((result.document?.data as { lines: Array<{ articleId?: string }> }).lines[0].articleId).toBe(
-        'article-1',
-      );
-      // THE FIX: the stock effect is never even reached - see async-send.ts's own
-      // `decrementsStock` gate and credit-note-actions.ts's own `CREDIT_NOTE_DECREMENTS_STOCK`.
-      expect(stock.applyStockOnIssuance).not.toHaveBeenCalled();
     });
 
     it('requires a "reason" once there is no invoice — the descriptor\'s own requiredIfAbsent', async () => {

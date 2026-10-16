@@ -35,6 +35,61 @@ SonarCloud's automatic analysis only analyzes pull requests and the default bran
 reports on a queue branch. Its result gates the pull request itself, before it is queued.
 :::
 
+## Workflow rules
+
+SonarCloud analyzes `.github/workflows/` too. A step added to a workflow follows the same rules as
+the existing ones:
+
+- **No lifecycle scripts.** Install with `npm ci --ignore-scripts`. A package that needs its
+  postinstall gets it as an explicit step instead: `./node_modules/.bin/cypress install` downloads
+  the Cypress binary, `./node_modules/.bin/playwright-core install chromium` the PDF browser.
+- **No `npx`.** Call the binary the lockfile installed, `./node_modules/.bin/<tool>`. `npx` installs
+  a missing package on demand, at whatever version the registry serves that day. A tool no project
+  depends on is installed once, at an exact version, with `npm install --prefix /tmp/ci-tools
+  --no-save --ignore-scripts <name>@<version>` (see `lighthouse.yml`).
+- **Actions pinned by commit SHA**, with the version in a trailing comment
+  (`uses: actions/checkout@<sha> # v4`). Renovate keeps both up to date.
+- **Least privilege.** The workflow declares a read-only floor at the top (`contents: read`,
+  `pull-requests: read` for `dco.yml`, or `{}`), and each job that needs more declares its own
+  block. A job-level block replaces the top-level one, so it restates `contents: read` when the job
+  checks out the repository. Examples: `packages: write` to push an image, `security-events: write`
+  to upload a SARIF report, `pages: read` for `actions/configure-pages`, `pages: write` and
+  `id-token: write` only on the job that deploys to GitHub Pages.
+- **No `${{ }}` inside a script.** A value from the event, an input, a matrix, `needs` or another
+  step's output goes through `env:` and is read as `"$NAME"`. GitHub substitutes `${{ }}` before the
+  shell parses the line, so a branch name or a tag containing shell syntax would run as code. The
+  rule applies to every expression, not only attacker-controlled ones, so a reviewer never has to
+  decide which values are safe.
+- **The backend boots from a finished build.** A job that needs a running backend runs
+  `npm run build`, then starts it with `npm run start:test:built` (`node dist/src/main` with
+  `.env.test`). Never `npm run start:test` in CI: `nest start --watch` copies the `data/*.json`
+  catalogues into `dist/` asynchronously and can start the app before they land, which boots it with
+  an empty country catalogue and fails specs far from the cause. The country loader refuses an empty
+  catalogue directory, so if the files are ever missing the backend exits at boot instead of
+  reseeding every country away.
+- **CI Postgres runs with trust auth.** Service containers set `POSTGRES_HOST_AUTH_METHOD: trust`
+  and connection strings carry no password. The database is reachable only from the runner and is
+  thrown away with the job.
+
+## External services in the required e2e lane
+
+The `cypress-run` shards gate every merge, so a spec there never waits on a public server it does not
+control: a slow or unavailable sandbox would block the merge queue for a reason unrelated to the
+change under test. When the backend calls an outside service, the spec points it at a local fake
+started from `e2e/cypress.config.ts` instead:
+
+- a URL stored on a row (PDP, SdI, the Portuguese AT webservice) is written by the spec itself,
+  toward a fake on an ephemeral port;
+- a URL the backend reads from its environment at boot uses a fixed port and a variable set for the
+  e2e stack: `ADDRESS_AUTOCOMPLETE_URL` (Photon, port 19876, set in `cypress.yml`),
+  `KSEF_TEST_API_URL` (KSeF test API, port 19877, set in `backend/.env.test`) and
+  `CHORUS_PRO_SANDBOX_URL` (both PISTE sandbox hosts, port 19878, set in `backend/.env.test`).
+
+The KSeF and Chorus Pro variables only repoint the test or sandbox environment: a channel connected
+in production always talks to the real authority, and a unit test next to each client guards that.
+The real round trip with each authority belongs in a `*.live.spec.ts` run by `compliance-live.yml`
+(see [Live Testing](./live-testing.md)).
+
 ## Release notes and the Discord announcement
 
 `.github/release.yml` groups pull requests into the categories GitHub's "Generate release notes"
@@ -48,6 +103,19 @@ every entry lands in "Other Changes" until that changes. Label a pull request wi
 above (or leave it unlabeled for "Other") before it merges if you want it to show up under the
 right heading in the next release's notes.
 :::
+
+## Documentation build
+
+The changelog at `/changelog` is generated at build time: `documentation/scripts/fetch-changelog.mjs`
+fetches every published release and writes one post per release into `documentation/changelog/`.
+Docusaurus compiles those posts as MDX, so `documentation/scripts/changelog-post.mjs` makes each
+release body MDX-safe first: HTML comments (GitHub's generated notes open with one) are dropped, and
+`{`, `}` and `<` outside code are escaped. Its tests run with `npm test` in `documentation/`.
+
+`docs.yml` runs those tests and the full site build on every pull request to `dev` or `main` that
+touches `documentation/`. `docs-deploy.yml` builds and publishes the site after a push to `dev`.
+A release body is not part of any pull request, so a new kind of breakage in release notes still
+shows up first on the next deploy or the next documentation pull request.
 
 ## DCO check
 

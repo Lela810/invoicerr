@@ -41,7 +41,9 @@ export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   if (res.status === 204) {
     return undefined as T
   }
-  return res.json()
+  // A handler returning `null` replies 200 with an empty body, which `res.json()` cannot parse.
+  const text = await res.text()
+  return (text === "" ? null : JSON.parse(text)) as T
 }
 
 export function useApiQuery<T>(

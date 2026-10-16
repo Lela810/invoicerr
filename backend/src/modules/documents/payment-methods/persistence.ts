@@ -256,7 +256,7 @@ export async function setClientPaymentMethodRestrictions(
  * `assertClientInCompany`'s throwing 404 - a dangling or cross-tenant `clientId` reaching this from a
  * document's own `data` must degrade to "no client context", the same "a rendering gap must never
  * block issuing/sending the document itself" discipline `rendering/render-instance-pdf.ts`'s own
- * `recipientLanguageFor` already holds for an unresolvable client id, never a 404 out of a PDF render).
+ * `recipientClientFor` already holds for an unresolvable client id, never a 404 out of a PDF render).
  */
 async function loadClientRestrictionSet(companyId: string, clientId: string): Promise<Set<string> | null> {
   const rows = await prisma.clientPaymentMethodRestriction.findMany({

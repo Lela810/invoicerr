@@ -19,7 +19,7 @@ export function WaitingForSeatScreen({ ownerName }: { ownerName: string | null }
 
   const handleSignOut = async () => {
     await authClient.signOut()
-    navigate("/auth/sign-in")
+    void navigate("/auth/sign-in")
   }
 
   return (

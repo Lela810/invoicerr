@@ -35,6 +35,7 @@ import { SetBrandingDto, UploadBrandingLogoDto } from './branding.dto';
 import {
   SAMPLE_PREVIEW_DESCRIPTOR,
   SAMPLE_PREVIEW_INSTANCE,
+  SAMPLE_PREVIEW_RECIPIENT,
   SAMPLE_PREVIEW_TOTALS,
 } from './sample-preview-document';
 
@@ -182,6 +183,7 @@ export class BrandingService {
         postalCode: company.postalCode,
         country: company.country,
       },
+      recipient: SAMPLE_PREVIEW_RECIPIENT,
       referenceLabels: {},
       totals: SAMPLE_PREVIEW_TOTALS,
       branding: {

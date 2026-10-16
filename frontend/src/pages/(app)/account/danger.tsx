@@ -120,7 +120,7 @@ export default function AccountDangerPage() {
     setOpen(false)
     if (hasCredentialAccount) {
       toast.success(t("account.danger.messages.success"))
-      navigate("/auth/sign-in")
+      void navigate("/auth/sign-in")
     } else {
       toast.success(t("account.danger.messages.emailSent"))
     }

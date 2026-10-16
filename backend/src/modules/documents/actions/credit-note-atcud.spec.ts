@@ -6,8 +6,8 @@
  * credit note's own number format and series, at the right moments, and NOT for a legacy credit note
  * that will never be numbered.
  *
- * A FREE credit note (no `invoice`, its own `lines`) is used throughout: it skips the currency
- * comparison against an invoice, which has nothing to do with the ATCUD.
+ * A credit note linked to an invoice is used throughout, delivered on a stand-in "email" transport: a
+ * free one is refused before the ATCUD is ever looked at, since it has no client to be sent to.
  */
 import { vi, type Mock } from 'vitest';
 import { BadRequestException } from '@nestjs/common';
@@ -17,12 +17,21 @@ import prisma from '@/prisma/prisma.service';
 import * as countryPolicy from '../country-policy/country-policy';
 import * as takeNumber from '../numbering/take-number';
 import * as persistence from '../persistence';
+import { buildInvoiceDescriptor } from '../descriptors/invoice.descriptor';
+import { resolveCreditNoteDeliverySource } from '../formats/credit-note-source';
+import { getCompanyInvoiceTransportId } from '../transports/company-transport';
+import { TransportRegistry } from '../transports/transport-registry';
 import { ActionRegistry } from './action-registry';
 import { registerCreditNoteActions } from './credit-note-actions';
 
 vi.mock('../persistence');
 vi.mock('../country-policy/country-policy');
 vi.mock('../numbering/take-number');
+vi.mock('../formats/credit-note-source', async () => {
+  const actual = await vi.importActual('../formats/credit-note-source');
+  return { ...actual, resolveCreditNoteDeliverySource: vi.fn() };
+});
+vi.mock('../transports/company-transport');
 vi.mock('@/prisma/prisma.service', () => ({
   __esModule: true,
   default: {
@@ -43,10 +52,10 @@ const PT_FORMATS = { invoice: 'FT {year}/{number:4}', 'credit-note': 'NC {year}/
 const YEAR = new Date().getFullYear();
 
 const creditNoteData = {
-  client: 'client-1',
+  invoice: 'invoice-1',
+  correctedLines: ['line-1'],
   issueDate: `${YEAR}-09-28`,
   currency: 'EUR',
-  lines: [{ description: 'Goodwill credit', quantity: 1, unit: 'unit', unitPrice: 50, vatRate: '23' }],
 };
 
 function creditNote(status: string, extra: Record<string, unknown> = {}) {
@@ -63,7 +72,9 @@ function creditNote(status: string, extra: Record<string, unknown> = {}) {
 
 function sendAction() {
   const registry = new ActionRegistry();
-  registerCreditNoteActions(registry, { queueDispatcher: { enqueueAction: vi.fn() } });
+  const transportRegistry = new TransportRegistry();
+  transportRegistry.register('email', 'Email', { deliversCreditNotes: true, send: vi.fn() });
+  registerCreditNoteActions(registry, { queueDispatcher: { enqueueAction: vi.fn() }, transportRegistry });
   const handler = registry.resolve('credit-note', 'send');
   return handler!({
     companyId: 'company-1',
@@ -86,10 +97,15 @@ describe('credit-note "send" - Portugal\'s ATCUD preflight and numbering-time at
 
   beforeEach(() => {
     (persistence.findOwnedDocument as Mock).mockResolvedValue(creditNote('draft'));
+    (getCompanyInvoiceTransportId as Mock).mockResolvedValue('email');
+    (resolveCreditNoteDeliverySource as Mock).mockResolvedValue({
+      descriptor: buildInvoiceDescriptor(),
+      document: { id: 'cn-1', data: { issueDate: `${YEAR}-09-28`, currency: 'EUR', lines: [] } },
+    });
   });
 
   it('is a no-op outside Portugal: no number format read, no series read, no ATCUD written', async () => {
-    (countryPolicy.resolveCompanyCountryCode as Mock).mockResolvedValue('FR');
+    (countryPolicy.resolveCompanyCountryCode as Mock).mockResolvedValue('DE');
     numberedAs(`CREDIT-NOTE-${YEAR}-0001`, 1);
 
     const result = await sendAction();

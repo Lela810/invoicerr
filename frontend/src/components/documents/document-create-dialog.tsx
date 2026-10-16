@@ -313,7 +313,7 @@ export function DocumentCreateDialog({
     lateData,
     onActionSuccess: (result: DocumentInstance) => {
       onOpenChange(false)
-      navigate(`/documents/${result.typeId}/${result.id}`)
+      void navigate(`/documents/${result.typeId}/${result.id}`)
     },
   })
 
@@ -465,7 +465,8 @@ export function DocumentCreateDialog({
             : undefined
         }
         onSubmit={() => {
-          if (primaryAction) state.runner.handleAction(primaryAction)
+          // handleAction reports every failure through a toast.
+          if (primaryAction) void state.runner.handleAction(primaryAction)
         }}
         // Issue #365, "empty line items should not survive a save" — see use-document-form.ts's own
         // `pruneEmptyLines` header. `runner.handleAction`'s OWN copy of this same pass (wired into

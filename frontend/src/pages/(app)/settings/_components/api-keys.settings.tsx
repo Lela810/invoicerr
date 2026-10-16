@@ -199,7 +199,8 @@ export default function ApiKeysSettings() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleCreate()
+            // The submit callback catches its own errors.
+            void handleCreate()
           }}
         >
           <SettingsSection

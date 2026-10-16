@@ -137,7 +137,7 @@ function ImportDocumentButton({ descriptor }: DocumentCustomSlotProps) {
       }
       setFormDialogOpen(false)
       resetAll()
-      navigate(`/documents/${result.typeId}/${result.id}`)
+      void navigate(`/documents/${result.typeId}/${result.id}`)
     } catch (error) {
       toast.error(
         error instanceof ApiError ? error.message : t("documents.custom.importDocument.importError"),

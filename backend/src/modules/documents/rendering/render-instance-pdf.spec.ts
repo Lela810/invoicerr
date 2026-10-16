@@ -713,4 +713,45 @@ describe('renderDocumentInstance - a draft for a client with no address, city or
     expect(html).toContain('Name Only SARL');
     expect(html).not.toMatch(/\bnull\b/);
   });
+
+  it("prints the client's postal address next to the seller, and the client only there", async () => {
+    (prisma.client.findFirst as Mock).mockResolvedValue({
+      language: null,
+      address: '8 Market Street',
+      addressLine2: 'Building B',
+      postalCode: '1000',
+      city: 'Sampletown',
+      country: 'Sampleland',
+    });
+    const referenceRegistry = new EntityReferenceRegistry();
+    const clientsService = { getClientById: vi.fn().mockResolvedValue({ id: 'client-1', name: 'Globex' }) };
+    referenceRegistry.register('client', buildClientReferenceProvider(clientsService as never));
+
+    await renderDocumentInstance(
+      { referenceRegistry },
+      'company-1',
+      quoteDescriptor,
+      {
+        id: 'quote-1',
+        status: 'draft',
+        data: { client: 'client-1', currency: 'EUR', issueDate: '2026-06-30', lines: [] },
+        createdAt: new Date(),
+        displayNumber: null,
+        atcud: null,
+        acceptedOption: null,
+      },
+      'on-demand',
+    );
+
+    const html = mockedRenderPdf.mock.calls[0][0];
+    const recipientBlock = html.slice(
+      html.indexOf('class="recipient-info"'),
+      html.indexOf('class="meta-grid"'),
+    );
+    expect(recipientBlock).toContain('Globex');
+    expect(recipientBlock).toContain(
+      '<div>8 Market Street</div><div>Building B</div><div>1000 Sampletown</div>',
+    );
+    expect(html.split('Globex')).toHaveLength(2);
+  });
 });

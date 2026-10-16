@@ -4766,7 +4766,7 @@
         "fields": {
           "invoice": {
             "label": "Invoice",
-            "helpText": "The invoice this credit note corrects. Leave empty for a free credit note (a commercial gesture, a refund of an overpayment): a reason is then required below, and some countries do not recognise a credit note with nothing to reference (saving then refuses it with that country's rule)."
+            "helpText": "The invoice this credit note corrects. A credit note without an invoice can be saved but not sent yet: it has no client to send it to. Without an invoice, a reason is required below, and some countries do not recognise a credit note with nothing to reference (this screen refuses those with the country's own rule once you try to save)."
           },
           "issueDate": {
             "label": "Date"

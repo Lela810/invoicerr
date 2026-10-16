@@ -9,7 +9,7 @@ import * as archivePersistence from '../archive/persistence';
 vi.mock('../persistence');
 vi.mock('../archive/persistence');
 vi.mock('@/logger/logger.service', () => ({
-  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), audit: vi.fn() },
 }));
 
 import { logger } from '@/logger/logger.service';
@@ -232,7 +232,7 @@ describe('accept-manually (issue #421)', () => {
       actor: ACTOR,
     });
 
-    const loggedDetails = (logger.info as Mock).mock.calls[0][1].details;
+    const loggedDetails = (logger.audit as Mock).mock.calls[0][1].details;
     expect(loggedDetails.note).toBe('Accepted via email reply');
   });
 
@@ -250,7 +250,7 @@ describe('accept-manually (issue #421)', () => {
       actor: ACTOR,
     });
 
-    expect(logger.info).toHaveBeenCalledWith(
+    expect(logger.audit).toHaveBeenCalledWith(
       expect.stringContaining('manually'),
       expect.objectContaining({
         category: 'documents',
@@ -262,6 +262,32 @@ describe('accept-manually (issue #421)', () => {
         }),
       }),
     );
+  });
+
+  it('resolves only after the audit row is written', async () => {
+    (persistence.updateDocumentStatus as Mock).mockResolvedValue(updatedQuote());
+    let written!: () => void;
+    (logger.audit as Mock).mockReturnValue(new Promise<void>((resolve) => (written = resolve)));
+    const handler = buildRegistry().resolve('quote', 'accept-manually')!;
+
+    let settled = false;
+    const pending = handler({
+      companyId: 'company-1',
+      typeId: 'quote',
+      documentId: 'quote-1',
+      data: {},
+      params: { note: 'Accepted by phone.' },
+      currentStatus: 'sent',
+      actor: ACTOR,
+    }).then(() => {
+      settled = true;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(logger.audit).toHaveBeenCalledTimes(1);
+    expect(settled).toBe(false);
+    written();
+    await pending;
+    expect(settled).toBe(true);
   });
 
   it('refuses without an authenticated actor - never records "who" as nobody', async () => {

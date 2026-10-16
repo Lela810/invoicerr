@@ -249,6 +249,16 @@ export const CHORUS_PRO_URLS = {
   },
 } as const;
 
+/** `CHORUS_PRO_SANDBOX_URL` lets the e2e suite point the sandbox at a local fake; production is never repointable. */
+export function chorusProUrlsFor(environment: 'sandbox' | 'prod'): {
+  oauthBaseUrl: string;
+  apiBaseUrl: string;
+} {
+  const fake = environment === 'sandbox' ? process.env.CHORUS_PRO_SANDBOX_URL?.trim() : '';
+  if (fake) return { oauthBaseUrl: fake, apiBaseUrl: fake };
+  return { ...CHORUS_PRO_URLS[environment] };
+}
+
 export interface ChorusProCredentials {
   clientId: string;
   clientSecret: string;
@@ -302,7 +312,7 @@ async function requireConnectedChorusPro(
  *  same "no shared, cross-request state beyond the client's own short-lived token cache" choice every
  *  sibling transport's own client construction makes. */
 function buildClient(credentials: ChorusProCredentials): ChorusProClient {
-  const urls = CHORUS_PRO_URLS[credentials.environment];
+  const urls = chorusProUrlsFor(credentials.environment);
   const config: ChorusProClientConfig = { ...urls, ...credentials };
   return new ChorusProClient(config, new FetchChorusProHttpPort());
 }

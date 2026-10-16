@@ -165,10 +165,20 @@ async function checkAndEmitInvoiceSettledFromCreditNote(
 }
 
 /** Whether this credit note corrects an invoice at all — the fork `credit-note.descriptor.ts`'s own
- *  "Two shapes, one type" header describes. Pulled out as its own predicate since three separate
+ *  "Two shapes, one type" header describes. Pulled out as its own predicate since several
  *  guards below all need the identical "linked or free" read of the same field. */
 function hasOriginInvoice(data: Record<string, unknown>): boolean {
   return typeof data.invoice === 'string' && data.invoice.length > 0;
+}
+
+/** A credit note reaches its client through the invoice it corrects; one that corrects none has nobody
+ *  to be sent to. */
+function assertCreditNoteHasRecipient(data: Record<string, unknown>): void {
+  if (hasOriginInvoice(data)) return;
+  throw new BadRequestException(
+    'This credit note corrects no invoice, so it has no client to send it to. It was not sent. ' +
+      'Set "Invoice" to the invoice it corrects, then send it.',
+  );
 }
 
 /**
@@ -474,9 +484,10 @@ async function renderCreditNoteDeliveryPdf(
  *    invoice to the same client would be - by email with the PDF attached, or deposited in its
  *    credit-note form (EN 16931 type 381 + BG-3, FatturaPA TD04, issue #472) on an e-invoicing
  *    channel.
- *  - FREE (no invoice): issued and archived, delivered to nobody. This type has no client field
- *    (`credit-note.descriptor.ts`, "Two shapes, one type"); a free credit note has no recipient this
- *    product knows of, and none is invented. The result message says so, every time.
+ *  - FREE (no invoice): refused. This type has no client field (`credit-note.descriptor.ts`, "Two
+ *    shapes, one type"), so a free credit note has no recipient, and reporting it "sent" would claim a
+ *    delivery that never happened. `assertCreditNoteHasRecipient` stops it in phase 1, and again here
+ *    so a job already queued cannot reach "sent" either.
  *
  * The archive always holds the credit note's own rendered PDF (`renderCreditNoteDeliveryPdf`): for
  * email it IS the attachment the client received (`send-document-email.ts` hands those exact bytes
@@ -488,15 +499,7 @@ async function deliverCreditNote(
   companyId: string,
   creditNote: DocumentInstanceResult,
 ): Promise<{ message: string; reference?: string; providerId?: string; artifacts: ArchivedArtifactInput[] }> {
-  const data = (creditNote.data ?? {}) as Record<string, unknown>;
-  if (!hasOriginInvoice(data)) {
-    return {
-      message:
-        'Credit note issued and archived. It was not delivered: a credit note that corrects no invoice ' +
-        'names no client, so there is nobody to send it to. Download its PDF and send it yourself.',
-      artifacts: [await renderCreditNoteDeliveryPdf(deps, companyId, creditNote)],
-    };
-  }
+  assertCreditNoteHasRecipient((creditNote.data ?? {}) as Record<string, unknown>);
 
   const { resolved, formatSource } = await resolveCreditNoteDelivery(
     deps.transportRegistry,
@@ -553,6 +556,7 @@ export function registerCreditNoteActions(registry: ActionRegistry, deps: Credit
       preflight: async ({ willNumber }) => {
         assertCreditNoteAmountSourceIsUnambiguous(data);
         await assertCreditNoteAllowedForCountry(companyId, data);
+        assertCreditNoteHasRecipient(data);
         await assertCreditNoteCurrencyMatchesInvoice(companyId, data);
         // Portugal's ATCUD (issue #497) - the invoice's own gate, on the credit note's own number
         // format and its own "NC" series (see atcud-issuance.ts's header for the legal basis). A no-op

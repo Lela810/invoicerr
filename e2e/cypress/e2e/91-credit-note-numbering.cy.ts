@@ -25,6 +25,7 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *     guarantee (descriptors/types.ts) - it stays "Issued without a number" even once "sent" again.
  */
 import { FRENCH_BUYER_IDENTIFIERS } from "../fixtures/identifiers";
+import { issueCreditNote, issueCreditNoteFor, sentInvoice } from "../support/credit-notes";
 
 const api = Cypress.env("apiUrl");
 const appOrigin = Cypress.config("baseUrl");
@@ -56,44 +57,6 @@ function createClient(name: string, contactEmail: string) {
 		});
 }
 
-function freeCreditNoteData(overrides: Record<string, unknown> = {}) {
-	return {
-		issueDate: "2026-09-20",
-		currency: "EUR",
-		reason: "Geste commercial - remboursement d'un trop-perçu non rattaché à une facture.",
-		lines: [{ description: "Remboursement", quantity: 1, unitPrice: 42, vatRate: "0" }],
-		...overrides,
-	};
-}
-
-/** Creates a free credit note draft, then issues it (draft -> sending -> sent) through the real API,
- *  and returns its id - the same two-call save-draft/send shape 90-save-draft-lock.cy.ts already uses. */
-function createAndIssueCreditNote(overrides: Record<string, unknown> = {}) {
-	return cy
-		.request({
-			method: "POST",
-			url: `${api}/api/documents/types/credit-note/actions/save-draft`,
-			body: { data: freeCreditNoteData(overrides) },
-		})
-		.then((saved) => {
-			const id = saved.body?.document?.id as string;
-			expect(id, "credit note draft created").to.be.a("string");
-			expect(saved.body?.document?.displayNumber, "a draft carries no number").to.be.oneOf([null, undefined]);
-			const data = saved.body?.document?.data;
-
-			cy.request({
-				method: "POST",
-				url: `${api}/api/documents/types/credit-note/actions/send`,
-				body: { documentId: id, data },
-			}).then((sent) => {
-				expect(sent.status, "send accepted").to.be.oneOf([200, 201]);
-			});
-			cy.waitForDocumentStatus(`${api}/api/documents/${id}?typeId=credit-note`, ["sent"]);
-
-			return cy.wrap(id);
-		});
-}
-
 describe("Issue #471 - credit notes get a legal, sequential number of their own", () => {
 	before(() => {
 		cy.resetAndSeed();
@@ -121,10 +84,7 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 			const invoiceData = {
 				client: clientId,
 				// Before 2026-09-01 on purpose: from that date France's PDP mandate binds a domestic
-				// invoice and "send" over email 501s (transports/channel-policy/mandate.ts) - the same
-				// date 90-save-draft-lock.cy.ts's own invoice fixture already picks for the same reason.
-				// The credit note's own "send" carries no such channel-mandate preflight (see
-				// credit-note-actions.ts), so its own issueDate below is unaffected.
+				// invoice and "send" over email 501s (transports/channel-policy/mandate.ts).
 				issueDate: "2026-08-30",
 				dueDate: "2026-09-30",
 				currency: "EUR",
@@ -145,7 +105,9 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 				});
 				cy.waitForDocumentStatus(`${api}/api/documents/${invoiceId}?typeId=invoice`, ["sent"]);
 
-				createAndIssueCreditNote().then((creditNoteId) => {
+				sentInvoice(invoiceId)
+					.then((invoice) => issueCreditNoteFor(invoice))
+					.then((creditNoteId) => {
 					cy.request({ url: `${api}/api/documents/${creditNoteId}?typeId=credit-note` })
 						.its("body")
 						.then((doc) => {
@@ -195,7 +157,7 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 					});
 
 					// A second credit note gets the NEXT number of its own series.
-					createAndIssueCreditNote({ issueDate: "2026-09-21" }).then((secondId) => {
+					issueCreditNote("471-second").then((secondId) => {
 						cy.request({ url: `${api}/api/documents/${secondId}?typeId=credit-note` })
 							.its("body.displayNumber")
 							.should("eq", "CN-2026-0002");
@@ -211,7 +173,7 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 	});
 
 	it('a LEGACY credit note (issued before this feature existed) shows "Issued without a number" - distinct from a draft\'s "no number yet" - on both the detail page and the list row', () => {
-		createAndIssueCreditNote({ issueDate: "2026-09-22" }).then((creditNoteId) => {
+		issueCreditNote("471-legacy").then((creditNoteId) => {
 			// No route through this app can produce this state any more - see the task's own header
 			// (cypress.config.ts) for why a direct DB write is the only way to set one up.
 			cy.task("makeCreditNoteLegacyUnnumbered", { documentId: creditNoteId }).then(() => {
@@ -243,7 +205,7 @@ describe("Issue #471 - credit notes get a legal, sequential number of their own"
 	});
 
 	it('retrying "send" on a legacy, unnumbered credit note (from "send_failed", a real reachable retry) does NOT number it retroactively', () => {
-		createAndIssueCreditNote({ issueDate: "2026-09-23" }).then((creditNoteId) => {
+		issueCreditNote("471-retry").then((creditNoteId) => {
 			// Simulates: this record was issued before `numbering` existed (no number), and its status
 			// happens to be "send_failed" today (a real, reachable status - see
 			// credit-note.descriptor.ts's own "Numbering" header on why `onlyFrom: ['draft']` is exactly

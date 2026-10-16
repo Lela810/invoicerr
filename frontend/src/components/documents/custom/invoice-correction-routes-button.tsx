@@ -254,7 +254,7 @@ function CorrectionRoutesDialogBody({ instance, onClose }: CorrectionRoutesDialo
         // The screen still opens linked; the lines can be ticked by hand.
       }
       onClose()
-      navigate("/documents/credit-note", { state: { initialData: creditNoteSeed(instance.id, rows) } })
+      void navigate("/documents/credit-note", { state: { initialData: creditNoteSeed(instance.id, rows) } })
       return
     }
     if (route.routeId === CANCEL_AND_REPLACE_ROUTE_ID && route.implemented) {
@@ -268,7 +268,7 @@ function CorrectionRoutesDialogBody({ instance, onClose }: CorrectionRoutesDialo
       // header), seeded with `correctsInvoiceId`. Same one-click navigation as INTERNAL_CREDIT_NOTE —
       // never a second, bespoke flow.
       onClose()
-      navigate("/documents/invoice", { state: { initialData: { correctsInvoiceId: instance.id } } })
+      void navigate("/documents/invoice", { state: { initialData: { correctsInvoiceId: instance.id } } })
       return
     }
     // Declared by the country's own law (required/allowed) but not one this repo wires to a real

@@ -29,10 +29,10 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *     the French one in place rather than adding a second row.
  *  2. Unlike PDP (whose URL is a field typed by the user, and thus falsifiable toward a
  *     closed port), the KSeF URL is FIXED per environment (`ksef-client.ts`'s own `BASE_URLS`) —
- *     no configuration field replaces it. The KSeF test therefore sends a FAKE token to the REAL
- *     public sandbox `ksef-test.mf.gov.pl`, which really rejects it (code 450, "invalid
- *     token") — verified by hand before writing this test (direct probe: response in under
- *     300ms, never a network block). SdI now has a real SOAP client (`sdicoop-client.ts`,
+ *     no company setting replaces it. The test environment's URL is read from `KSEF_TEST_API_URL`
+ *     (`backend/.env.test`), which points at the local fake KSeF API (`startFakeKsefServer`,
+ *     `cypress.config.ts`): it rejects the FAKE token with the real sandbox's own code 450. The real
+ *     round trip is `ksef.live.spec.ts`, in `compliance-live.yml`. SdI now has a real SOAP client (`sdicoop-client.ts`,
  *     "implemented-awaiting-accreditation" — AdE accreditation not obtained, see
  *     `sdi-transport.ts`'s own header): like PDP, its `endpoint` is a field typed by the user, and
  *     thus falsifiable toward the same closed port — the deposit really fails (ECONNREFUSED),
@@ -40,9 +40,11 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  *
  * Wave 3 (Chorus Pro/FR, B2G) — the same pattern again, with the SAME assumed difference as KSeF
  * (point 2 above), for the SAME reason: the PISTE OAuth/API hosts are FIXED per environment
- * (`chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`), never a configuration field. The test
- * therefore sends fake PISTE credentials to the REAL public sandbox `sandbox-oauth.piste.gouv.fr`,
- * which really rejects them (a genuine 4xx auth failure, never a network block). No
+ * (`chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`), never a configuration field. The sandbox
+ * hosts are read from `CHORUS_PRO_SANDBOX_URL` (`backend/.env.test`), which points at the local fake
+ * PISTE server (`startFakeChorusProServer`, `cypress.config.ts`): it rejects the fake credentials
+ * with the real sandbox's own HTTP 400 `invalid_client`. The real round trip is
+ * `choruspro.live.spec.ts`, in `compliance-live.yml`. No
  * `country-policy` rule is needed here (France already has one) — this wave picks "chorus-pro" as
  * the company's FREE transport for an ordinary BUSINESS client, never through B2G routing (see
  * `40-b2g-routing.cy.ts` for the FR B2G path itself, with a GOVERNMENT client).
@@ -67,8 +69,8 @@ const FAKE_PDP = {
 };
 
 /** A structurally valid NIP (the well-known test NIP from the Polish Ministry of Finance — see
- *  `fa3-provider.spec.ts`'s own fixture) but a FAKE token: the real sandbox
- *  ksef-test.mf.gov.pl really rejects it (code 450) — see this file's own header, point 2. */
+ *  `fa3-provider.spec.ts`'s own fixture) but a FAKE token: the fake KSeF API
+ *  rejects it (code 450), see this file's own header, point 2. */
 const FAKE_KSEF = {
 	nip: "5260001246",
 	ksefToken: "e2e-fake-ksef-token",
@@ -86,9 +88,7 @@ const FAKE_SDI = {
 };
 
 /** Chorus Pro (FR, B2G) - see this file's own header, "Wave 3": both PISTE OAuth2 fields, garbage on
- *  purpose, sent to the REAL public sandbox (`sandbox-oauth.piste.gouv.fr`), which rejects them for
- *  real (a 4xx `invalid_client` auth failure), never a closed port - these hosts are fixed by
- *  environment, not user-editable (see `chorus-pro-transport.ts`'s own `CHORUS_PRO_URLS`). The
+ *  purpose, rejected by the fake PISTE server with HTTP 400 `invalid_client`. The
  *  technical-account pair's own CONTENT is irrelevant (never reached - PISTE auth fails first); only
  *  its PRESENCE matters, exactly like `FAKE_SDI`'s own certificate fields above. */
 const FAKE_CHORUS_PRO = {
@@ -124,6 +124,36 @@ function setCompanyCountry(
  * "22" — `pl.json`/`it.json`'s own `pl-standard`/`it-standard`), since neither would validate against
  * the OTHER country's list.
  */
+/** Sends a draft from the list and waits for the queue to give up, naming the channel in the row's error. */
+function sendFromListUntilFailed(invoiceId: string, channel: string) {
+	cy.visit("/documents/invoice");
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
+		.find('[data-cy="document-status-badge"]')
+		.should("contain.text", "Draft");
+
+	cy.runDocumentRowAction(invoiceId, "send");
+
+	// Three queue attempts with exponential backoff, each a real connect: 90s, measured on CI, not a guess.
+	cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
+		.find('[data-cy="document-status-badge"]', { timeout: 90000 })
+		.should("contain.text", "Send failed");
+
+	cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should("contain.text", channel);
+}
+
+/** Checks the stored failure is the authority's own rejection, answered by its local fake. */
+function expectRejectedByFake(invoiceId: string, rejection: RegExp, fakeRequestsTask: string, fakeRequest: string) {
+	cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
+		.its("body")
+		.then((doc) => {
+			expect(doc.status, 'la facture est réellement "send_failed" en base').to.eq("send_failed");
+			// Every failure names the channel, so the channel name alone would also pass on a network error.
+			expect(doc.lastActionError, "l'erreur enregistrée est le vrai rejet de l'autorité").to.match(rejection);
+			expect(doc.transportRef, "aucune référence de transport sans dépôt accepté").to.not.be.a("string");
+		});
+	cy.task<string[]>(fakeRequestsTask).should("include", fakeRequest);
+}
+
 function createInvoiceDraft(vatRate = "20") {
 	return cy
 		.request({ url: `${api}/api/documents/references/client/search` })
@@ -276,37 +306,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via PDP → the queue really fails (fake server) and "send_failed" names the channel', () => {
 		createInvoiceDraft().then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			// A real click — the invoice has no "send" param (the transport reads the client, not a
-			// typed field — see invoice-actions.ts), so there is no params dialog to go through.
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// A large, documented budget, same reasoning as 28-document-async-send.cy.ts:
-			// DOCUMENT_ACTION_QUEUE_ATTEMPTS=3 by default, exponential backoff base 2000ms — up to
-			// ~6s of queueing before the final failure. `timeout` on the `.find()` itself, not just
-			// the preceding `cy.get()` (a Cypress pitfall documented in this same file 28).
-			//
-			// UNLIKE 28's own scenario (a structural refusal — no contact email — that fails every
-			// attempt near-instantly), this one is a REAL connect attempt to the fake PDP baseUrl
-			// (a closed local port). That was assumed near-instant too (ECONNREFUSED) when 40000ms
-			// was chosen; measured on CI 2026-09-14 it is not — each of the 3 attempts took ~10-13s
-			// there (fetch/undici's own connect timeout firing before an immediate refusal), pushing
-			// the total past 40s and failing this exact assertion in that run (32-channel-mandate.cy.ts
-			// runs the identical scenario). 90000ms leaves real margin; the assertion itself — a real
-			// "Send failed", never a silent success — is unchanged.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			// The VISIBLE error names the channel — never a generic message.
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"PDP",
-			);
+			sendFromListUntilFailed(invoiceId, "PDP");
 
 			// The assertion that matters reads the API, never the screen as proof of what is in the database.
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
@@ -409,8 +409,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		cy.get('[data-cy="channel-ksef-kseftoken-input"]')
 			.clear()
 			.type(FAKE_KSEF.ksefToken);
-		// Environment left on "Test (sandbox)" — that is precisely what points to the REAL
-		// ksef-test.mf.gov.pl (see this file's own header, point 2).
+		// Environment left on "Test (sandbox)", the one `KSEF_TEST_API_URL` points at the fake (header, point 2).
 		cy.get('[data-cy="channel-ksef-connect-button"]').click();
 
 		cy.get("[data-sonner-toast]", { timeout: 10000 }).should(
@@ -470,51 +469,11 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			});
 	});
 
-	it('sends an invoice via KSeF → the queue really fails (fake token rejected by the real ksef-test.mf.gov.pl) and "send_failed" names the channel', () => {
+	it('sends an invoice via KSeF → the queue really fails (fake token rejected by the local fake KSeF API) and "send_failed" names the channel', () => {
+		cy.task("startFakeKsefServer");
 		createInvoiceDraft("23").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above — see its comment for why it is 90000ms, not the
-			// 40000ms this was originally set to. The real KSeF rejection is in practice near-instant
-			// (probed by hand: < 300ms) — that part of the estimate holds — but the queueing/attempt
-			// overhead around it does not always, on CI, per the PDP test's own measurement.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"KSeF",
-			);
-
-			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
-				.its("body")
-				.then((doc) => {
-					expect(
-						doc.status,
-						'la facture est réellement "send_failed" en base',
-					).to.eq("send_failed");
-					// `ksef-transport.ts` wraps EVERY failure (DNS, timeout, a blocked sandbox egress) in a
-					// message that names the channel — matching only `/KSeF/` would pass identically for a
-					// broken `BASE_URLS` entry or a runner with no outbound network at all, silently
-					// blind to its own reachability. The real sandbox's own rejection code for an invalid
-					// token — verified against a real run: `ksef-transport.ts`'s own auth-step wrapper
-					// produces "KSeF authentication rejected (code 450: ...)", the Polish description
-					// untranslated — only an actual round-trip to ksef-test.mf.gov.pl can produce this.
-					expect(
-						doc.lastActionError,
-						"l'erreur enregistrée est le vrai rejet KSeF (code 450), pas un message générique",
-					).to.match(/code 450/);
-					expect(
-						doc.transportRef,
-						"aucune référence de session/facture sans soumission acceptée",
-					).to.not.be.a("string");
-				});
+			sendFromListUntilFailed(invoiceId, "KSeF");
+			expectRejectedByFake(invoiceId, /code 450/, "getFakeKsefRequests", "POST /v2/auth/ksef-token");
 		});
 	});
 
@@ -660,25 +619,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 
 	it('sends an invoice via SdI → the queue really fails (fake server, closed port) and "send_failed" names the channel', () => {
 		createInvoiceDraft("22").then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
-
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP test above — see its comment: a closed-port connect (SdI's fake
-			// server here, same as PDP's) was assumed near-instant when 40000ms was chosen; measured
-			// ~10-13s per attempt on CI instead. 40-b2g-routing.cy.ts's own SdI test passed at
-			// 37983ms out of the old 40000ms on 2026-09-14 — under 5% of margin, not a real one.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"SdI",
-			);
+			sendFromListUntilFailed(invoiceId, "SdI");
 
 			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
 				.its("body")
@@ -733,8 +674,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 	});
 
 	// ── Wave 3: Chorus Pro (France, B2G) — see this file's own header for the assumed difference
-	// (fixed PISTE hosts, never a configuration field → fake credentials sent to the REAL public
-	// sandbox, which really rejects them) ──
+	// (fixed PISTE hosts, never a configuration field; the sandbox ones point at the fake PISTE server) ──
 
 	it('connects the chorus-pro channel via the screen with fake credentials — status "Connected"', () => {
 		// Chorus Pro is the FRENCH B2G channel: the company must be in France for the rest of the
@@ -768,8 +708,7 @@ describe("National transports — the PDP channel, connected/disconnected via th
 		cy.get('[data-cy="channel-chorus-pro-technicalaccountpassword-input"]')
 			.clear()
 			.type(FAKE_CHORUS_PRO.technicalAccountPassword);
-		// Environment left on "Test (sandbox)" — that is precisely what points to the REAL
-		// sandbox-oauth.piste.gouv.fr (see this file's own header, Wave 3).
+		// Environment left on "Test (sandbox)", the one `CHORUS_PRO_SANDBOX_URL` points at the fake (header, Wave 3).
 		cy.get('[data-cy="channel-chorus-pro-connect-button"]').click();
 
 		cy.get("[data-sonner-toast]", { timeout: 10000 }).should(
@@ -834,11 +773,11 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			});
 	});
 
-	it('sends an invoice via chorus-pro → the queue really fails (fake PISTE credentials rejected by the real sandbox-oauth.piste.gouv.fr) and "send_failed" names the channel', () => {
+	it('sends an invoice via chorus-pro → the queue really fails (fake PISTE credentials rejected by the local fake PISTE server) and "send_failed" names the channel', () => {
 		// `chorus-pro-transport.ts` refuses BEFORE ever reaching PISTE when the RECIPIENT has no
 		// SIRET/SIREN on file (it identifies every Chorus Pro recipient by that number) — the seeded
 		// baseline client (`support/commands.ts#resetAndSeed`) has none. Setting one here is what lets
-		// this test actually reach the real PISTE rejection it claims to prove, rather than stopping one
+		// this test actually reach the PISTE rejection it claims to prove, rather than stopping one
 		// gate earlier at a DIFFERENT, generic-sounding 400 that the OLD, loose `/Chorus Pro/` match
 		// would have hidden.
 		cy.request({ url: `${api}/api/documents/references/client/search` })
@@ -863,46 +802,16 @@ describe("National transports — the PDP channel, connected/disconnected via th
 			body: { enabled: true, config: { iban: "FR1420041010050500013M02606" } },
 		}).then((res) => expect(res.status, "moyen de paiement bank_transfer activé").to.be.oneOf([200, 201]));
 
+		cy.task("startFakeChorusProServer");
 		createInvoiceDraft().then((invoiceId) => {
-			cy.visit("/documents/invoice");
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 15000 })
-				.find('[data-cy="document-status-badge"]')
-				.should("contain.text", "Draft");
+			sendFromListUntilFailed(invoiceId, "Chorus Pro");
 
-			cy.runDocumentRowAction(invoiceId, "send");
-
-			// Same budget as the PDP/KSeF/SdI tests above — see their comment for why it is
-			// 90000ms, not 40000ms. The real PISTE rejection is in practice near-instant (probed by
-			// hand: well under a second) — that part holds — but 40-b2g-routing.cy.ts's own
-			// chorus-pro test measured ~11-12s of preamble before each of the 3 attempts even reaches
-			// PISTE on CI, pushing the total to 42s (over the old 40000ms budget) on 2026-09-14.
-			cy.get(`[data-cy="document-list-row-${invoiceId}"]`, { timeout: 90000 })
-				.find('[data-cy="document-status-badge"]', { timeout: 90000 })
-				.should("contain.text", "Send failed");
-
-			cy.get(`[data-cy="document-row-last-error-${invoiceId}"]`).should(
-				"contain.text",
-				"Chorus Pro",
+			expectRejectedByFake(
+				invoiceId,
+				/Chorus Pro PISTE authentication failed \(HTTP 400\)/,
+				"getFakeChorusProRequests",
+				"POST /api/oauth/token",
 			);
-
-			cy.request({ url: `${api}/api/documents/${invoiceId}?typeId=invoice` })
-				.its("body")
-				.then((doc) => {
-					expect(
-						doc.status,
-						'la facture est réellement "send_failed" en base',
-					).to.eq("send_failed");
-					// Any 4xx counts: PISTE's exact status code varies by environment.
-					if (!/Chorus Pro PISTE authentication failed \(HTTP 4\d\d\)/.test(doc.lastActionError)) {
-						throw new Error(
-							"l'erreur enregistrée n'est pas le vrai rejet PISTE (4xx) : " + doc.lastActionError,
-						);
-					}
-					expect(
-						doc.transportRef,
-						"aucun numeroFluxDepot sans dépôt accepté",
-					).to.not.be.a("string");
-				});
 		});
 	});
 

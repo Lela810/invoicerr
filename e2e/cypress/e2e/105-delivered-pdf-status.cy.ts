@@ -20,6 +20,7 @@ export {}; // makes this spec a module, not a global script -- see tsconfig.json
  * this one. `mailpitUrl` comes from `cypress.config.ts` (`MAILPIT_URL`).
  */
 import { FRENCH_BUYER_IDENTIFIERS } from "../fixtures/identifiers";
+import { issueCreditNote } from "../support/credit-notes";
 
 const api = Cypress.env("apiUrl");
 const mailpit = Cypress.env("mailpitUrl");
@@ -240,15 +241,8 @@ describe("A delivered PDF prints no transient status (issue #494)", () => {
 		});
 	});
 
-	it("an issued free credit note (archived, delivered to nobody): its downloaded PDF prints no status", () => {
-		const data = {
-			issueDate: "2026-09-20",
-			currency: "EUR",
-			reason: "Refund of an overpayment, issue 494.",
-			lines: [{ description: "Refund 494", quantity: 1, unitPrice: 42, vatRate: "0" }],
-		};
-		saveDraft("credit-note", data).then((id) => {
-			send("credit-note", id, data);
+	it("an issued credit note: its downloaded PDF prints no status", () => {
+		issueCreditNote("494").then((id) => {
 			displayNumberOf("credit-note", id).then((number) => {
 				downloadPdf("credit-note", id).then((pdf) =>
 					pdfText(pdf).then((text) => {
