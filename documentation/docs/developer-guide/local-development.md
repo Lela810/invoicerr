@@ -83,6 +83,20 @@ Cypress has no per-test timeout of its own, so the suite adds two:
   reported as failed, and the remaining specs still run. You can use it locally too:
   `scripts/run-specs.sh cypress/e2e/05-clients.cy.ts,cypress/e2e/09-settings.cy.ts --browser firefox`.
 
+## Date formats per language
+
+Dates formatted with date-fns (the date picker's trigger, the dashboard's period) take their locale
+from `languageToLocale()` in `frontend/src/lib/i18n.ts`. It looks `i18n.language` up in an explicit
+map, `DATE_FNS_LOCALES`, and falls back to `en-US`. Only the locales in that map are bundled, so
+adding a language to `SUPPORTED_LANGUAGES` also means importing its date-fns locale, plus the
+regional variants date-fns ships for it (`fr-CA`, `de-AT`...), into that map.
+`frontend/src/lib/i18n.spec.ts` fails until a supported language resolves to a locale of its own.
+
+`i18n.language` is the detected code, not the catalog it matched: a browser sending `de-AT` keeps
+`de-AT`, and an exact code missing from the map (`fr-FR`, say) gets `en-US` dates. A code whose
+folder exists under `frontend/src/locales/` is adopted as is even when it is not in
+`SUPPORTED_LANGUAGES`, which is why the map also lists those catalogs.
+
 ## Right-to-left (RTL) layout
 
 The frontend mirrors its layout for right-to-left locales instead of only translating the text.
