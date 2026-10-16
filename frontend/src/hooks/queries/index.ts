@@ -83,6 +83,7 @@ export {
   useDocumentTransports,
   useDocumentOperators,
   useSelectableRows,
+  useFetchSelectableRows,
   type AvailableDocumentTypesResult,
   type EntityReferenceSearchHit,
   type SelectableRow,

@@ -299,20 +299,65 @@ describe("Document line editor", () => {
 			cy.contains('[data-cy="document-field-invoice-input-options"] button', clientName).click();
 		}
 
+		function openNewCreditNote() {
+			cy.visit("/documents/credit-note", { timeout: 20000 });
+			cy.get('[data-cy="document-create-button"]', { timeout: 15000 }).click();
+		}
+
+		it("asks for the corrected invoice before the dates", () => {
+			openNewCreditNote();
+			cy.get('[data-cy="document-form"] [data-cy^="document-field-"]', { timeout: 15000 }).then(($els) => {
+				const keys = [...$els]
+					.map((el) => el.getAttribute("data-cy") ?? "")
+					.filter((cy) => /^document-field-[A-Za-z]+$/.test(cy))
+					.map((cy) => cy.replace("document-field-", ""));
+				expect(keys.slice(0, 3)).to.deep.eq(["invoice", "issueDate", "currency"]);
+			});
+		});
+
 		it("checks every line of the picked invoice, and again after switching invoices", () => {
 			validatedInvoice("Avoir Premier SARL", ["One", "Two"]).then(() => {
 				validatedInvoice("Avoir Second SARL", ["Three", "Four", "Five"]).then(() => {
-					cy.visit("/documents/credit-note", { timeout: 20000 });
-					cy.get('[data-cy="document-create-button"]', { timeout: 15000 }).click();
+					openNewCreditNote();
+					pickInvoice("Avoir Premier SARL");
 					cy.pickToday('[data-cy="document-field-issueDate-input"]');
 					cy.continueDocumentWizard();
-
-					pickInvoice("Avoir Premier SARL");
 					cy.get(corrected, { timeout: 10000 }).should("have.length", 2).and("be.checked");
 					cy.get(corrected).first().uncheck();
 
+					cy.get('[data-cy="document-create-dialog-back"]').click();
 					pickInvoice("Avoir Second SARL");
+					cy.continueDocumentWizard();
 					cy.get(corrected, { timeout: 10000 }).should("have.length", 3).and("be.checked");
+				});
+			});
+		});
+
+		it("saves the lines of the newly picked invoice after jumping back through the step chips", () => {
+			validatedInvoice("Avoir Chip Premier SARL", ["One", "Two"]).then(() => {
+				validatedInvoice("Avoir Chip Second SARL", ["Three", "Four", "Five"]).then((secondId) => {
+					openNewCreditNote();
+					pickInvoice("Avoir Chip Premier SARL");
+					cy.pickToday('[data-cy="document-field-issueDate-input"]');
+					cy.continueDocumentWizard(); // Details -> Lines
+					cy.get(corrected, { timeout: 10000 }).should("have.length", 2).and("be.checked");
+					cy.continueDocumentWizard(); // Lines -> Options
+					cy.continueDocumentWizard(); // Options -> Summary
+
+					cy.get('[data-cy="document-create-dialog-step-details"]').click();
+					pickInvoice("Avoir Chip Second SARL");
+					cy.get('[data-cy="document-create-dialog-step-recap"]').click();
+
+					cy.intercept("POST", `${api}/api/documents/types/credit-note/actions/save-draft`).as("save");
+					cy.get('[data-cy="document-action-save-draft"]').scrollIntoView().click();
+					cy.wait("@save").then((interception) => {
+						expect(interception.response?.statusCode).to.be.oneOf([200, 201]);
+						const id = interception.response?.body?.document?.id as string;
+						cy.request(`${api}/api/documents/${id}?typeId=credit-note`).then(({ body }) => {
+							expect(body.data.invoice).to.eq(secondId);
+							expect(body.data.correctedLines).to.have.length(3);
+						});
+					});
 				});
 			});
 		});

@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { useQueries } from "@tanstack/react-query"
+import { useQueries, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { apiFetch, useApiMutation, useApiQuery } from "@/hooks/use-api-query"
@@ -571,8 +571,29 @@ export function useSelectableRows(
   sourceId: string | undefined,
 ) {
   return useApiQuery<SelectableRowsResult>(
-    ["document-row-selection", typeId, fieldKey, sourceId],
-    `/api/documents/types/${typeId}/fields/${fieldKey}/rows?sourceId=${encodeURIComponent(sourceId ?? "")}`,
+    selectableRowsKey(typeId, fieldKey, sourceId),
+    selectableRowsUrl(typeId, fieldKey, sourceId),
     { enabled: !!typeId && !!fieldKey && !!sourceId },
   )
+}
+
+/** The same query as `useSelectableRows`, for a caller outside render (shares its cache entry). */
+export function useFetchSelectableRows() {
+  const queryClient = useQueryClient()
+  return useCallback(
+    (typeId: string, fieldKey: string, sourceId: string) =>
+      queryClient.fetchQuery({
+        queryKey: selectableRowsKey(typeId, fieldKey, sourceId),
+        queryFn: () => apiFetch<SelectableRowsResult>(selectableRowsUrl(typeId, fieldKey, sourceId)),
+      }),
+    [queryClient],
+  )
+}
+
+function selectableRowsKey(typeId?: string, fieldKey?: string, sourceId?: string) {
+  return ["document-row-selection", typeId, fieldKey, sourceId] as const
+}
+
+function selectableRowsUrl(typeId?: string, fieldKey?: string, sourceId?: string) {
+  return `/api/documents/types/${typeId}/fields/${fieldKey}/rows?sourceId=${encodeURIComponent(sourceId ?? "")}`
 }

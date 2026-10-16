@@ -279,6 +279,15 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
     },
     fields: [
       {
+        key: 'purchaseOrder',
+        kind: 'reference',
+        label: 'Purchase order',
+        required: false,
+        entity: 'purchase-order',
+        helpText:
+          'The purchase order this invoice fulfills, if any. Links this invoice into the 3-way match (purchase order × goods receipt × invoice) shown in the "Reconciliation" panel below.',
+      },
+      {
         key: 'supplier',
         kind: 'text',
         label: 'Supplier',
@@ -304,16 +313,6 @@ export function buildReceivedInvoiceDescriptor(): DocumentTypeDescriptor {
         label: "Supplier's invoice number",
         required: false,
         helpText: "The number as printed on the supplier's own invoice — never assigned by this company.",
-      },
-      {
-        key: 'purchaseOrder',
-        kind: 'reference',
-        label: 'Purchase order',
-        required: false,
-        entity: 'purchase-order',
-        helpText:
-          'The purchase order this invoice fulfills, if any — links this invoice into the 3-way match ' +
-          '(purchase order × goods receipt × invoice) shown in the "Reconciliation" panel below.',
       },
       {
         key: 'issueDate',

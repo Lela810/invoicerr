@@ -275,23 +275,9 @@ describe("Free credit note — the screen, browser level", () => {
 			"be.visible",
 		);
 
-		// Details: only "issueDate" — the one field this descriptor still requires
-		// unconditionally that stays there. "invoice" is optional now (credit-note.descriptor.ts's own
-		// "Two shapes, one type") and moved to "Lines" (it feeds "correctedLines"' own `sourceField`);
-		// "currency" FOLLOWS it onto that same step too, since its own `lockedFromReference` lock would
-		// otherwise never re-apply once "invoice" resolves on a step it isn't even mounted on
-		// (document-create-dialog.tsx's own `buildFieldGroups`, see that function's own header).
+		// Details: the optional "invoice" (left empty), the date, and "currency", a normal editable
+		// select since no invoice locks it.
 		cy.pickToday('[data-cy="document-field-issueDate-input"]');
-		cy.continueDocumentWizard(); // Details -> Lines
-
-		// Lines: "Corrected lines" (rowSelection) shows its own "pick a source first" placeholder —
-		// never touched, since no invoice was ever picked. "currency" is a normal, editable, empty
-		// select here too (the lock only engages once an invoice actually resolves — never touched in
-		// this FREE flow). "Lines" (the FREE table) is what actually carries this credit note's own
-		// amount.
-		cy.get('[data-cy="document-field-correctedLines-no-source"]').should(
-			"be.visible",
-		);
 		cy.get('[data-cy="document-field-currency-input"] button')
 			.should("not.be.disabled")
 			.click({ force: true });
@@ -301,6 +287,13 @@ describe("Free credit note — the screen, browser level", () => {
 		cy.get('[data-cy^="document-field-currency-input-option-eur"]')
 			.first()
 			.click();
+		cy.continueDocumentWizard(); // Details -> Lines
+
+		// Lines: "Corrected lines" waits for a source that is never picked; the free "Lines" table
+		// carries the amount.
+		cy.get('[data-cy="document-field-correctedLines-no-source"]').should(
+			"be.visible",
+		);
 		cy.get('[data-cy="document-field-lines-add-row"]').click();
 		cy.get('[data-cy="document-field-lines-row-0"]').should("exist");
 		cy.get('input[name="lines.0.description"]').type("Geste commercial", {
@@ -325,7 +318,7 @@ describe("Free credit note — the screen, browser level", () => {
 		cy.get('[data-cy="document-field-vatRate-input-options"] [data-cy*="-option-"]').first().click();
 		cy.continueDocumentWizard(); // Lines -> Options
 
-		// Options: "invoice" (never picked), "notes" (left empty), and "reason" — REQUIRED, the moment
+		// Options: "notes" (left empty) and "reason", REQUIRED the moment
 		// there is no invoice to correct (the same asterisk convention `43-correction-routes.cy.ts`'s
 		// own Polish "correctionReason" test already proves for the sibling `requiredIfPresent` hint).
 		cy.get('[data-cy="document-field-reason"]').should("contain.text", "*");
