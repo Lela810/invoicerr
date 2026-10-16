@@ -124,11 +124,52 @@ its source, and a period where nothing was cashed still shows as zero rather tha
 Export the whole thing as a CSV for your own records; the view and the export both say plainly that
 this is an aid, never your official declaration.
 
+## Branding
+
+The **Branding** settings tab personalizes every PDF your company issues (quotes, invoices, credit
+notes and the other document types) with three things:
+
+- **Logo** (PNG, JPEG or WebP, 10 MB at most), printed at the top left of the first page.
+- **Accent color**, used for the rule under the header and for the small section labels.
+- **Font**: Inter, Source Serif 4, IBM Plex Sans, DM Sans or Lora, or the default system font.
+
+Four **Presets** (Classic, Modern, Minimal, Bold) set an accent color and a font in one click. The
+**Preview** renders a sample invoice with your current settings, through the same renderer as a real
+document.
+
+## PDF layout
+
+The layout itself is the same for every company and cannot be edited: it has to carry the legal
+mentions and identifiers each country requires, and one fixed layout is what keeps that reliable. A
+document reads, from top to bottom:
+
+1. **Header**: your logo on the left; the document type, its number and its date on the right.
+2. **Parties**: your company and its address on the left, the client (or the supplier, on a purchase
+   order or a received invoice) and its address on the right.
+3. **Details**: the short fields of the document (issue date, due date, currency, client reference,
+   and so on) in one compact grid. An optional field left empty, such as the origin document of an
+   invoice, is not printed.
+4. **Lines**: the line table (on a credit note linked to an invoice, the corrected lines). On a
+   document longer than a page, its header row is repeated at the top of every page and a line is
+   never cut in two.
+5. **Totals**: right under the last line, on the same page as it.
+6. **Notes**, then the payment block (SEPA QR code and payment methods side by side), the legal
+   mentions, and your custom fields.
+
+:::info[Page breaks]
+The layout is designed so that a short document (a few lines, ordinary notes, the usual legal
+mentions and payment details) fits on one A4 page; long notes, many custom fields or a long list of
+mentions can still push the end of the document onto a second page. When the lines run over a page,
+the break falls between two lines, and the totals move with at least the last line rather than
+starting a page on their own. Only the totals and lines are kept together: notes, payment details
+and mentions flow onto the next page as needed.
+:::
+
 ## What this page used to describe, and does not any more
 
-This page previously documented a **Logo** upload, a **Website** field, an **Exempt VAT** toggle, a
-per-type **Number Format / Starting Number** block, and a whole **PDF Templates** section (typography,
-colours, spacing, label overrides, live preview).
+This page previously documented a **Website** field, an **Exempt VAT** toggle, a per-type **Number
+Format / Starting Number** block, and a whole **PDF Templates** section (colours, spacing, label
+overrides). The logo, accent color, font and preview now live in **Branding**, described above.
 
 Those descriptions did not match the application, so they have been removed rather than left in place:
 the fields either do not exist, are not stored, or are not read by anything that produces a document.

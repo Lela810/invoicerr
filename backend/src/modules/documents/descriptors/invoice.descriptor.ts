@@ -519,6 +519,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         required: false,
         entities: ['quote', 'invoice'],
         helpText: 'The quote or invoice this invoice was raised from, if any.',
+        hideWhenEmpty: true,
       },
       // `correctsInvoiceId` — DELIBERATELY a separate field from `origin` just above, not a reuse of
       // it: `origin`'s own comment already documents that a bare "traces back to another invoice" link
@@ -544,6 +545,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         helpText:
           "The invoice this one corrects, if any — a post-clearance correction (e.g. Poland's " +
           'faktura korygująca). Leave empty for an ordinary invoice.',
+        hideWhenEmpty: true,
       },
       {
         key: 'issueDate',

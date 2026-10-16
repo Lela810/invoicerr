@@ -15,10 +15,10 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      line-height: 1.6;
+      font-size: 13px;
+      line-height: 1.45;
       color: #333;
       background: white;
-      padding: 20px;
     }
     .container {
       max-width: 800px;
@@ -26,95 +26,133 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       background: white;
     }
     .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
       border-bottom: 2px solid #007bff;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .company-info {
+      padding-bottom: 12px;
       margin-bottom: 16px;
+      break-inside: avoid;
     }
-    .company-name {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 4px;
+    .logo {
+      display: block;
+      max-height: 64px;
+      max-width: 240px;
     }
-    .company-address {
-      font-size: 13px;
-      color: #666;
+    .document-heading {
+      margin-left: auto;
+      text-align: right;
     }
     .document-title {
       font-size: 24px;
       font-weight: bold;
-      margin: 16px 0 8px 0;
+      line-height: 1.2;
     }
     .document-number {
-      font-size: 15px;
+      font-size: 14px;
       color: #555;
-      margin-bottom: 8px;
     }
     .document-atcud {
-      font-size: 12px;
+      font-size: 11px;
       color: #555;
-      margin-bottom: 8px;
       font-family: monospace;
     }
     .document-meta {
-      display: flex;
-      gap: 32px;
-      font-size: 13px;
+      font-size: 11px;
       color: #666;
-      margin-top: 12px;
+      margin-top: 4px;
+    }
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+    }
+    .party-label-spacer {
+      visibility: hidden;
+    }
+    .company-name {
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .company-address {
+      color: #555;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px 16px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      background: #f7f7f7;
+      border-radius: 4px;
+      break-inside: avoid;
     }
     .field-row {
-      margin-bottom: 20px;
-      padding: 12px;
-      background: #f9f9f9;
-      border-radius: 4px;
+      margin-bottom: 16px;
     }
     .field-label {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: #007bff;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
     }
     .field-value {
-      font-size: 14px;
+      font-size: 13px;
       color: #333;
       word-break: break-word;
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      margin-top: 8px;
+    }
+    thead {
+      display: table-header-group;
     }
     thead tr {
       background: #f0f0f0;
       border-bottom: 2px solid #ddd;
     }
     th {
-      padding: 8px;
+      padding: 6px 8px;
       text-align: left;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
+    }
+    tr {
+      break-inside: avoid;
+    }
+    th,
+    td {
+      word-break: normal;
+    }
+    td:first-child {
+      overflow-wrap: anywhere;
+    }
+    tbody tr.table-tail {
+      break-before: avoid;
+      border-bottom: none;
+    }
+    tr.table-tail > td {
+      padding: 0;
     }
     tbody tr {
       border-bottom: 1px solid #eee;
     }
     td {
-      padding: 8px;
+      padding: 6px 8px;
       font-size: 13px;
+      vertical-align: top;
     }
     pre {
       white-space: pre-wrap;
       word-wrap: break-word;
-      font-family: monospace;
-      font-size: 12px;
-      background: #f5f5f5;
-      padding: 8px;
-      border-radius: 4px;
-      overflow-x: auto;
+      font-family: inherit;
+      font-size: 13px;
     }
     ul {
       margin: 8px 0 8px 20px;
@@ -123,30 +161,32 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       margin-bottom: 4px;
     }
     .totals-section {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 2px solid #ddd;
+      width: 50%;
+      margin: 12px 0 16px auto;
+      break-inside: avoid;
+      break-before: avoid;
     }
     .totals-label {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: #007bff;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 2px;
     }
     .totals-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      font-size: 14px;
+      gap: 16px;
+      padding: 4px 0;
+      font-size: 13px;
       border-bottom: 1px solid #eee;
     }
     .totals-row.summary {
+      font-size: 15px;
       font-weight: bold;
       border-bottom: 2px solid #333;
-      margin-top: 8px;
-      padding-top: 12px;
+      padding-top: 6px;
     }
     .totals-amount {
       text-align: right;
@@ -166,12 +206,13 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       color: #777;
     }
     .option-group {
-      margin-top: 24px;
+      margin-top: 16px;
     }
     .option-group-heading {
       font-weight: bold;
       font-size: 14px;
       margin-bottom: 4px;
+      break-after: avoid;
     }
     .option-group-heading .accepted-badge {
       font-weight: normal;
@@ -181,7 +222,7 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       margin-left: 8px;
     }
     .warnings-section {
-      margin-top: 16px;
+      margin-top: 8px;
       padding: 8px;
       background: #fff9f0;
       border-left: 3px solid #ff9800;
@@ -192,35 +233,44 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       color: #e65100;
       margin-bottom: 4px;
     }
+    .payment-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+    }
     .legal-mentions {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 16px;
+      padding-top: 8px;
       border-top: 1px solid #ddd;
     }
     .legal-mention-item {
-      font-size: 11px;
+      font-size: 10px;
       color: #555;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      break-inside: avoid;
     }
     .custom-fields-section {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 16px;
+      padding-top: 8px;
       border-top: 1px solid #ddd;
+      break-inside: avoid;
     }
     .custom-fields-heading {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: #007bff;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 4px;
     }
     .custom-field-item {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      font-size: 13px;
-      padding: 4px 0;
+      font-size: 12px;
+      padding: 2px 0;
     }
     .custom-field-label {
       color: #666;
@@ -228,40 +278,39 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
     .payment-qr-section {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 16px;
-      padding: 12px;
-      background: #f9f9f9;
+      gap: 12px;
+      padding: 8px;
+      background: #f7f7f7;
       border-radius: 4px;
     }
     .payment-qr-image {
-      width: 130px;
-      height: 130px;
+      width: 110px;
+      height: 110px;
     }
     .payment-qr-label {
-      font-size: 12px;
+      font-size: 11px;
       color: #555;
     }
     .payment-methods-section {
-      margin-top: 16px;
-      padding: 12px;
-      background: #f9f9f9;
+      flex: 1;
+      padding: 8px 12px;
+      background: #f7f7f7;
       border-radius: 4px;
     }
     .payment-methods-heading {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       color: #333;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .payment-method-item {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .payment-method-item:last-child {
       margin-bottom: 0;
     }
     .payment-method-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       color: #333;
     }
@@ -279,39 +328,39 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
 <body>
   <div class="container">
     <div class="header">
-      <div class="company-info">
-        <div class="company-name">Acme Corp</div>
-        <div class="company-address">
-          123 Main St
-          12345
-          Springfield
-          USA
+      <div class="header-brand"></div>
+      <div class="document-heading">
+        <div class="document-title">Invoice</div>
+        
+        
+        <div class="document-meta">
+          <div><strong>Status:</strong> draft</div>
+          <div><strong>Date:</strong> 2026-08-30</div>
         </div>
       </div>
-      <div class="document-title">Invoice</div>
-      
-      
-      <div class="document-meta">
-        <div><strong>Status:</strong> draft</div>
-        <div><strong>Date:</strong> 2026-08-30</div>
+    </div>
+    <div class="parties">
+      <div class="company-info">
+        
+        <div class="company-name">Acme Corp</div>
+        <div class="company-address"><div>123 Main St</div><div>12345 Springfield</div><div>USA</div></div>
       </div>
     </div>
 
-    <div class="field-row">
-      <div class="field-label">Title</div>
-      <div class="field-value">Consulting</div>
-    </div>
-
-    <div class="field-row">
-      <div class="field-label">Currency</div>
-      <div class="field-value">EUR</div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="field-label">Title</div>
+        <div class="field-value">Consulting</div>
+      </div>
+      <div class="meta-item">
+        <div class="field-label">Currency</div>
+        <div class="field-value">EUR</div>
+      </div>
     </div>
 
     <div class="field-row">
       <div class="field-label">Items</div>
-      <div class="field-value"><table style="border-collapse: collapse; width: 100%; margin-top: 8px;"><thead><tr style="border-bottom: 1px solid #ccc;"><th style="padding: 8px; text-align: left; font-weight: bold;">Description</th><th style="padding: 8px; text-align: left; font-weight: bold;">Quantity</th><th style="padding: 8px; text-align: left; font-weight: bold;">Unit price</th></tr></thead><tbody><tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">Consulting hours</td><td style="padding: 8px;">2</td><td style="padding: 8px;">100.00 </td></tr></tbody></table></div>
-    </div>
-
+      <div class="field-value"><table style="border-collapse: collapse; width: 100%; margin-top: 8px;"><thead><tr style="border-bottom: 1px solid #ccc;"><th style="text-align: left; font-weight: bold;">Description</th><th style="text-align: left; font-weight: bold;">Quantity</th><th style="text-align: left; font-weight: bold;">Unit price</th></tr></thead><tbody><tr style="border-bottom: 1px solid #eee;"><td>Consulting hours</td><td>2</td><td>100.00 </td></tr><tr class="table-tail"><td colspan="3">
     <div class="totals-section">
       <div class="totals-label">Totals</div>
 
@@ -331,7 +380,10 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
       </div>
 
     </div>
+</td></tr></tbody></table></div>
+    </div>
 
+    <div class="payment-section">
     <div class="payment-qr-section">
       <img class="payment-qr-image" src="data:image/png;base64,AAAA" alt="SEPA payment QR code" width="130" height="130">
       <div class="payment-qr-label">Scan to pay (SEPA)</div>
@@ -344,6 +396,7 @@ exports[`renderDocumentHtml > branding (chantier B, 2026-09-15) > pins the full 
         <div class="payment-method-label">Bank transfer</div>
         <div class="payment-method-line">IBAN FR14 2004 1010 0505 0001 3M02 606</div>
       </div>
+    </div>
     </div>
 
     <div class="legal-mentions">

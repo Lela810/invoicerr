@@ -20,6 +20,9 @@ COPY backend/. .
 
 RUN DATABASE_URL=not_required npx prisma generate --schema=prisma/schema.prisma
 RUN npm run build
+# The whole node_modules tree is copied into the runtime image below; the PDF parser the tests use,
+# and its native canvas binaries (about 100 MB), have no use there.
+RUN rm -rf node_modules/pdfjs-dist node_modules/@napi-rs/canvas*
 
 FROM --platform=$BUILDPLATFORM node:24-bookworm AS frontend-builder
 # Matches backend-builder's version for consistency only; this stage has no native deps.

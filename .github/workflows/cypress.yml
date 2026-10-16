@@ -169,12 +169,12 @@ jobs:
       - name: Install backend dependencies
         # PDF rendering runs on `playwright-core`, which — unlike the `puppeteer` it replaced —
         # bundles no browser and downloads nothing on install, so there is no multi-hundred-MB fetch
-        # to skip here any more. `render-pdf.spec.ts` does exercise the module in this job, but only
-        # against its jest manual mock (src/__mocks__/playwright-core.ts) — no real Chromium is ever
-        # launched here, so unlike `cypress-run` below, this job needs no browser-provisioning step of
-        # its own. `cypress-run` (and `scenarios.yml`'s job) DO render real PDFs — the e2e/scenario
-        # specs actually send a document — and provision a matched Chromium explicitly
-        # (`playwright-core install chromium`) before booting the backend; see that job's own step.
+        # to skip here any more. `render-pdf.spec.ts` exercises the module against its manual mock
+        # (src/__mocks__/playwright-core.ts); `render-pdf-pagination.spec.ts` renders real PDFs, on the
+        # runner's own `/usr/bin/chromium` (see `queue-integration` below), and fails rather than skips
+        # when no browser is found under CI. `cypress-run` (and `scenarios.yml`'s job) provision a
+        # matched Chromium explicitly (`playwright-core install chromium`) before booting the
+        # backend; see that job's own step.
         run: cd backend && npm ci --ignore-scripts
 
       - name: Generate Prisma client

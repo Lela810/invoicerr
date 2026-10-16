@@ -62,10 +62,12 @@ function renderFieldValue(
   referenceLabels: Record<string, string>,
   data: Record<string, unknown>,
   strings: PdfChromeStrings,
+  // An 'array' table's closing row (the totals), kept on the same page as the table's last line.
+  tail = '',
 ): string {
   // Value is missing — render em-dash
   if (value === undefined || value === null || value === '') {
-    return '—';
+    return `—${tail}`;
   }
 
   switch (field.kind) {
@@ -133,7 +135,7 @@ function renderFieldValue(
     case 'array': {
       const rows = Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
       if (rows.length === 0) {
-        return '—';
+        return `—${tail}`;
       }
       // 'hiddenReference' subfields (e.g. a line's `articleId`) are excluded
       // BEFORE the header/body loops below even run — not via `hideWhenEmpty`'s "skip a per-row cell
@@ -160,7 +162,7 @@ function renderFieldValue(
       // Header
       html += '<thead><tr style="border-bottom: 1px solid #ccc;">';
       for (const subField of subFields) {
-        html += `<th style="padding: 8px; text-align: left; font-weight: bold;">${escapeHtmlSafe(subField.label)}</th>`;
+        html += `<th style="text-align: left; font-weight: bold;">${escapeHtmlSafe(subField.label)}</th>`;
       }
       html += '</tr></thead>';
       // Body
@@ -169,9 +171,12 @@ function renderFieldValue(
         html += '<tr style="border-bottom: 1px solid #eee;">';
         for (const subField of subFields) {
           const cellValue = renderFieldValue(subField, row[subField.key], referenceLabels, row, strings);
-          html += `<td style="padding: 8px;">${cellValue}</td>`;
+          html += `<td>${cellValue}</td>`;
         }
         html += '</tr>';
+      }
+      if (tail) {
+        html += `<tr class="table-tail"><td colspan="${subFields.length}">${tail}</td></tr>`;
       }
       html += '</tbody></table>';
       return html;
@@ -376,7 +381,7 @@ ${renderTotalsRows(group.totals, strings, hasCommonGroup)}
           ? `<span class="accepted-badge">(${escapeHtmlSafe(strings.acceptedOptionBadge)})</span>`
           : ''
       }</div>
-      <div class="field-value">${renderFieldValue(fieldWithoutGroupKey, groupRows, referenceLabels, documentData, strings)}</div>${totalsBlock}
+      <div class="field-value">${renderFieldValue(fieldWithoutGroupKey, groupRows, referenceLabels, documentData, strings, totalsBlock)}</div>
     </div>
 `;
   }
@@ -391,6 +396,25 @@ export interface RenderableLegalMention {
   text: string;
   legalRef: string;
 }
+
+export interface PartyAddress {
+  address?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+}
+
+function renderPartyAddress(party: PartyAddress): string {
+  const locality = [party.postalCode, party.city].filter(Boolean).join(' ');
+  return [party.address, party.addressLine2, locality, party.country]
+    .filter(Boolean)
+    .map((line) => `<div>${escapeHtmlSafe(String(line))}</div>`)
+    .join('');
+}
+
+/** Kinds whose value fits on one short line, printed in the compact grid under the parties. */
+const COMPACT_FIELD_KINDS = new Set(['text', 'number', 'money', 'date', 'boolean', 'select', 'reference']);
 
 export interface RenderDocumentHtmlInput {
   descriptor: DocumentTypeDescriptor;
@@ -420,13 +444,13 @@ export interface RenderDocumentHtmlInput {
    * so every caller that never asked (the branding preview, dozens of specs) keeps its exact bytes.
    */
   printStatus?: boolean;
-  company: {
-    name: string;
-    address?: string | null;
-    city?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-  };
+  company: PartyAddress & { name: string };
+  /**
+   * The party the document is addressed to, printed next to the seller instead of as an ordinary
+   * field. `fieldKey` names the descriptor field it stands for, which the field loop then skips. Absent
+   * keeps that field in the ordinary field list.
+   */
+  recipient?: PartyAddress & { fieldKey: string; name: string };
   referenceLabels: Record<string, string>;
   /**
    * Issue #507 - the invoice a LINKED credit note corrects, printed in the header next to the date
@@ -618,8 +642,10 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
   const logoDataUri = input.branding?.logoDataUri || null;
   // Same "adds nothing at all when absent" discipline as `fontFaceStyleBlock` above — see this
   // block's own splice point in the header markup below.
-  const logoBlockHtml = logoDataUri
-    ? `<img src="${escapeHtmlSafe(logoDataUri)}" alt="" style="max-height:64px;max-width:240px;margin-bottom:12px;display:block;">\n      `
+  const logoBlockHtml = logoDataUri ? `<img src="${escapeHtmlSafe(logoDataUri)}" alt="" class="logo">` : '';
+  const recipient = input.recipient;
+  const recipientLabel = recipient
+    ? (descriptor.fields.find((field) => field.key === recipient.fieldKey)?.label ?? '')
     : '';
 
   let html = `
@@ -636,10 +662,10 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
     }
     body {
       font-family: ${bodyFontStack};
-      line-height: 1.6;
+      font-size: 13px;
+      line-height: 1.45;
       color: #333;
       background: white;
-      padding: 20px;
     }
     .container {
       max-width: 800px;
@@ -647,95 +673,133 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
       background: white;
     }
     .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
       border-bottom: 2px solid ${accentColor};
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .company-info {
+      padding-bottom: 12px;
       margin-bottom: 16px;
+      break-inside: avoid;
     }
-    .company-name {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 4px;
+    .logo {
+      display: block;
+      max-height: 64px;
+      max-width: 240px;
     }
-    .company-address {
-      font-size: 13px;
-      color: #666;
+    .document-heading {
+      margin-left: auto;
+      text-align: right;
     }
     .document-title {
       font-size: 24px;
       font-weight: bold;
-      margin: 16px 0 8px 0;
+      line-height: 1.2;
     }
     .document-number {
-      font-size: 15px;
+      font-size: 14px;
       color: #555;
-      margin-bottom: 8px;
     }
     .document-atcud {
-      font-size: 12px;
+      font-size: 11px;
       color: #555;
-      margin-bottom: 8px;
       font-family: monospace;
     }
     .document-meta {
-      display: flex;
-      gap: 32px;
-      font-size: 13px;
+      font-size: 11px;
       color: #666;
-      margin-top: 12px;
+      margin-top: 4px;
+    }
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+    }
+    .party-label-spacer {
+      visibility: hidden;
+    }
+    .company-name {
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .company-address {
+      color: #555;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px 16px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      background: #f7f7f7;
+      border-radius: 4px;
+      break-inside: avoid;
     }
     .field-row {
-      margin-bottom: 20px;
-      padding: 12px;
-      background: #f9f9f9;
-      border-radius: 4px;
+      margin-bottom: 16px;
     }
     .field-label {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: ${accentColor};
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
     }
     .field-value {
-      font-size: 14px;
+      font-size: 13px;
       color: #333;
       word-break: break-word;
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      margin-top: 8px;
+    }
+    thead {
+      display: table-header-group;
     }
     thead tr {
       background: #f0f0f0;
       border-bottom: 2px solid #ddd;
     }
     th {
-      padding: 8px;
+      padding: 6px 8px;
       text-align: left;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
+    }
+    tr {
+      break-inside: avoid;
+    }
+    th,
+    td {
+      word-break: normal;
+    }
+    td:first-child {
+      overflow-wrap: anywhere;
+    }
+    tbody tr.table-tail {
+      break-before: avoid;
+      border-bottom: none;
+    }
+    tr.table-tail > td {
+      padding: 0;
     }
     tbody tr {
       border-bottom: 1px solid #eee;
     }
     td {
-      padding: 8px;
+      padding: 6px 8px;
       font-size: 13px;
+      vertical-align: top;
     }
     pre {
       white-space: pre-wrap;
       word-wrap: break-word;
-      font-family: monospace;
-      font-size: 12px;
-      background: #f5f5f5;
-      padding: 8px;
-      border-radius: 4px;
-      overflow-x: auto;
+      font-family: inherit;
+      font-size: 13px;
     }
     ul {
       margin: 8px 0 8px 20px;
@@ -744,30 +808,32 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
       margin-bottom: 4px;
     }
     .totals-section {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 2px solid #ddd;
+      width: 50%;
+      margin: 12px 0 16px auto;
+      break-inside: avoid;
+      break-before: avoid;
     }
     .totals-label {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: ${accentColor};
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 2px;
     }
     .totals-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      font-size: 14px;
+      gap: 16px;
+      padding: 4px 0;
+      font-size: 13px;
       border-bottom: 1px solid #eee;
     }
     .totals-row.summary {
+      font-size: 15px;
       font-weight: bold;
       border-bottom: 2px solid #333;
-      margin-top: 8px;
-      padding-top: 12px;
+      padding-top: 6px;
     }
     .totals-amount {
       text-align: right;
@@ -787,12 +853,13 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
       color: #777;
     }
     .option-group {
-      margin-top: 24px;
+      margin-top: 16px;
     }
     .option-group-heading {
       font-weight: bold;
       font-size: 14px;
       margin-bottom: 4px;
+      break-after: avoid;
     }
     .option-group-heading .accepted-badge {
       font-weight: normal;
@@ -802,7 +869,7 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
       margin-left: 8px;
     }
     .warnings-section {
-      margin-top: 16px;
+      margin-top: 8px;
       padding: 8px;
       background: #fff9f0;
       border-left: 3px solid #ff9800;
@@ -813,35 +880,44 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
       color: #e65100;
       margin-bottom: 4px;
     }
+    .payment-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+    }
     .legal-mentions {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 16px;
+      padding-top: 8px;
       border-top: 1px solid #ddd;
     }
     .legal-mention-item {
-      font-size: 11px;
+      font-size: 10px;
       color: #555;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      break-inside: avoid;
     }
     .custom-fields-section {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 16px;
+      padding-top: 8px;
       border-top: 1px solid #ddd;
+      break-inside: avoid;
     }
     .custom-fields-heading {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 10px;
       color: ${accentColor};
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 4px;
     }
     .custom-field-item {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      font-size: 13px;
-      padding: 4px 0;
+      font-size: 12px;
+      padding: 2px 0;
     }
     .custom-field-label {
       color: #666;
@@ -849,40 +925,39 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
     .payment-qr-section {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 16px;
-      padding: 12px;
-      background: #f9f9f9;
+      gap: 12px;
+      padding: 8px;
+      background: #f7f7f7;
       border-radius: 4px;
     }
     .payment-qr-image {
-      width: 130px;
-      height: 130px;
+      width: 110px;
+      height: 110px;
     }
     .payment-qr-label {
-      font-size: 12px;
+      font-size: 11px;
       color: #555;
     }
     .payment-methods-section {
-      margin-top: 16px;
-      padding: 12px;
-      background: #f9f9f9;
+      flex: 1;
+      padding: 8px 12px;
+      background: #f7f7f7;
       border-radius: 4px;
     }
     .payment-methods-heading {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       color: #333;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .payment-method-item {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .payment-method-item:last-child {
       margin-bottom: 0;
     }
     .payment-method-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       color: #333;
     }
@@ -900,85 +975,92 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
 <body>
   <div class="container">
     <div class="header">
-      ${logoBlockHtml}<div class="company-info">
-        <div class="company-name">${escapeHtmlSafe(company.name)}</div>
-        <div class="company-address">
-          ${company.address ? escapeHtmlSafe(company.address) : ''}
-          ${company.postalCode ? escapeHtmlSafe(company.postalCode) : ''}
-          ${company.city ? escapeHtmlSafe(company.city) : ''}
-          ${company.country ? escapeHtmlSafe(company.country) : ''}
-        </div>
-      </div>
-      <div class="document-title">${escapeHtmlSafe(descriptor.label)}</div>
-      ${
-        descriptor.numbering
-          ? `<div class="document-number">${escapeHtmlSafe(
-              instance.displayNumber ??
-                // PR #473 review point 3: this USED to read `isNumberingAllowedFrom` directly, which
-                // answers a different question ("would this status be allowed to number on ITS OWN
-                // next transition") and, for a type with no `numbering.onlyFrom` (quote, invoice,
-                // purchase order, goods receipt), returns true for EVERY status - so a document stuck
-                // "sending" without a number (the race review point 1 of this PR closes) printed
-                // "Draft, no number yet" here while the screen already showed "Issued without a
-                // number" for the SAME record, directly contradicting this file's own promise that the
-                // two must never disagree. `numberingDisplayState` (numbering/display-state.ts) is now
-                // the ONE rule both this PDF and the frontend's own `numberingDisplayState`
-                // (types.ts) compute from - see that file's own header for why it is a mirrored
-                // formula, not literal shared code, across the backend/frontend boundary.
-                (numberingDisplayState(descriptor, instance) === 'awaiting'
-                  ? strings.draftNoNumberYet
-                  : strings.issuedWithoutNumber),
-            )}</div>`
-          : ''
-      }
-      ${instance.atcud ? `<div class="document-atcud">${escapeHtmlSafe(instance.atcud)}</div>` : ''}
-      <div class="document-meta">
+      <div class="header-brand">${logoBlockHtml}</div>
+      <div class="document-heading">
+        <div class="document-title">${escapeHtmlSafe(descriptor.label)}</div>
         ${
-          input.printStatus === false
-            ? ''
-            : `<div><strong>${escapeHtmlSafe(strings.status)}:</strong> ${escapeHtmlSafe(instance.status)}</div>`
-        }
-        <div><strong>${escapeHtmlSafe(strings.date)}:</strong> ${escapeHtmlSafe(createdDate)}</div>${
-          input.correctedInvoice
-            ? `\n        <div class="corrected-invoice">${strings.correctsInvoice(
-                escapeHtmlSafe(input.correctedInvoice.displayNumber ?? strings.issuedWithoutNumber),
-                escapeHtmlSafe(input.correctedInvoice.issueDate ?? '-'),
+          descriptor.numbering
+            ? `<div class="document-number">${escapeHtmlSafe(
+                instance.displayNumber ??
+                  // Shares `numberingDisplayState` with the frontend so the PDF and the screen never
+                  // disagree on an unnumbered document.
+                  (numberingDisplayState(descriptor, instance) === 'awaiting'
+                    ? strings.draftNoNumberYet
+                    : strings.issuedWithoutNumber),
               )}</div>`
             : ''
         }
+        ${instance.atcud ? `<div class="document-atcud">${escapeHtmlSafe(instance.atcud)}</div>` : ''}
+        <div class="document-meta">
+          ${
+            input.printStatus === false
+              ? ''
+              : `<div><strong>${escapeHtmlSafe(strings.status)}:</strong> ${escapeHtmlSafe(instance.status)}</div>`
+          }
+          <div><strong>${escapeHtmlSafe(strings.date)}:</strong> ${escapeHtmlSafe(createdDate)}</div>${
+            input.correctedInvoice
+              ? `\n          <div class="corrected-invoice">${strings.correctsInvoice(
+                  escapeHtmlSafe(input.correctedInvoice.displayNumber ?? strings.issuedWithoutNumber),
+                  escapeHtmlSafe(input.correctedInvoice.issueDate ?? '-'),
+                )}</div>`
+              : ''
+          }
+        </div>
       </div>
+    </div>
+    <div class="parties">
+      <div class="company-info">
+        ${recipient ? '<div class="field-label party-label-spacer">&nbsp;</div>' : ''}
+        <div class="company-name">${escapeHtmlSafe(company.name)}</div>
+        <div class="company-address">${renderPartyAddress(company)}</div>
+      </div>${
+        recipient
+          ? `
+      <div class="recipient-info">
+        <div class="field-label">${escapeHtmlSafe(recipientLabel)}</div>
+        <div class="company-name">${escapeHtmlSafe(recipient.name)}</div>
+        <div class="company-address">${renderPartyAddress(recipient)}</div>
+      </div>`
+          : ''
+      }
     </div>
 `;
 
-  // Render each field
+  // Never alongside `optionGroups`: a quote with 2+ options prints one totals block per option only.
+  const totalsHtml =
+    input.totals && !input.optionGroups
+      ? `
+    <div class="totals-section">
+      <div class="totals-label">${escapeHtmlSafe(strings.totals)}</div>
+${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVatNationalCurrencyRows(input.vatNationalCurrency, strings) : ''}
+    </div>
+`
+      : '';
+
+  // Short values go in one compact grid; tables keep the document's field order; long free text
+  // follows the totals so the totals always sit right under the lines they sum.
+  const compactItems: string[] = [];
+  const blocks: { render: (tail?: string) => string; isTableWithRows: boolean }[] = [];
+  const trailingBlocks: string[] = [];
   for (const field of descriptor.fields) {
-    // 'hiddenReference' is not merely `hideWhenEmpty` — it never gets a row
-    // AT ALL, set or not (see types.ts's own `entity` doc comment for why a dedicated kind, not a
-    // flag, was chosen). No top-level field is one today (only a line's own `articleId` is), but this
-    // guard holds the SAME "never printed" contract if one ever is, exactly like the 'array' case's
-    // own subfield filter just above holds it for a nested row.
+    // 'hiddenReference' never gets a row at all, set or not (see types.ts's own `entity` doc comment).
     if (field.kind === 'hiddenReference') {
+      continue;
+    }
+    if (recipient && field.key === recipient.fieldKey) {
       continue;
     }
 
     const value = instance.data[field.key];
 
-    // See `DocumentFieldDescriptor.hideWhenEmpty`'s own header (types.ts) — an opt-in escape from the
-    // otherwise-universal "every field gets a row, even an empty one shows a '—' placeholder" rule
-    // right below. Checked with the SAME emptiness test `validate.ts#isMissing` uses for required-ness
-    // (undefined/null/'' — a 0 or `false` value is NOT empty), so a field that legitimately holds a
-    // falsy value is never hidden by mistake.
+    // Same emptiness test as `validate.ts#isMissing`: a 0 or `false` value is not empty.
     if (field.hideWhenEmpty && (value === undefined || value === null || value === '')) {
       continue;
     }
 
-    // Issue #373 ("quotes with options") - the array field this document's own `optionGroups` names
-    // (the quote's "lines") is rendered as several grouped, labelled tables (below), never through the
-    // ordinary single-table `renderFieldValue` path: a flat table would mix every option's lines
-    // together with no indication which total each one belongs to, exactly the confusion this feature
-    // exists to remove.
+    // A quote with 2+ options prints one labelled table per option, never one flat table mixing them.
     if (input.optionGroups && field.key === input.optionGroups.arrayFieldKey && field.kind === 'array') {
-      html += renderOptionGroupsField(
+      const groupsHtml = renderOptionGroupsField(
         field,
         value,
         input.optionGroups,
@@ -987,47 +1069,72 @@ export function renderDocumentHtml(input: RenderDocumentHtmlInput): string {
         strings,
         accentColor,
       );
+      blocks.push({ render: () => groupsHtml, isTableWithRows: false });
       continue;
     }
 
-    // Issue #507 - see `RenderDocumentHtmlInput.resolvedRowSelections`: the selected source rows, as
-    // the source's own table, never their ids.
+    // See `RenderDocumentHtmlInput.resolvedRowSelections`: the selected source rows, as the source's
+    // own table, never their ids.
     const resolvedRows = field.kind === 'rowSelection' ? input.resolvedRowSelections?.[field.key] : undefined;
-    const renderedValue = resolvedRows
-      ? renderFieldValue(resolvedRows.field, resolvedRows.rows, referenceLabels, instance.data, strings)
-      : renderFieldValue(field, value, referenceLabels, instance.data, strings);
-
-    html += `
+    const renderValue = (tail?: string) =>
+      resolvedRows
+        ? renderFieldValue(
+            resolvedRows.field,
+            resolvedRows.rows,
+            referenceLabels,
+            instance.data,
+            strings,
+            tail,
+          )
+        : renderFieldValue(field, value, referenceLabels, instance.data, strings, tail);
+    const renderRow = (tail?: string) => `
     <div class="field-row">
       <div class="field-label">${escapeHtmlSafe(field.label)}</div>
-      <div class="field-value">${renderedValue}</div>
+      <div class="field-value">${renderValue(tail)}</div>
     </div>
 `;
+
+    if (resolvedRows || field.kind === 'array') {
+      const rows = resolvedRows ? resolvedRows.rows : value;
+      blocks.push({ render: renderRow, isTableWithRows: Array.isArray(rows) && rows.length > 0 });
+    } else if (COMPACT_FIELD_KINDS.has(field.kind)) {
+      compactItems.push(`
+      <div class="meta-item">
+        <div class="field-label">${escapeHtmlSafe(field.label)}</div>
+        <div class="field-value">${renderValue()}</div>
+      </div>`);
+    } else if (field.kind === 'longText') {
+      trailingBlocks.push(renderRow());
+    } else {
+      blocks.push({ render: renderRow, isTableWithRows: false });
+    }
   }
 
-  // Render totals section if provided - never alongside `optionGroups` (see that input's own header:
-  // a quote with 2+ options prints NO global total, only what `renderOptionGroupsField` already wrote
-  // above, one mini totals block per option).
-  if (input.totals && !input.optionGroups) {
+  if (compactItems.length > 0) {
     html += `
-    <div class="totals-section">
-      <div class="totals-label">${escapeHtmlSafe(strings.totals)}</div>
-${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVatNationalCurrencyRows(input.vatNationalCurrency, strings) : ''}
+    <div class="meta-grid">${compactItems.join('')}
     </div>
 `;
   }
+  // The totals ride inside the last table that has rows, as its closing row: Chromium ignores `break-before: avoid`
+  // between a table and the block after it, but honors it between two rows.
+  const tailBlock = totalsHtml ? blocks.findLast((block) => block.isTableWithRows) : undefined;
+  html += blocks.map((block) => block.render(block === tailBlock ? totalsHtml : '')).join('');
+  if (!tailBlock) {
+    html += totalsHtml;
+  }
 
-  // "QR SEPA / GiroCode" — sits right after the totals block it pays, before
-  // the legal mentions footer. Absent (no IBAN on file, non-EUR currency, a zero/negative total, or a
-  // type that never opts in — see `paymentQr`'s own header above) prints NOTHING here, not an empty
-  // frame, same rule `legalMentions` right below already holds.
+  html += trailingBlocks.join('');
+
+  const paymentMethods = input.paymentMethods ?? [];
+  const hasPaymentBlock = !!input.paymentQr || paymentMethods.length > 0;
+  if (hasPaymentBlock) {
+    html += `
+    <div class="payment-section">`;
+  }
+
   if (input.paymentQr) {
-    // `src` is escaped like the branding logo's own `src` above, not interpolated bare. Today's only
-    // caller hands over a `qrcode`-generated base64 URI whose alphabet contains nothing to escape, so
-    // this changes not one byte of any real render — it is here so the ATTRIBUTE, not the caller, is
-    // what guarantees a quote can never close it and open an event handler after it. Escaping at the
-    // one point that composes the markup is the only version of that rule a future caller cannot
-    // forget.
+    // `src` is escaped so the attribute itself, not the caller, guarantees it cannot be closed early.
     html += `
     <div class="payment-qr-section">
       <img class="payment-qr-image" src="${escapeHtmlSafe(input.paymentQr.dataUri)}" alt="SEPA payment QR code" width="130" height="130">
@@ -1036,15 +1143,12 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
 `;
   }
 
-  // "Payment methods" — see `paymentMethods`'s own header above. Prints NOTHING
-  // when the array is absent or empty (no method enabled, or a type that never opts in) — same rule
-  // `paymentQr` right above already holds.
-  if (input.paymentMethods && input.paymentMethods.length > 0) {
+  if (paymentMethods.length > 0) {
     html += `
     <div class="payment-methods-section">
       <div class="payment-methods-heading">${escapeHtmlSafe(strings.paymentMethodsHeading)}</div>
 `;
-    for (const method of input.paymentMethods) {
+    for (const method of paymentMethods) {
       html += `
       <div class="payment-method-item">
         <div class="payment-method-label">${escapeHtmlSafe(method.label)}</div>
@@ -1060,10 +1164,12 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
     html += `    </div>\n`;
   }
 
-  // Mandatory mentions get their OWN footer block, never mixed into the fields
-  // loop above (see this parameter's own doc comment on `RenderDocumentHtmlInput.legalMentions`). A
-  // country with no mentions, or a document type that never opts in, gets NOTHING here — not an
-  // empty framed section, no `<div class="legal-mentions">` at all.
+  if (hasPaymentBlock) {
+    html += `    </div>\n`;
+  }
+
+  // Mandatory mentions get their own block, never mixed into the user-editable fields above. Absent
+  // or empty prints nothing at all, not an empty frame.
   if (input.legalMentions && input.legalMentions.length > 0) {
     html += `
     <div class="legal-mentions">
@@ -1074,11 +1180,7 @@ ${renderTotalsRows(input.totals, strings)}${input.vatNationalCurrency ? renderVa
     html += `    </div>\n`;
   }
 
-  // Custom fields — the company's own custom fields, LAST on the
-  // page (after the legal mentions footer): see `RenderDocumentHtmlInput.customFields`'s own header
-  // for why this is a dedicated, end-of-document block rather than an insertion into the ordinary
-  // fields loop above. Absent or empty prints NOTHING here — same "nothing, not an empty frame"
-  // discipline every other optional block on this page already holds.
+  // The company's own custom fields, last on the page; absent or empty prints nothing.
   if (input.customFields && input.customFields.length > 0) {
     html += `
     <div class="custom-fields-section">

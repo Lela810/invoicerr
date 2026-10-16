@@ -164,7 +164,7 @@ export async function paymentMethodsFor(
   if (!descriptor.usesPaymentMethods) return [];
 
   const currency = typeof data.currency === 'string' ? data.currency : undefined;
-  // Issue #416 ("payment methods per client") - the SAME client id `recipientLanguageFor` resolves
+  // Issue #416 ("payment methods per client") - the SAME client id `recipientClientFor` resolves
   // just above, read off the descriptor's own 'client' reference field (`clientIdFromData`). A
   // dangling/cross-tenant/absent id resolves the restriction to "none on file" (unrestricted), never
   // a throw - see `resolveEnabledPaymentMethodPresentations`'s own header on why a rendering gap must
@@ -209,45 +209,54 @@ async function companyCustomFieldsFor(
 }
 
 /**
- * Per-recipient document language — resolves the document's own
- * recipient language, ahead of the render, from the SAME client id `referenceLabels` above already
- * resolves a display name for (`findClientReferenceField`, the one rule `actions/email-template.ts`
- * owns — see its own updated header). A document type with no "client" reference field at all
- * (`expense` has none; `credit-note`/`received-invoice` don't reference one either) simply never has a
- * client to ask, and falls straight to `company.language` — never a lookup on an id that doesn't exist.
- *
- * A dangling/unresolvable client id (the same defensive case the `referenceLabels` loop above already
- * tolerates) is read the same way: a scoped lookup returning `null` is not an error here, just "no
- * client-level preference available" — this function must never THROW over a language choice, the
- * same "a rendering gap must never block issuing/sending the document itself" discipline that loop's
- * own comment states. Scoped by `companyId` for the SAME reason `referenceLabels`' own lookup above
- * goes through the company-scoped `EntityReferenceRegistry` rather than a bare Prisma call: `clientId`
- * is read straight off the document's own reference field, never checked for existence at write time
- * (descriptors/field-kinds.ts's own comment on the 'reference' kind) — an id naming ANOTHER company's
- * client must fall back to `companyLanguage` exactly like a dangling one already does, never actually
- * resolve to that other tenant's own language preference.
+ * The document's client or supplier (language and postal address), or `null` when the type has no
+ * such field or the id resolves to nothing. Scoped by `companyId` because the id is read straight off
+ * the document and never checked at write time: another company's client must resolve to nothing.
  */
-async function recipientLanguageFor(
+async function recipientClientFor(
   companyId: string,
   descriptor: DocumentTypeDescriptor,
-  companyLanguage: string | null | undefined,
   data: Record<string, unknown>,
-): Promise<RenderLanguage> {
+) {
   const clientId = clientIdFromData(descriptor, data);
+  if (!clientId) return null;
 
-  if (!clientId) {
-    return resolveRecipientLanguage(undefined, companyLanguage);
-  }
-
-  const client = await prisma.client.findFirst({
+  return prisma.client.findFirst({
     where: { id: clientId, companyId },
-    select: { language: true },
+    select: {
+      language: true,
+      address: true,
+      addressLine2: true,
+      postalCode: true,
+      city: true,
+      country: true,
+    },
   });
-  return resolveRecipientLanguage(client?.language, companyLanguage);
+}
+
+/** The recipient block printed next to the seller: the client's resolved label and postal address. */
+function recipientPartyFor(
+  descriptor: DocumentTypeDescriptor,
+  referenceLabels: Record<string, string>,
+  client: Awaited<ReturnType<typeof recipientClientFor>>,
+): RenderDocumentHtmlInput['recipient'] {
+  const clientField = findClientReferenceField(descriptor);
+  const name = clientField ? referenceLabels[clientField.key] : undefined;
+  if (!clientField || !client || !name) return undefined;
+
+  return {
+    fieldKey: clientField.key,
+    name,
+    address: client.address,
+    addressLine2: client.addressLine2,
+    postalCode: client.postalCode,
+    city: client.city,
+    country: client.country,
+  };
 }
 
 /** The document's own 'client' reference field value, read straight off `data` - the SAME resolution
- *  `recipientLanguageFor` above used to inline, now shared with `paymentMethodsFor` (issue #416):
+ *  `recipientClientFor` above used to inline, now shared with `paymentMethodsFor` (issue #416):
  *  both need "which client, if any, is this document FOR", neither needs a second spelling of how to
  *  find it. `undefined` for a type with no such field, or a present field with no/a wrong-typed value
  * - never thrown, the same "a rendering gap must never block issuing/sending the document itself"
@@ -362,7 +371,7 @@ export async function renderDocumentInstance(
     where: { id: companyId },
     // `iban: true` — "QR SEPA / GiroCode": read here for `sepaPaymentQrFor`
     // below, never rendered directly in the company header block (`render-html.ts` has no field for
-    // it there). `language: true` — the FALLBACK layer for `recipientLanguageFor` below, read
+    // it there). `language: true`: the FALLBACK layer for `recipientClientFor` below, read
     // unconditionally (it's one column on a row this function fetches anyway). The three
     // `branding*` columns (chantier B) feed `render-html.ts`'s own `branding` input below.
     // `exemptVat: true` — read here for `computeDocumentTotals`'s own `sellerExemptVat` option below
@@ -370,6 +379,7 @@ export async function renderDocumentInstance(
     select: {
       name: true,
       address: true,
+      addressLine2: true,
       city: true,
       postalCode: true,
       country: true,
@@ -461,7 +471,8 @@ export async function renderDocumentInstance(
   const quoteCommonLineTotals = quoteOptionTotals
     ? computeCommonLineTotals(instanceData, totalsOptions)
     : null;
-  const language = await recipientLanguageFor(companyId, descriptor, company.language, instanceData);
+  const recipientClient = await recipientClientFor(companyId, descriptor, instanceData);
+  const language = resolveRecipientLanguage(recipientClient?.language, company.language);
   const paymentMethods = await paymentMethodsFor(
     descriptor,
     companyId,
@@ -503,6 +514,7 @@ export async function renderDocumentInstance(
     },
     printStatus: printsStatusLine(descriptor, instance.status, purpose),
     company,
+    recipient: recipientPartyFor(descriptor, referenceLabels, recipientClient),
     referenceLabels,
     ...(linkedCreditNote ? linkedCreditNoteRenderInput(descriptor, linkedCreditNote) : {}),
     totals,
