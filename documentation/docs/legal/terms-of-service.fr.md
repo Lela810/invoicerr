@@ -1,5 +1,5 @@
 ---
-title: Conditions Générales de Vente
+title: Conditions Générales d'Utilisation
 language: fr
 ---
 
@@ -7,7 +7,7 @@ language: fr
 Brouillon — non encore validé par un avocat.
 :::
 
-Les présentes Conditions Générales de Vente (les « **Conditions** ») régissent l'**offre hébergée**
+Les présentes Conditions Générales d'Utilisation (les « **Conditions** ») régissent l'**offre hébergée**
 d'Invoicerr — la version du Service que nous exploitons et proposons sous forme d'abonnement payant sur
 notre (nos) propre(s) domaine(s). Elles ne s'appliquent **pas** au logiciel **auto-hébergé** : le code
 source d'Invoicerr est et demeure libre et open source, sous la licence publiée dans le fichier
@@ -22,11 +22,11 @@ s'applique à un déploiement auto-hébergé.
 individuel**, un **entrepreneur individuel (micro-entreprise) de droit français**, immatriculé sous le
 numéro **SIREN 982 187 676 (SIRET 982 187 676 00019)**, dont l'adresse enregistrée est **4 rue du
 Puits, 26120 Montélier, France**, TVA : **TVA non applicable — franchise en base, art. 293 B du Code
-général des impôts (CGI)** ; les factures d'abonnement sont émises par Polar en qualité de *merchant of
-record* (ce statut de TVA constitue une déclaration du Prestataire — le registre public Sirene ne
-renvoie pas lui-même de champ relatif au régime de TVA) (« **nous** », « **le Prestataire** »), et
-l'entité qui souscrit au Service (« **vous** », « **le Client** »). En créant un compte, en démarrant un
-essai, ou en souscrivant au Service, vous acceptez les présentes Conditions dans leur intégralité.
+général des impôts (CGI)** (ce statut de TVA constitue une déclaration du Prestataire ; le registre
+public Sirene ne renvoie pas lui-même de champ relatif au régime de TVA) (« **nous** », « **le
+Prestataire** »), et l'entité qui utilise le Service (« **vous** », « **le Client** »). En créant un
+compte, en démarrant un essai, ou en souscrivant au Service, vous acceptez les présentes Conditions dans
+leur intégralité.
 
 1.2. **Le Service est proposé exclusivement dans un cadre interentreprises (B2B).** En concluant le
 présent Contrat, vous déclarez et garantissez que vous agissez à des fins entrant dans le cadre de votre
@@ -45,6 +45,12 @@ par e-mail. Un tel transfert ne réduit pas les droits dont vous disposez au tit
 Conditions ; la société bénéficiaire du transfert reprend intégralement les obligations du Prestataire
 au titre du présent Contrat.
 
+1.5. **Qui vend l'abonnement.** L'abonnement payant n'est pas vendu par nous. Il vous est vendu par
+**Polar Software, Inc.** (« **Polar** »), qui agit en qualité de revendeur (*merchant of record*) du
+Service (Section 7.1). Votre achat est un contrat entre vous et Polar, régi par les conditions propres de
+Polar. Les présentes Conditions sont les conditions du Fournisseur (le Prestataire) auxquelles renvoient
+les conditions de Polar : elles régissent votre accès au Service et son utilisation.
+
 ## 2. Définitions
 
 - **« Contrat »** — les présentes Conditions, ainsi que la Politique de Confidentialité, l'Accord de
@@ -58,8 +64,8 @@ au titre du présent Contrat.
   ultérieurement.
 - **« Siège »** — un emplacement facturable correspondant à un compte utilisateur rattaché à une
   Société ; voir Section 6.2.
-- **« Frais »** — les sommes dues au titre de votre abonnement, telles que publiées sur notre page
-  tarifaire.
+- **« Frais »** : le prix de votre abonnement, tel que publié sur notre page tarifaire et facturé par
+  Polar (Section 7).
 - **« Vos Données »** — les documents, données commerciales, éléments de configuration et autres
   contenus que vous ou vos utilisateurs saisissez dans le Service, ou générez au moyen de celui-ci.
 
@@ -105,7 +111,7 @@ fait partie intégrante du présent Contrat par référence.
 
 ## 6. Abonnement, Sièges et Tarification
 
-6.1. Une fois votre abonnement souscrit, le Service est facturé **par Siège**.
+6.1. Une fois votre abonnement souscrit, son prix est calculé **par Siège**.
 
 6.2. Un Siège correspond à un compte utilisateur rattaché à votre Société. Le **Propriétaire compte
 comme un Siège** dès la création de la Société. Une **invitation ne compte comme un Siège qu'une fois
@@ -115,24 +121,29 @@ acceptée** — une invitation en attente, non acceptée, n'est jamais facturée
 compris les éventuels paliers de volume, est publié sur notre page tarifaire et peut être révisé de
 temps à autre ; le tarif en vigueur au début de chaque période de facturation régit cette période.
 
-6.4. Vous choisissez un cycle de facturation **mensuel** ou **annuel**. Un abonnement annuel est facturé
-en une fois, à l'avance, pour un montant égal à douze (12) fois le tarif mensuel par Siège alors en
+6.4. Vous choisissez un cycle de facturation **mensuel** ou **annuel**. Polar facture un abonnement
+annuel en une fois, à l'avance, pour un montant égal à douze (12) fois le tarif mensuel par Siège alors en
 vigueur, multiplié par votre nombre de Sièges au moment de la facturation.
 
-## 7. Facturation, Paiement et Taxes
+## 7. Achat auprès de Polar, Paiement, Factures et Taxes
 
-7.1. **Les Frais publiés sur notre page tarifaire s'entendent hors TVA et hors toute taxe similaire.**
-Les paiements d'abonnement sont traités par **Polar Software Inc.** (« Polar »), notre prestataire
-d'infrastructure de paiement, qui agit en qualité de *merchant of record* pour votre abonnement. Polar
-calcule, collecte et reverse toute taxe sur les ventes, TVA ou taxe similaire applicable aux Frais
-d'abonnement lors du paiement, et émet la facture correspondant à votre abonnement. Votre utilisation du
-portail de paiement et de facturation de Polar est également soumise aux conditions propres de Polar.
+7.1. **Polar est le vendeur.** Polar Software, Inc. (« Polar ») agit en qualité de revendeur
+(*merchant of record*) du Service. Vous achetez l'abonnement à Polar, via le paiement en ligne de Polar,
+selon les [Buyer Terms and Conditions](https://polar.sh/legal/checkout-buyer-terms) de Polar, qui
+régissent l'achat, le paiement, l'annulation de l'achat, les remboursements et les rétrofacturations
+(*chargebacks*). Les présentes Conditions régissent votre droit d'accéder au Service et de l'utiliser.
+Lorsque les conditions de Polar et les présentes Conditions traitent d'un même sujet, celles de Polar
+régissent l'achat et le paiement, et les présentes Conditions régissent l'utilisation du Service.
 
-7.2. **Tous les Frais sont libellés et facturés en dollars des États-Unis (USD).**
+7.2. **Paiement, factures et taxes.** Polar facture les Frais, en **dollars des États-Unis (USD)**,
+calcule, collecte et reverse toute taxe sur les ventes, TVA ou taxe similaire due, et émet la facture de
+votre abonnement. **Les Frais publiés sur notre page tarifaire s'entendent hors TVA et hors toute taxe
+similaire**, que Polar ajoute lors du paiement lorsqu'elle s'applique. Nous ne vous facturons pas
+l'abonnement et ne vous demandons jamais de nous payer directement.
 
 7.3. Votre nombre de Sièges est maintenu en cohérence avec la composition réelle de votre Société tout
-au long de la période de facturation ; les changements sont répercutés sur les Frais facturés lors du
-cycle de facturation suivant, sauf si les mécanismes de facturation de Polar appliquent un changement
+au long de la période de facturation ; les changements sont répercutés sur les Frais facturés par Polar
+lors du cycle de facturation suivant, sauf si les mécanismes de facturation de Polar appliquent un changement
 plus tôt.
 
 7.4. Le présent Contrat ne porte que sur votre abonnement au Service. Il ne couvre **pas** les moyens
@@ -260,10 +271,12 @@ fins commerciales internes, pour le nombre de Sièges que vous détenez.
 12.1. Votre abonnement court pour le cycle de facturation que vous avez choisi (mensuel ou annuel) et se
 renouvelle automatiquement à la fin de chaque cycle, sauf résiliation.
 
-12.2. **Vous pouvez résilier à tout moment.** La résiliation prend effet à la **fin de la période déjà
-payée** (fin du mois ou de l'année en cours) — l'accès aux fonctionnalités payantes se poursuit jusqu'à
-cette date. **Aucun remboursement ni prorata** n'est accordé pour la partie non utilisée d'une période
-résiliée.
+12.2. **Vous pouvez résilier à tout moment**, depuis le portail client de Polar ou en écrivant à
+**contact@invoicerr.app**. La résiliation prend effet à la **fin de la période déjà payée** (fin du mois
+ou de l'année en cours), et l'accès aux fonctionnalités payantes se poursuit jusqu'à cette date. Nous
+n'appliquons aucun prorata pour la partie non utilisée d'une période résiliée. Tout remboursement relève
+de Polar, en qualité de vendeur, selon ses propres conditions ; voir la
+[Politique de Remboursement et de Résiliation](./refund-policy.md).
 
 ## 13. Suspension pour Non-Paiement, Fin d'Abonnement, Archivage et Suppression des Données
 
@@ -315,7 +328,8 @@ retiré.
      pour l'**environnement de production** du Service et ses documents archivés (région de Paris,
      France), la base de données étant accessible via le réseau privé propre de Scaleway plutôt que par
      l'internet public.
-   - **Polar Software Inc.** — traitement des paiements et facturation de votre abonnement (Section 7).
+   - **Polar Software, Inc.** : vendeur de votre abonnement en qualité de *merchant of record*,
+     traitement des paiements et facturation (Section 7).
    - **Resend** — envoi des e-mails transactionnels du Service.
    - Les **plateformes nationales de facturation électronique et plateformes gouvernementales que vous
      choisissez de connecter** (par exemple la PDP française, le KSeF polonais, le SdI italien, l'AT
@@ -354,16 +368,12 @@ documentées. Pour les données de compte de vos propres utilisateurs (Propriét
 Sièges) nécessaires à l'exploitation de votre abonnement — authentification, support et facturation —
 **nous agissons en qualité de responsable de traitement**.
 
-15.2. **Synthèse du traitement (article 28 du RGPD).** En qualité de sous-traitant, nous : traitons les
-données personnelles uniquement sur vos instructions documentées, y compris en matière de transferts
-internationaux, sauf obligation contraire de la loi ; veillons à ce que les personnes autorisées à
-traiter les données soient tenues à la confidentialité ; mettons en œuvre les mesures de sécurité
-décrites à la Section 15.3 ; ne recourons qu'à un sous-traitant ultérieur figurant à la Section 14.2, ou
-qui vous a été notifié avec possibilité de vous y opposer ; vous assistons, dans la mesure raisonnablement
-possible, pour répondre aux demandes des personnes concernées et pour vos propres obligations de
-conformité ; vous notifions sans délai indu dès que nous avons connaissance d'une violation de données
-personnelles ; et, à la fin de la fourniture du Service, mettons Vos Données à votre disposition et les
-supprimons, dans chaque cas comme décrit à la Section 13.
+15.2. **Conditions de sous-traitance (article 28 du RGPD).** Nos obligations en qualité de
+sous-traitant sont celles des clauses contractuelles types entre responsables du traitement et
+sous-traitants de la Commission européenne (décision d'exécution (UE) 2021/915), qui constituent
+l'Accord de Traitement des Données avec ses annexes : la description du traitement, nos mesures
+techniques et organisationnelles, et la liste des sous-traitants ultérieurs que vous autorisez. En cas
+de contradiction entre les présentes Conditions et ces clauses, ces clauses prévalent.
 
 15.3. **Sécurité.** Les identifiants et jetons utilisés pour se connecter à des canaux et plateformes
 tiers sont chiffrés au repos (AES-256-GCM) ; l'ensemble du trafic à destination et en provenance du
@@ -392,8 +402,8 @@ droit applicable ne nous permet pas d'exclure.
 indirects, accessoires ou consécutifs, y compris la perte de profit, de revenus ou de données ; et
 (b) notre responsabilité totale **envers vous** découlant du présent Contrat ou s'y rapportant est
 plafonnée au **montant total que vous avez payé au titre de votre abonnement au Service au cours des
-douze (12) mois précédant l'événement à l'origine de la réclamation, que ce montant ait été versé à
-nous ou, en qualité de *merchant of record*, à Polar pour notre compte**.
+douze (12) mois précédant l'événement à l'origine de la réclamation**, ce montant étant le prix payé à
+Polar, en qualité de vendeur de l'abonnement (Section 7.1).
 
 17.2. Rien dans le présent Contrat ne limite ou n'exclut la responsabilité de l'une ou l'autre partie au
 titre de sa propre faute lourde, de son dol, d'un décès ou d'une atteinte à l'intégrité physique, ou de
@@ -458,7 +468,9 @@ remplacée par une disposition reflétant, aussi fidèlement que possible, l'eff
 21.2. **Intégralité de l'accord.** Le présent Contrat — les présentes Conditions ainsi que la Politique
 de Confidentialité, l'Accord de Traitement des Données et la Cookies et Politique d'Utilisation
 Acceptable — constitue l'intégralité de l'accord entre vous et nous concernant le Service, et prévaut
-sur tout accord ou entente antérieurs portant sur le même objet.
+sur tout accord ou entente antérieurs portant sur le même objet. Votre achat de l'abonnement auprès de
+Polar est régi par les conditions propres de Polar et ne fait pas partie du présent Contrat
+(Section 7.1).
 
 21.3. **Absence de renonciation.** Le fait de ne pas faire respecter une disposition du présent Contrat
 ne constitue pas une renonciation au droit de la faire respecter ultérieurement.

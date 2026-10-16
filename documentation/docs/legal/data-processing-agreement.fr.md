@@ -7,257 +7,640 @@ language: fr
 Brouillon — non encore validé par un avocat.
 :::
 
-Le présent Accord de Traitement des Données (l'« **ATD** ») complète les
-[Conditions Générales de Vente](./terms-of-service.md) pour l'**offre hébergée** d'Invoicerr et met en
-œuvre l'**article 28 du RGPD**. **Il ne s'applique pas au logiciel auto-hébergé** — voir la clause de
-champ d'application des Conditions Générales de Vente elles-mêmes ainsi que le préambule de la
-[Politique de Confidentialité](./privacy-policy.md) : un déploiement auto-hébergé ne nous envoie jamais
-aucune donnée, de sorte qu'il n'existe aucun traitement que le présent ATD puisse régir.
+Le présent Accord de Traitement des Données (l'« **ATD** ») régit les données à caractère personnel que
+l'offre hébergée d'Invoicerr traite pour le compte de ses Clients. Il est constitué des **clauses
+contractuelles types entre responsables du traitement et sous-traitants** adoptées par la Commission
+européenne en vertu de l'article 28, paragraphe 7, du règlement (UE) 2016/679 (le RGPD), reproduites mot
+pour mot ci-dessous, suivies de leurs quatre annexes, complétées pour le Service hébergé.
 
-## 1. Parties et Champ d'Application
+**Source des clauses.** Décision d'exécution (UE) 2021/915 de la Commission du 4 juin 2021 relative aux
+clauses contractuelles types entre les responsables du traitement et les sous-traitants au titre de
+l'article 28, paragraphe 7, du règlement (UE) 2016/679 du Parlement européen et du Conseil et de
+l'article 29, paragraphe 7, du règlement (UE) 2018/1725 du Parlement européen et du Conseil, annexe (JO
+L 199 du 7.6.2021, p. 18). Numéro CELEX : 32021D0915. Texte officiel :
+[EUR-Lex](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32021D0915)
+(https://eur-lex.europa.eu/eli/dec_impl/2021/915/oj).
 
-**Vous** (« **le Client** ») êtes le **responsable de traitement** des données personnelles contenues
-dans les documents que vous créez ou recevez au moyen du Service — en particulier les noms, adresses et
-autres informations de vos propres clients et contacts figurant sur une facture, un devis ou un document
-connexe (les « **Données Personnelles Client** »). **Nous** (« **le Sous-traitant** », tel que défini à
-la Section 1.1 des Conditions Générales de Vente) traitons les Données Personnelles Client
-**exclusivement sur vos instructions documentées**, comme décrit dans le présent ATD. Il s'agit
-exactement de la dualité que la Section 15.1 des Conditions Générales de Vente énonce déjà ; le présent
-ATD en est le détail qu'exige l'article 28, paragraphe 3.
+**Comment les clauses sont complétées.** Comme le permet la clause 2, point a), rien n'est modifié dans
+les clauses en dehors des choix qu'elles laissent ouverts : les clauses s'appliquent au titre du
+règlement (UE) 2016/679 (option 1 partout où le texte en propose une ; le règlement (UE) 2018/1725 ne
+concerne que les institutions et organes de l'Union) ; la clause d'amarrage facultative (clause 5) n'est
+pas utilisée ; les sous-traitants ultérieurs sont recrutés sur la base d'une autorisation écrite
+générale (clause 7.7, point a), option 2), avec un préavis de 30 jours pour tout changement ; et les
+annexes I à IV sont remplies.
 
-## 2. Définitions
+**Champ d'application.** Le présent ATD ne couvre que l'**offre hébergée**. Il ne s'applique pas au
+logiciel auto-hébergé : un déploiement auto-hébergé ne nous transmet jamais aucune donnée, il n'y a donc
+aucun traitement à régir. Le présent ATD fait partie du Contrat défini dans les [Conditions Générales
+d'Utilisation](./terms-of-service.md), Section 2.
 
-« Données à caractère personnel », « Traitement », « Personne concernée », « Responsable du traitement »,
-« Sous-traitant » et « Violation de données à caractère personnel » ont le sens qui leur est donné à
-l'**article 4 du RGPD**.
+## Clauses contractuelles types
 
-## 3. Objet, Durée, Nature et Finalité
+### SECTION I
 
-- **Objet** : l'hébergement, le stockage, la génération et — lorsque vous choisissez d'envoyer un
-  document au moyen d'un canal de transmission ou d'une plateforme gouvernementale — la transmission des
-  documents que vous créez au moyen du Service.
-- **Durée** : pendant toute la durée de l'abonnement de votre Société au Service, augmentée de la
-  fenêtre de conservation décrite à la Section 10 ci-dessous.
-- **Nature et finalité** : le stockage et le traitement automatisés nécessaires pour fournir la fonction
-  essentielle du Service — créer, émettre et archiver des documents commerciaux — exactement tels que
-  configurés par vous.
-- **Catégories de personnes concernées** : vos propres clients, fournisseurs et contacts mentionnés sur
-  les documents que vous créez.
-- **Catégories de données à caractère personnel** : noms, adresses postales et e-mail, numéros de
-  téléphone, et toute autre donnée personnelle que vous choisissez de saisir dans les champs d'un
-  document (par exemple le nom d'une personne de contact sur une facture). Nous n'exigeons ni n'attendons
-  aucune catégorie particulière de données (art. 9 du RGPD) et vous ne devez en saisir aucune dans le
-  Service.
+#### Clause 1: Objet et champ d’application
 
-## 4. Obligations du Sous-traitant (art. 28, § 3, du RGPD)
+a\) Les présentes clauses contractuelles types (ci-après les «clauses») ont pour objet de garantir la
+conformité avec l’article 28, paragraphes 3 et 4, du règlement (UE) 2016/679 du Parlement européen et du
+Conseil du 27 avril 2016 relatif à la protection des personnes physiques à l’égard du traitement des
+données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive
+95/46/CE (règlement général sur la protection des données.
 
-Nous :
+b\) Les responsables du traitement et les sous-traitants énumérés à l’annexe I ont accepté ces clauses
+afin de garantir le respect des dispositions de l’article 28, paragraphes 3 et 4, du règlement (UE)
+2016/679 et/ou des dispositions de l’article 29, paragraphes 3 et 4, du règlement (UE) 2018/1725.
 
-1. traitons les Données Personnelles Client **uniquement sur vos instructions documentées** — le présent
-   ATD, ainsi que votre propre configuration du Service (quelle société, quels canaux, quels documents
-   vous envoyez), constitue ces instructions, y compris en matière de transferts, sauf obligation
-   contraire du droit de l'Union ou d'un État membre, auquel cas nous vous en informerons avant le
-   traitement, sauf si ce droit l'interdit pour des motifs importants d'intérêt public ;
-2. veillons à ce que les personnes autorisées à traiter les Données Personnelles Client soient tenues à
-   la confidentialité, que ce soit contractuellement ou légalement ;
-3. mettons en œuvre les mesures de sécurité décrites à la Section 9 ;
-4. respectons les conditions de recours à un sous-traitant ultérieur décrites à la Section 7 ;
-5. vous assistons, compte tenu de la nature du traitement, pour répondre aux demandes des personnes
-   concernées (Section 8) ;
-6. vous assistons dans le respect de vos propres obligations au titre des articles 32 à 36 du RGPD,
-   compte tenu de la nature du traitement et des informations à notre disposition ;
-7. supprimons ou restituons les Données Personnelles Client à la fin de la fourniture du Service, comme
-   décrit à la Section 10 ;
-8. mettons à votre disposition les informations raisonnablement nécessaires pour démontrer le respect du
-   présent article, et permettons la réalisation d'audits, comme décrit à la Section 11, et y
-   contribuons.
+c\) Les présentes clauses s’appliquent au traitement des données à caractère personnel tel que décrit à
+l’annexe II.
 
-## 5. Obligations et Droits du Client
+d\) Les annexes I à IV font partie intégrante des clauses.
 
-En tant que responsable de traitement, **vous avez le droit de** : nous donner des instructions
-documentées concernant le traitement des Données Personnelles Client, que nous suivrons (Section 1) ;
-vous opposer à un nouveau sous-traitant et, en l'absence de résolution, mettre fin à l'abonnement pour ce
-motif (Section 7) ; bénéficier de notre assistance pour les demandes des personnes concernées
-(Section 8) ; et auditer notre respect du présent ATD (Section 11).
+e\) Les présentes clauses sont sans préjudice des obligations auxquelles le responsable du traitement
+est soumis en vertu du règlement (UE) 2016/679 et/ou du règlement (UE) 2018/1725.
 
-En contrepartie, **vous garantissez** que vous disposez d'une base légale pour les Données Personnelles
-Client que vous saisissez dans le Service, que ces données sont exactes, et que vous n'en saisissez pas
-plus que ce qui est nécessaire pour le document que vous créez. Vos instructions à notre égard se
-limitent à ce que les fonctionnalités propres du Service vous permettent de configurer — nous ne
-disposons d'aucun moyen indépendant de traiter les Données Personnelles Client en dehors de
-l'exploitation du Service tel que conçu.
+f\) Les clauses ne suffisent pas à elles seules pour assurer le respect des obligations relatives aux
+transferts internationaux conformément au chapitre V du règlement (UE) 2016/679 et/ou du règlement (UE)
+2018/1725.
 
-## 6. Confidentialité
+#### Clause 2: Invariabilité des clauses
 
-Notre personnel autorisé à accéder aux Données Personnelles Client est tenu à une obligation de
-confidentialité, contractuelle ou légale, qui survit à la fin de sa collaboration avec nous.
+a\) Les parties s’engagent à ne pas modifier les clauses, sauf en ce qui concerne l’ajout d’informations
+aux annexes ou la mise à jour des informations qui y figurent.
 
-## 7. Sous-traitants Ultérieurs
+b\) Les parties ne sont pour autant pas empêchées d’inclure les clauses contractuelles types définies
+dans les présentes clauses dans un contrat plus large, ni d’ajouter d’autres clauses ou des garanties
+supplémentaires, à condition que celles-ci ne contredisent pas, directement ou indirectement, les
+clauses ou qu’elles ne portent pas atteinte aux libertés et droits fondamentaux des personnes
+concernées.
 
-Vous nous donnez une **autorisation générale** de recourir aux sous-traitants pertinents pour le
-traitement des documents comportant des Données Personnelles Client :
+#### Clause 3: Interprétation
 
-- Les **plateformes nationales de facturation électronique et plateformes gouvernementales que vous
-  choisissez de connecter** — la PDP française, le KSeF polonais, le SdI italien (et, pour son canal de
-  messagerie certifiée, le prestataire de messagerie PEC auquel vous souscrivez), l'AT portugaise,
-  Chorus Pro pour la facturation B2G en France — agissant sur vos instructions explicites, au moyen des
-  identifiants et mandats que vous fournissez, pour transmettre les documents que vous envoyez.
-- **Resend** — envoi des e-mails transactionnels pouvant contenir un document, ou un lien vers celui-ci,
-  sur vos instructions.
-- **Cloudflare, Inc.** — routage entrant des e-mails de correspondance envoyés à
-  **contact@invoicerr.app** (correspondance de support uniquement ; jamais les Données Personnelles
-  Client contenues dans les documents que vous créez au moyen du Service).
-- **Google LLC (Gmail)** — la boîte aux lettres où est reçue la correspondance de support envoyée à
-  **contact@invoicerr.app** (correspondance de support uniquement ; jamais les Données Personnelles
-  Client contenues dans les documents que vous créez au moyen du Service).
-- **Scaleway SAS** — hébergement de l'infrastructure de l'**environnement de production** du Service :
-  le cluster Kubernetes sur lequel il fonctionne, la base de données PostgreSQL managée dans laquelle
-  sont stockés les documents que vous créez — et les Données Personnelles Client qu'ils contiennent —,
-  et le stockage objet qui conserve les documents archivés, y compris ceux comportant des Données
-  Personnelles Client. **Le Service et les Données Client, y compris la base de données, sont hébergés
-  au sein de l'Union européenne**, dans la région de Paris (France) de Scaleway, la base de données
-  étant accessible via le réseau privé propre de Scaleway plutôt que par l'internet public.
+a\) Lorsque des termes définis respectivement dans le règlement (UE) 2016/679 ou dans le règlement (UE)
+2018/1725 figurent dans les clauses, ils s’entendent comme dans le règlement en question.
 
-**L'OCR (reconnaissance optique de caractères) fonctionne sur une infrastructure que nous exploitons ;
-aucun document n'est envoyé à un fournisseur d'OCR tiers.**
+b\) Les présentes clauses doivent être lues et interprétées à la lumière des dispositions du règlement
+(UE) 2016/679 et du règlement (UE) 2018/1725 respectivement.
 
-**L'environnement de recette utilisé pour le programme bêta n'est pas exploité par un sous-traitant.**
-Avant qu'une version n'atteigne l'environnement de production ci-dessus, nous la validons sur un
-environnement de recette distinct, que nous — le Prestataire — exploitons nous-mêmes, sur notre propre
-infrastructure, en France. Parce que nous hébergeons cet environnement directement, et non par
-l'intermédiaire d'un tiers, il n'existe aucun sous-traitant à autoriser pour celui-ci, et aucun n'est
-ajouté à la présente Section pour cette raison — le Sous-traitant qui héberge sur son propre matériel
-n'est pas son propre sous-traitant. Pendant le programme bêta, les participants au programme utilisent
-le Service sur cet environnement de recette, et les Données Personnelles Client qu'ils saisissent — sur
-de véritables factures et d'autres documents réels — y sont traitées et stockées, et non sur
-l'infrastructure de production de Scaleway ci-dessus, jusqu'à ce que cet environnement soit retiré, à
-compter de quoi elles sont transférées vers l'infrastructure de production.
+c\) Les présentes clauses ne doivent pas être interprétées d’une manière contraire aux droits et
+obligations prévus par le règlement (UE) 2016/679 / le règlement (UE) 2018/1725 ou d’une manière qui
+porte atteinte aux libertés ou droits fondamentaux des personnes concernées.
 
-**Polar Software Inc. n'est pas un sous-traitant au titre du présent ATD** : il traite les propres
-données d'abonnement et de paiement de votre Société en qualité de responsable de traitement
-indépendant/merchant of record (Politique de Confidentialité, Sections 3-4), et non les Données
-Personnelles Client figurant sur les documents que vous émettez.
+#### Clause 4: Hiérarchie
 
-**GitHub, Inc. n'est pas non plus un sous-traitant au titre du présent ATD** : il héberge notre site web
-de documentation publique (docs.invoicerr.app) et notre dépôt de code source via GitHub Pages, Actions
-et Container Registry — une infrastructure qui ne reçoit, ne stocke ni ne traite jamais de Données
-Personnelles Client. Voir Politique de Confidentialité, Section 10.
+En cas de contradiction entre les présentes clauses et les dispositions des accords connexes qui
+existent entre les parties au moment où les présentes clauses sont convenues ou qui sont conclus
+ultérieurement, les présentes clauses prévaudront.
 
-**L'assistant IA que vous connectez au moyen de notre point de terminaison Model Context Protocol n'est
-pas un sous-traitant au titre du présent ATD** : le Service expose un point de terminaison MCP
-(`POST /api/mcp`) vous permettant de créer une clé API et d'y connecter un assistant IA de votre choix ;
-dans la limite des habilitations que vous accordez à cette clé, cet assistant peut consulter et gérer
-vos clients et documents, et exécuter des actions sur les documents, pour votre compte. Nous n'appelons
-ni ne choisissons nous-mêmes le modèle d'IA qui se trouve derrière votre assistant — son fournisseur est
-sélectionné par vous, n'a aucun contrat avec nous, et n'est donc pas un sous-traitant au titre du présent
-ATD, pour le même motif que pour Polar ci-dessus. Vous êtes responsable de la licéité de tout envoi de
-Données Personnelles Client à ce fournisseur, y compris tout transfert hors de l'EEE, ainsi que des
-instructions que votre assistant exécute. L'un des outils MCP, `get_document_pdf_link`, crée un lien
-public et non authentifié vers le PDF d'un document, valable 30 jours et révocable depuis le Service ;
-une fois qu'un tel lien apparaît dans une conversation avec votre assistant, quiconque le détient peut
-accéder à ce document tant que le lien reste valide.
+*La clause 5 (clause d'amarrage facultative) n'est pas utilisée.*
 
-Chacun des sous-traitants ci-dessus est tenu, par contrat, à des obligations de protection des données
-substantiellement équivalentes à celles du présent ATD — en particulier l'obligation de confidentialité
-de la Section 6 et les mesures de sécurité de la Section 9 (**art. 28, § 4, du RGPD**). Nous demeurons
-pleinement responsables envers vous de l'exécution de ces obligations par ce sous-traitant.
+### SECTION II: OBLIGATIONS DES PARTIES
 
-Nous vous donnerons un préavis d'au moins **trente (30) jours par e-mail** avant d'ajouter un nouveau
-sous-traitant à la liste ci-dessus. Vous pouvez vous y opposer pour des motifs raisonnables tenant à la protection des données, en écrivant à
-**contact@invoicerr.app** dans ce délai ; si nous ne pouvons répondre à votre objection, l'une ou
-l'autre partie peut considérer cela comme un motif de résiliation de l'abonnement au titre de la
-Section 12 des Conditions Générales de Vente.
+#### Clause 6: Description du ou des traitements
 
-## 8. Assistance pour les Demandes des Personnes Concernées
+Les détails des opérations de traitement, et notamment les catégories de données à caractère personnel
+et les finalités du traitement pour lesquelles les données à caractère personnel sont traitées pour le
+compte du responsable du traitement, sont précisés à l’annexe II.
 
-Si une personne concernée nous contacte directement au sujet de Données Personnelles Client, nous vous
-en informerons sans délai indu et ne répondrons pas nous-mêmes à cette personne, sauf instruction
-contraire de votre part. Lorsqu'une fonctionnalité du Service vous permet de satisfaire vous-même une
-demande (par exemple modifier ou supprimer la fiche d'un client), vous devez l'utiliser directement ; à
-défaut, nous fournirons une assistance raisonnable.
+#### Clause 7: Obligations des parties
 
-## 9. Mesures de Sécurité (art. 32 du RGPD)
+##### 7.1. Instructions
 
-- Chiffrement au repos (AES-256-GCM) des identifiants et jetons utilisés pour se connecter à des canaux
-  et plateformes tiers.
-- Chiffrement en transit (TLS) de l'ensemble du trafic à destination et en provenance du Service.
-- Contrôle d'accès fondé sur les rôles au sein de votre Société (rôles propriétaire/administrateur/
-  membre) et, au sein de notre propre organisation, un accès limité à ce qui est nécessaire pour
-  exploiter et assurer le support du Service.
-- **Chiffrement des sauvegardes.** Les sauvegardes des documents et fichiers stockés par le Service sont
-  chiffrées (AES-256-GCM) au sein de notre propre infrastructure avant d'être écrites dans le stockage
-  de sauvegarde, au moyen d'une clé que nous seuls détenons et que le prestataire de stockage ne reçoit
-  jamais — l'absence de clé fait échouer l'exécution de la sauvegarde plutôt que d'écrire quoi que ce
-  soit en clair, et le vol d'une clé d'accès au stockage ne donne à lui seul accès qu'à du texte
-  chiffré, jamais aux documents. Cela n'établit pas, en soi, l'exemption de notification que
-  l'**article 34, paragraphe 3, point a), du RGPD** prévoit pour les données à caractère personnel
-  rendues inintelligibles par de telles mesures ; l'applicabilité de cette exemption s'apprécie au cas
-  par cas, ce que la présente clause ne prétend pas trancher.
+a\) Le sous-traitant ne traite les données à caractère personnel que sur instruction documentée du
+responsable du traitement, à moins qu’il ne soit tenu d’y procéder en vertu du droit de l’Union ou du
+droit de l’État membre auquel il est soumis. Dans ce cas, le sous-traitant informe le responsable du
+traitement de cette obligation juridique avant le traitement, sauf si la loi le lui interdit pour des
+motifs importants d’intérêt public. Des instructions peuvent également être données ultérieurement par
+le responsable du traitement pendant toute la durée du traitement des données à caractère personnel. Ces
+instructions doivent toujours être documentées.
 
-## 10. Suppression ou Restitution des Données à la Fin de la Fourniture des Services
+b\) Le sous-traitant informe immédiatement le responsable du traitement si, selon lui, une instruction
+donnée par le responsable du traitement constitue une violation du règlement (UE) 2016/679 / du
+règlement (UE) 2018/1725 ou d'autres dispositions du droit de l'Union ou du droit des États membres
+relatives à la protection des données.
 
-À la fin de l'abonnement de votre Société, la Section 13 des Conditions Générales de Vente régit le sort
-de vos données, et le présent ATD reprend le même mécanisme que le volet « restitution » de l'article 28,
-paragraphe 3, point g) :
+##### 7.2. Limitation de la finalité
 
-- **Restitution** : l'archive zip décrite à la Section 13.2 des Conditions Générales de Vente —
-  contenant, pour chaque document détenu par votre Société, ses données enregistrées et, lorsqu'il peut
-  être généré, une copie de celui-ci — est générée automatiquement et envoyée par e-mail au Propriétaire
-  de votre Société. Il s'agit de la restitution des Données Personnelles Client qu'exige l'article 28,
-  paragraphe 3, point g) ; vous pouvez également générer vous-même un export complet, en libre-service,
-  à tout moment avant ce stade (Conditions Générales de Vente, Section 8.2).
-- **Suppression** : suit le même calendrier que la Section 6 de la Politique de Confidentialité — au
-  plus tôt **trente (30) jours** après l'archive pour une Société n'ayant jamais eu d'abonnement payant
-  (la fenêtre minimale de récupération de l'article 25, paragraphe 2, point g), du règlement
-  (UE) 2023/2854), au plus tôt **180 jours** après l'archive pour une Société qui en a eu un.
-- **Conservation légale** : une catégorie de Données Personnelles Client survit à cette suppression.
-  Chaque document que vous envoyez au moyen du Service est archivé, et chaque archive enregistre la
-  durée pendant laquelle la loi du pays de votre Société exige que ce document soit conservé ainsi que
-  le texte qui impose cette durée. Nous n'effaçons pas un document archivé tant que sa durée court — ni
-  sur votre instruction, ni lors de la suppression de votre Société, que vous pouvez opérer à tout
-  moment et à laquelle nous ne faisons jamais obstacle. L'article 28, paragraphe 3, point g), réserve
-  lui-même ce cas : le sous-traitant supprime les copies existantes, à moins que le droit de l'Union ou
-  le droit d'un État membre n'exige la conservation des données à caractère personnel ; et l'**article
-  17, paragraphe 3, point b), du RGPD** écarte le droit à l'effacement dans la même mesure, pour un
-  traitement nécessaire au respect d'une obligation légale prévue par le droit de l'Union ou d'un État
-  membre auquel le responsable du traitement est soumis. Le fichier demeure sur notre stockage, avec la
-  date d'expiration et la citation enregistrées à son égard, et est effacé une fois cette date passée.
-  La Section 6 de la Politique de Confidentialité énumère les quatre pays concernés à ce jour —
-  Allemagne, France, Pologne et Portugal — avec la durée et le texte applicables à chacun, et précise
-  que, pour une Société établie ailleurs, rien n'est retenu.
+Le sous-traitant traite les données à caractère personnel uniquement pour la ou les finalités
+spécifiques du traitement, telles que définies à l’annexe II, sauf instruction complémentaire du
+responsable du traitement.
 
-## 11. Audits
+##### 7.3. Durée du traitement des données à caractère personnel
 
-Nous mettrons à votre disposition les informations raisonnablement nécessaires pour démontrer le
-respect du présent ATD, et permettrons la réalisation d'audits — y compris des inspections — menés par
-vous ou un auditeur que vous mandatez, et y contribuerons, moyennant un préavis écrit raisonnable, sous
-réserve de confidentialité et d'une fréquence n'excédant pas une fois par période de douze mois, sauf
-motif spécifique et documenté (tel qu'une violation de données à caractère personnel avérée ou suspectée
-concernant des Données Personnelles Client).
+Le traitement par le sous-traitant n’a lieu que pendant la durée précisée à l’annexe II.
 
-## 12. Notification des Violations de Données à Caractère Personnel
+##### 7.4. Sécurité du traitement
 
-Nous vous notifierons **sans délai indu** dès que nous aurons connaissance d'une violation de données à
-caractère personnel affectant des Données Personnelles Client, avec les informations raisonnablement
-disponibles à ce moment, suffisantes pour vous permettre de respecter votre propre obligation de
-notification sous 72 heures à votre autorité de contrôle au titre de l'**article 33 du RGPD**, ainsi que
-votre obligation d'informer les personnes concernées affectées au titre de l'**article 34**, lorsqu'elle
-s'applique.
+a\) Le sous-traitant met au moins en œuvre les mesures techniques et organisationnelles précisées à
+l’annexe III pour assurer la sécurité des données à caractère personnel. Figure parmi ces mesures la
+protection des données contre toute violation de la sécurité entraînant, de manière accidentelle ou
+illicite, la destruction, la perte, l'altération, la divulgation non autorisée de données à caractère
+personnel ou l'accès non autorisé à de telles données (violation de données à caractère personnel). Lors
+de l’évaluation du niveau de sécurité approprié, les parties tiennent dûment compte de l'état des
+connaissances, des coûts de mise en œuvre et de la nature, de la portée, du contexte et des finalités du
+traitement, ainsi que des risques pour les personnes concernées.
 
-## 13. Transferts Internationaux
+b\) Le sous-traitant n’accorde aux membres de son personnel l’accès aux données à caractère personnel
+faisant l’objet du traitement que dans la mesure strictement nécessaire à l’exécution, à la gestion et
+au suivi du contrat. Le sous-traitant veille à ce que les personnes autorisées à traiter les données à
+caractère personnel s'engagent à respecter la confidentialité ou soient soumises à une obligation légale
+appropriée de confidentialité.
 
-Même déclaration qu'à la Section 5 de la Politique de Confidentialité : lorsqu'un sous-traitant
-mentionné à la Section 7 traite des Données Personnelles Client en dehors de l'EEE, le transfert repose
-sur les garanties appropriées propres à ce prestataire au titre du Chapitre V du RGPD.
+##### 7.5. Données sensibles
 
-## 14. Durée, Responsabilité et Droit Applicable
+Si le traitement porte sur des données à caractère personnel révélant l'origine raciale ou ethnique, les
+opinions politiques, les convictions religieuses ou philosophiques ou l'appartenance syndicale, ainsi
+que des données génétiques ou des données biométriques aux fins d'identifier une personne physique de
+manière unique, des données concernant la santé ou des données concernant la vie sexuelle ou
+l'orientation sexuelle d'une personne physique, ou des données relatives aux condamnations pénales et
+aux infractions («données sensibles»), le sous-traitant applique des limitations spécifiques et/ou des
+garanties supplémentaires.
 
-Le présent ATD s'applique pendant toute la durée des Conditions Générales de Vente, et prend fin
-automatiquement avec elles. Le plafond de responsabilité ainsi que le droit applicable et la juridiction
-compétente prévus aux Sections 17 et 20.2 des Conditions Générales de Vente s'appliquent également au
-présent ATD.
+##### 7.6. Documentation et conformité
 
-## 15. Langue faisant foi
+a\) Les parties doivent pouvoir démontrer la conformité avec les présentes clauses.
+
+b\) Le sous-traitant traite de manière rapide et adéquate les demandes du responsable du traitement
+concernant le traitement des données conformément aux présentes clauses.
+
+c\) Le sous-traitant met à la disposition du responsable du traitement toutes les informations
+nécessaires pour démontrer le respect des obligations énoncées dans les présentes clauses et découlant
+directement du règlement (UE) 2016/679 et/ou du règlement (UE) 2018/1725. À la demande du responsable du
+traitement, le sous-traitant permet également la réalisation d’audits des activités de traitement
+couvertes par les présentes clauses et y contribue, à intervalles raisonnables ou en présence d’indices
+de non-conformité. Lorsqu’il décide d’un examen ou d’un audit, le responsable du traitement peut tenir
+compte des certifications pertinentes en possession du sous-traitant.
+
+d\) Le responsable du traitement peut décider de procéder lui-même à l’audit ou de mandater un auditeur
+indépendant. Les audits peuvent également comprendre des inspections dans les locaux ou les
+installations physiques du sous-traitant et sont, le cas échéant, effectués moyennant un préavis
+raisonnable.
+
+e\) Les parties mettent à la disposition de l’autorité de contrôle compétente/des autorités de contrôle
+compétentes, dès que celles-ci en font la demande, les informations énoncées dans la présente clause, y
+compris les résultats de tout audit.
+
+##### 7.7. Recours à des sous-traitants ultérieurs
+
+a\) OPTION 2: AUTORISATION ÉCRITE GÉNÉRALE: le sous-traitant dispose de l’autorisation générale du
+responsable du traitement pour ce qui est du recrutement de sous-traitants ultérieurs sur la base d’une
+liste convenue. Le sous-traitant informe spécifiquement par écrit le responsable du traitement de tout
+projet de modification de cette liste par l’ajout ou le remplacement de sous-traitants ultérieurs au
+moins 30 jours à l’avance, donnant ainsi au responsable du traitement suffisamment de temps pour pouvoir
+s’opposer à ces changements avant le recrutement du ou des sous-traitants ultérieurs concernés. Le
+sous-traitant fournit au responsable du traitement les informations nécessaires pour lui permettre
+d’exercer son droit d’opposition.
+
+b\) Lorsque le sous-traitant recrute un sous-traitant ultérieur pour mener des activités de traitement
+spécifiques (pour le compte du responsable du traitement), il le fait au moyen d’un contrat qui impose
+au sous-traitant ultérieur, en substance, les mêmes obligations en matière de protection des données que
+celles imposées au sous-traitant en vertu des présentes clauses. Le sous-traitant veille à ce que le
+sous-traitant ultérieur respecte les obligations auxquelles il est lui-même soumis en vertu des
+présentes clauses et du règlement (UE) 2016/679 et/ou du règlement (UE) 2018/1725.
+
+c\) À la demande du responsable du traitement, le sous-traitant lui fournit une copie de ce contrat
+conclu avec le sous-traitant ultérieur et de toute modification qui y est apportée ultérieurement. Dans
+la mesure nécessaire à la protection des secrets d’affaires ou d’autres informations confidentielles, y
+compris les données à caractère personnel, le sous-traitant peut expurger le texte du contrat avant d’en
+diffuser une copie.
+
+d\) Le sous-traitant demeure pleinement responsable, à l’égard du responsable du traitement, de
+l’exécution des obligations du sous-traitant ultérieur conformément au contrat conclu avec le
+sous-traitant ultérieur. Le sous-traitant informe le responsable du traitement de tout manquement du
+sous-traitant ultérieur à ses obligations contractuelles.
+
+e\) Le sous-traitant convient avec le sous-traitant ultérieur d’une clause du tiers bénéficiaire selon
+laquelle — dans le cas où le sous-traitant a matériellement disparu, a cessé d’exister en droit ou est
+devenu insolvable — le responsable du traitement a le droit de résilier le contrat conclu avec le
+sous-traitant ultérieur et de donner instruction au sous-traitant ultérieur d’effacer ou de renvoyer les
+données à caractère personnel.
+
+##### 7.8. Transferts internationaux
+
+a\) Tout transfert de données vers un pays tiers ou une organisation internationale par le sous-traitant
+n’est effectué que sur la base d’instructions documentées du responsable du traitement ou afin de
+satisfaire à une exigence spécifique du droit de l’Union ou du droit de l’État membre à laquelle le
+sous-traitant est soumis et s’effectue conformément au chapitre V du règlement (UE) 2016/679 ou du
+règlement (UE) 2018/1725.
+
+b\) Le responsable du traitement convient que lorsque le sous-traitant recrute un sous-traitant
+ultérieur conformément à la clause 7.7 pour mener des activités de traitement spécifiques (pour le
+compte du responsable du traitement) et que ces activités de traitement impliquent un transfert de
+données à caractère personnel au sens du chapitre V du règlement (UE) 2016/679, le sous-traitant et le
+sous-traitant ultérieur peuvent garantir le respect du chapitre V du règlement (UE) 2016/679 en
+utilisant les clauses contractuelles types adoptées par la Commission sur la base de l’article 46,
+paragraphe 2, du règlement (UE) 2016/679, pour autant que les conditions d’utilisation de ces clauses
+contractuelles types soient remplies.
+
+#### Clause 8: Assistance au responsable du traitement
+
+a\) Le sous-traitant informe sans délai le responsable du traitement de toute demande qu’il a reçue de
+la part de la personne concernée. Il ne donne pas lui-même suite à cette demande, à moins que le
+responsable du traitement des données ne l’y ait autorisé.
+
+b\) Le sous-traitant prête assistance au responsable du traitement pour ce qui est de remplir
+l’obligation qui lui incombe de répondre aux demandes des personnes concernées d’exercer leurs droits,
+en tenant compte de la nature du traitement. Dans l’exécution de ses obligations conformément aux points
+a) et b), le sous-traitant se conforme aux instructions du responsable du traitement.
+
+c\) Outre l’obligation incombant au sous-traitant d’assister le responsable du traitement en vertu de la
+clause 8, point b), le sous-traitant aide en outre le responsable du traitement à garantir le respect
+des obligations suivantes, compte tenu de la nature du traitement et des informations dont dispose le
+sous-traitant:
+
+1\) l’obligation de procéder à une évaluation de l’incidence des opérations de traitement envisagées sur
+la protection des données à caractère personnel («analyse d’impact relative à la protection des
+données») lorsqu’un type de traitement est susceptible de présenter un risque élevé pour les droits et
+libertés des personnes physiques;
+
+2\) l’obligation de consulter l'autorité de contrôle compétente/les autorités de contrôle compétentes
+préalablement au traitement lorsqu'une analyse d'impact relative à la protection des données indique que
+le traitement présenterait un risque élevé si le responsable du traitement ne prenait pas de mesures
+pour atténuer le risque;
+
+3\) l’obligation de veiller à ce que les données à caractère personnel soient exactes et à jour, en
+informant sans délai le responsable du traitement si le sous-traitant apprend que les données à
+caractère personnel qu’il traite sont inexactes ou sont devenues obsolètes;
+
+4\) les obligations prévues à l’article 32 du règlement (UE) 2016/679.
+
+d\) Les parties définissent à l’annexe III les mesures techniques et organisationnelles appropriées par
+lesquelles le sous-traitant est tenu de prêter assistance au responsable du traitement dans
+l’application de la présente clause, ainsi que la portée et l’étendue de l’assistance requise.
+
+#### Clause 9: Notification de violations de données à caractère personnel
+
+En cas de violation de données à caractère personnel, le sous-traitant coopère avec le responsable du
+traitement et lui prête assistance aux fins de la mise en conformité avec les obligations qui lui
+incombent en vertu des articles 33 et 34 du règlement (UE) 2016/679 ou des articles 34 et 35 du
+règlement (UE) 2018/1725, selon celui qui est applicable, en tenant compte de la nature du traitement et
+des informations dont dispose le sous-traitant.
+
+##### 9.1. Violation de données en rapport avec des données traitées par le responsable du traitement
+
+En cas de violation de données à caractère personnel en rapport avec des données traitées par le
+responsable du traitement, le sous-traitant prête assistance au responsable du traitement:
+
+a\) aux fins de la notification de la violation de données à caractère personnel à l’autorité de
+contrôle compétente/aux autorités de contrôle compétentes, dans les meilleurs délais après que le
+responsable du traitement en a eu connaissance, le cas échéant (sauf si la violation de données à
+caractère personnel est peu susceptible d'engendrer un risque pour les droits et libertés des personnes
+physiques);
+
+b\) aux fins de l’obtention des informations suivantes qui, conformément à l’article 33, paragraphe 3,
+du règlement (UE) 2016/679, doivent figurer dans la notification du responsable du traitement, et
+inclure, au moins:
+
+1\) la nature des données à caractère personnel, y compris, si possible, les catégories et le nombre
+approximatif de personnes concernées par la violation et les catégories et le nombre approximatif
+d’enregistrements de données à caractère personnel concernés;
+
+2\) les conséquences probables de la violation de données à caractère personnel;
+
+3\) les mesures prises ou les mesures que le responsable du traitement propose de prendre pour remédier
+à la violation de données à caractère personnel, y compris, le cas échéant, les mesures pour en atténuer
+les éventuelles conséquences négatives.
+
+Lorsque, et dans la mesure où, il n’est pas possible de fournir toutes les informations en même temps,
+la notification initiale contient les informations disponibles à ce moment-là et, à mesure qu’elles
+deviennent disponibles, des informations supplémentaires sont communiquées par la suite dans les
+meilleurs délais;
+
+c\) aux fins de la satisfaction, conformément à l’article 34 du règlement (UE) 2016/679, de l’obligation
+de communiquer dans les meilleurs délais la violation de données à caractère personnel à la personne
+concernée, lorsque la violation de données à caractère personnel est susceptible d’engendrer un risque
+élevé pour les droits et libertés des personnes physiques.
+
+##### 9.2. Violation de données en rapport avec des données traitées par le sous-traitant
+
+En cas de violation de données à caractère personnel en rapport avec des données traitées par le
+sous-traitant, celui-ci en informe le responsable du traitement dans les meilleurs délais après en avoir
+pris connaissance. Cette notification contient au moins:
+
+a\) une description de la nature de la violation constatée (y compris, si possible, les catégories et le
+nombre approximatif de personnes concernées par la violation et d'enregistrements de données à caractère
+personnel concernés);
+
+b\) les coordonnées d’un point de contact auprès duquel des informations supplémentaires peuvent être
+obtenues au sujet de la violation de données à caractère personnel;
+
+c\) ses conséquences probables et les mesures prises ou les mesures qu’il est proposé de prendre pour
+remédier à la violation, y compris pour en atténuer les éventuelles conséquences négatives.
+
+Lorsque, et dans la mesure où, il n’est pas possible de fournir toutes les informations en même temps,
+la notification initiale contient les informations disponibles à ce moment-là et, à mesure qu’elles
+deviennent disponibles, des informations supplémentaires sont communiquées par la suite dans les
+meilleurs délais.
+
+Les parties définissent à l’annexe III tous les autres éléments que le sous-traitant doit communiquer
+lorsqu’il prête assistance au responsable du traitement aux fins de la satisfaction des obligations
+incombant à ce dernier en vertu des articles 33 et 34 du règlement (UE) 2016/679.
+
+### SECTION III: DISPOSITIONS FINALES
+
+#### Clause 10: Non-respect des clauses et résiliation
+
+a\) Sans préjudice des dispositions du règlement (UE) 2016/679 et/ou du règlement (UE) 2018/1725, en cas
+de manquement du sous-traitant aux obligations qui lui incombent en vertu des présentes clauses, le
+responsable du traitement peut donner instruction au sous-traitant de suspendre le traitement des
+données à caractère personnel jusqu’à ce que ce dernier se soit conformé aux présentes clauses ou
+jusqu’à ce que le contrat soit résilié. Le sous-traitant informe rapidement le responsable du traitement
+s’il n’est pas en mesure de se conformer aux présentes clauses, pour quelque raison que ce soit.
+
+b\) Le responsable du traitement est en droit de résilier le contrat dans la mesure où il concerne le
+traitement de données à caractère personnel conformément aux présentes clauses si:
+
+1\) le traitement de données à caractère personnel par le sous-traitant a été suspendu par le
+responsable du traitement conformément au point a) et le respect des présentes clauses n’est pas rétabli
+dans un délai raisonnable et, en tout état de cause, dans un délai d’un mois à compter de la suspension;
+
+2\) le sous-traitant est en violation grave ou persistante des présentes clauses ou des obligations qui
+lui incombent en vertu du règlement (UE) 2016/679 et/ou du règlement (UE) 2018/1725;
+
+3\) le sous-traitant ne se conforme pas à une décision contraignante d’une juridiction compétente ou de
+l’autorité de contrôle compétente/des autorités de contrôle compétentes concernant les obligations qui
+lui incombent en vertu des présentes clauses ou du règlement (UE) 2016/679 et/ou du règlement (UE)
+2018/1725.
+
+c\) Le sous-traitant est en droit de résilier le contrat dans la mesure où il concerne le traitement de
+données à caractère personnel en vertu des présentes clauses lorsque, après avoir informé le responsable
+du traitement que ses instructions enfreignent les exigences juridiques applicables conformément à la
+clause 7.1, point b), le responsable du traitement insiste pour que ses instructions soient suivies.
+
+d\) À la suite de la résiliation du contrat, le sous-traitant supprime, selon le choix du responsable du
+traitement, toutes les données à caractère personnel traitées pour le compte du responsable du
+traitement et certifie auprès de celui-ci qu’il a procédé à cette suppression, ou renvoie toutes les
+données à caractère personnel au responsable du traitement et détruit les copies existantes, à moins que
+le droit de l’Union ou le droit national n’impose de les conserver plus longtemps. Le sous-traitant
+continue de veiller à la conformité aux présentes clauses jusqu’à la suppression ou à la restitution des
+données.
+
+## ANNEXE I: Liste des parties
+
+**Responsable(s) du traitement**
+
+- **Nom**: Le Client : l'entreprise titulaire d'une Société sur le Service hébergé (Conditions Générales
+  d'Utilisation, Section 2), sous le nom saisi dans les paramètres de cette Société.
+- **Adresse**: L'adresse saisie dans les paramètres de cette Société.
+- **Nom, fonction et coordonnées de la personne de contact**: Le Propriétaire de la Société (Conditions
+  Générales d'Utilisation, Section 2), à l'adresse e-mail de son compte utilisateur ; et, si le Client
+  en a désigné un, son délégué à la protection des données, tel que communiqué par le Client à
+  contact@invoicerr.app.
+- **Signature et date d’adhésion**: Accepté électroniquement par le Client lorsqu'il accepte les
+  Conditions Générales d'Utilisation, qui intègrent le présent ATD (Conditions Générales d'Utilisation,
+  Section 2). La date d'adhésion est la date enregistrée pour cette acceptation.
+
+**Sous-traitant(s)**
+
+- **Nom**: Roméo Chevrier, entrepreneur individuel, SIREN 982 187 676 (SIRET 982 187 676 00019),
+  exploitant du Service Invoicerr hébergé.
+- **Adresse**: 4 rue du Puits, 26120 Montélier, France.
+- **Nom, fonction et coordonnées de la personne de contact**: Roméo Chevrier, exploitant du Service,
+  contact@invoicerr.app. Aucun délégué à la protection des données n'a été désigné (Politique de
+  Confidentialité, Section 1).
+- **Signature et date d’adhésion**: Accepté par le Sous-traitant en mettant le Service à disposition
+  selon les Conditions Générales d'Utilisation, à la même date que le Client.
+
+## ANNEXE II: Description du traitement
+
+**Catégories de personnes concernées dont les données à caractère personnel sont traitées**
+
+Les propres clients, fournisseurs et contacts du Client nommés dans les documents et enregistrements que
+le Client crée dans le Service ou reçoit par son intermédiaire.
+
+**Catégories de données à caractère personnel traitées**
+
+Noms, adresses postales et e-mail, numéros de téléphone, et toute autre donnée à caractère personnel que
+le Client choisit de saisir dans les champs d'un document (par exemple, le nom d'une personne de contact
+sur une facture).
+
+**Les données sensibles traitées (le cas échéant) et les limitations ou garanties appliquées qui
+tiennent pleinement compte de la nature des données et des risques encourus, tels que, par exemple, la
+limitation stricte de la finalité, les restrictions des accès (y compris l’accès réservé uniquement au
+personnel ayant suivi une formation spécialisée), la tenue d’un registre de l’accès aux données, les
+restrictions applicables aux transferts ultérieurs ou les mesures de sécurité supplémentaires.**
+
+Aucune. Le Service ne requiert ni n'attend de données sensibles, et le Client ne doit pas en saisir.
+
+**Nature du traitement**
+
+Hébergement, stockage et rendu (en PDF et, pour une facture, en XML EN 16931) des documents et
+enregistrements que le Client crée dans le Service ; lecture des documents que le Client téléverse
+(reconnaissance optique de caractères, exécutée sur une infrastructure exploitée par le Sous-traitant) ;
+transmission d'un document, lorsque le Client choisit de l'envoyer, par le canal e-mail ou de
+facturation électronique ou la plateforme publique que le Client sélectionne ; archivage de chaque
+document envoyé ; export des données du Client ; leur suppression.
+
+**Finalité(s) pour laquelle (lesquelles) les données à caractère personnel sont traitées pour le compte
+du responsable du traitement**
+
+Fournir le Service hébergé au Client : créer, émettre, transmettre et archiver les documents commerciaux
+du Client, exactement tels que le Client les a configurés. Les instructions documentées du Client
+(clause 7.1) sont le présent ATD, les Conditions Générales d'Utilisation, et la configuration et
+l'utilisation du Service par le Client lui-même (quelle Société, quels canaux, quels documents il
+envoie).
+
+**Durée du traitement**
+
+Tant que la Société du Client existe sur le Service, puis jusqu'à sa suppression selon les Conditions
+Générales d'Utilisation, Section 13 : au plus tôt trente (30) jours après l'envoi de l'archive de fin
+d'abonnement pour une Société qui n'a jamais eu d'abonnement payant, et au plus tôt cent quatre-vingts
+(180) jours après cet envoi pour une Société qui en a eu un.
+
+Renvoi des données à caractère personnel au terme de la prestation de services (clause 10, point d)) :
+cette archive, envoyée par e-mail au Propriétaire de la Société (Conditions Générales d'Utilisation,
+Section 13.2), et l'export en libre-service disponible à tout moment auparavant (Conditions Générales
+d'Utilisation, Section 8.2).
+
+Conservation légale (clause 10, point d) : « à moins que le droit de l'Union ou le droit de l'État
+membre n'exige la conservation des données à caractère personnel ») : un document archivé dont la durée
+légale de conservation court encore est conservé jusqu'à l'expiration de cette durée, enregistrée avec
+le document ainsi que le texte qui l'impose, puis effacé. La Politique de Confidentialité, Section 6,
+énumère les pays, durées et textes concernés.
+
+**Pour le traitement par les sous-traitants (ultérieurs), préciser également l’objet, la nature et la
+durée du traitement.**
+
+Voir l'annexe IV.
+
+## ANNEXE III: Mesures techniques et organisationnelles, y compris mesures techniques et organisationnelles visant à garantir la sécurité des données
+
+**Mesures de pseudonymisation et de chiffrement des données à caractère personnel**
+
+Les identifiants et jetons que le Service conserve pour connecter une Société à un canal ou une
+plateforme tiers sont chiffrés au repos en AES-256-GCM. Les sauvegardes des documents et fichiers
+conservés par le Service sont chiffrées en AES-256-GCM au sein de l'infrastructure du Sous-traitant
+avant d'être écrites sur le stockage de sauvegarde, avec une clé que seul le Sous-traitant détient et
+que le prestataire de stockage ne reçoit jamais ; une clé manquante fait échouer la sauvegarde au lieu
+d'écrire quoi que ce soit en clair. Cela n'établit pas, à soi seul, l'exemption de communication prévue
+à l'article 34, paragraphe 3, point a), du règlement (UE) 2016/679 ; son application s'apprécie au cas
+par cas.
+
+**Mesures visant à garantir la confidentialité, l'intégrité, la disponibilité et la résilience
+constantes des systèmes et des services de traitement**
+
+Au sein de l'organisation du Sous-traitant, l'accès aux données du Client et à l'infrastructure de
+production est limité à ce qui est nécessaire pour exploiter et assister le Service, et les personnes
+autorisées à y accéder sont tenues à une obligation de confidentialité.
+
+**Mesures d’identification et d’autorisation de l’utilisateur**
+
+Chaque personne utilisant le Service dispose de son propre compte utilisateur (Conditions Générales
+d'Utilisation, Section 4.3). Au sein d'une Société, l'accès dépend du rôle de l'utilisateur
+(propriétaire, administrateur ou membre). Une clé d'API, y compris celle qu'utilise un assistant d'IA
+connecté via le point d'accès Model Context Protocol du Service, n'agit que dans les périmètres que le
+Client lui accorde.
+
+**Mesures de protection des données pendant la transmission**
+
+Tout le trafic vers et depuis le Service est chiffré en TLS, terminé à l'entrée du cluster avec un
+certificat émis et renouvelé automatiquement.
+
+**Mesures de protection des données pendant le stockage**
+
+L'environnement de production, y compris sa base de données PostgreSQL managée et le stockage objet qui
+contient les documents archivés, est hébergé par Scaleway SAS dans sa région de Paris (France) ; la base
+de données est accessible par le réseau privé de Scaleway, et non par l'internet public. L'environnement
+de recette, utilisé pour valider une version et, pendant le programme bêta, par les participants à ce
+programme, fonctionne sur une infrastructure que le Sous-traitant exploite lui-même, en France. Aucun
+des deux environnements n'est hébergé, répliqué ou sauvegardé hors de l'Union européenne.
+
+**Mesures visant à garantir l’enregistrement des événements**
+
+Les journaux applicatifs sont conservés quatre-vingt-dix (90) jours, puis supprimés automatiquement.
+
+**Mesures visant à garantir la minimisation des données**
+
+La reconnaissance optique de caractères s'exécute sur une infrastructure exploitée par le Sous-traitant
+; aucun document n'est envoyé à un prestataire d'OCR tiers.
+
+**Mesures visant à garantir une conservation limitée des données**
+
+Les données à caractère personnel sont supprimées selon le calendrier fixé à l'annexe II, Durée du
+traitement.
+
+**Mesures permettant la portabilité des données et garantissant l’effacement**
+
+À tout moment, en libre-service, le Client peut exporter une copie complète de ses données (les champs
+enregistrés et un PDF de chaque document pouvant être rendu), son grand livre comptable en CSV, chaque
+facture en XML EN 16931 (UBL ou CII), et l'ensemble par l'API REST (Conditions Générales d'Utilisation,
+Sections 8.2 et 10). Le Client peut supprimer sa Société à tout moment.
+
+**Description des mesures techniques et organisationnelles spécifiques que le sous-traitant doit prendre
+pour pouvoir prêter assistance au responsable du traitement**
+
+Demandes des personnes concernées (clause 8) : le Service permet au Client de corriger, exporter ou
+supprimer lui-même la fiche d'un client. Une demande reçue directement par le Sous-traitant est
+transmise au Client, comme le prévoit la clause 8, point a). Toute autre assistance au titre de la
+clause 8 se demande en écrivant à contact@invoicerr.app.
+
+Violation de données à caractère personnel (clause 9.2, point b)) : le point de contact est
+contact@invoicerr.app. Aucun élément n'est ajouté à ceux énumérés à la clause 9.2.
+
+## ANNEXE IV: Liste de sous-traitants ultérieurs
+
+La liste convenue de sous-traitants ultérieurs au titre de la clause 7.7, point a), option 2
+(autorisation écrite générale). Le Client est informé de tout ajout ou remplacement envisagé par e-mail,
+au moins 30 jours à l'avance.
+
+**1.**
+
+- **Nom**: Scaleway SAS
+- **Adresse**: 8 rue de la Ville-l'Évêque, 75008 Paris, France
+- **Nom, fonction et coordonnées de la personne de contact**: privacy@scaleway.com
+- **Description du traitement (y compris une délimitation claire des responsabilités dans le cas où
+  plusieurs sous-traitants ultérieurs sont autorisés)**: Hébergement de l'environnement de production du
+  Service : le cluster Kubernetes sur lequel il fonctionne, la base de données PostgreSQL managée qui
+  conserve les documents créés par le Client (et les données à caractère personnel qu'ils contiennent),
+  et le stockage objet qui contient les documents archivés. Région de Paris (France) ; la base de
+  données est accessible par le réseau privé de Scaleway, et non par l'internet public.
+
+**2.**
+
+- **Nom**: Resend (Plus Five Five, Inc.)
+- **Adresse**: 2261 Market Street #5039, San Francisco, CA 94114, USA
+- **Nom, fonction et coordonnées de la personne de contact**: privacy@resend.com
+- **Description du traitement (y compris une délimitation claire des responsabilités dans le cas où
+  plusieurs sous-traitants ultérieurs sont autorisés)**: Envoi des e-mails transactionnels pouvant
+  contenir un document, ou un lien vers celui-ci, sur instruction du Client.
+
+**3.**
+
+- **Nom**: Cloudflare, Inc.
+- **Adresse**: 101 Townsend Street, San Francisco, CA 94107, USA
+- **Nom, fonction et coordonnées de la personne de contact**: Data Protection Officer,
+  legal@cloudflare.com
+- **Description du traitement (y compris une délimitation claire des responsabilités dans le cas où
+  plusieurs sous-traitants ultérieurs sont autorisés)**: Routage des e-mails entrants adressés à
+  contact@invoicerr.app. Correspondance d'assistance uniquement ; jamais les données à caractère
+  personnel contenues dans les documents créés avec le Service.
+
+**4.**
+
+- **Nom**: Google LLC (Gmail)
+- **Adresse**: 1600 Amphitheatre Parkway, Mountain View, California 94043, USA
+- **Nom, fonction et coordonnées de la personne de contact**: Celles publiées par Google LLC dans ses
+  propres conditions de protection des données.
+- **Description du traitement (y compris une délimitation claire des responsabilités dans le cas où
+  plusieurs sous-traitants ultérieurs sont autorisés)**: La boîte de réception où arrive la
+  correspondance d'assistance adressée à contact@invoicerr.app. Correspondance d'assistance uniquement ;
+  jamais les données à caractère personnel contenues dans les documents créés avec le Service.
+
+**5.**
+
+- **Nom**: Les plateformes nationales de facturation électronique et plateformes publiques que le Client
+  choisit de connecter : la PDP française, le KSeF polonais, le SdI italien (et, pour son canal de
+  courrier électronique certifié, le fournisseur de boîte PEC auquel le Client est abonné), l'AT
+  portugaise, et Chorus Pro en France pour la facturation B2G.
+- **Adresse**: Celle de l'opérateur de chaque plateforme.
+- **Nom, fonction et coordonnées de la personne de contact**: Celles publiées par l'opérateur de chaque
+  plateforme.
+- **Description du traitement (y compris une délimitation claire des responsabilités dans le cas où
+  plusieurs sous-traitants ultérieurs sont autorisés)**: Transmission des documents que le Client envoie
+  par cette plateforme, sur instruction explicite du Client et avec les identifiants et mandats que le
+  Client fournit.
+
+### Notes relatives à l'annexe IV
+
+**Ne sont pas des sous-traitants ultérieurs au titre du présent ATD.** Polar Software, Inc. vend
+l'abonnement au Client en tant que revendeur (merchant of record) et traite les données d'achat qu'elle
+collecte en tant que responsable du traitement indépendant (Politique de Confidentialité, Sections 3 et
+4), jamais les données à caractère personnel contenues dans les documents du Client. GitHub, Inc.
+héberge le site public de documentation et le dépôt du code source, qui ne reçoivent jamais de données
+du Client (Politique de Confidentialité, Section 10). L'environnement de recette est exploité par le
+Sous-traitant lui-même, sur sa propre infrastructure, en France : aucun tiers ne l'héberge.
+
+**Assistant d'IA choisi par le Client.** Le Service expose un point d'accès Model Context Protocol
+(`POST /api/mcp`) auquel le Client peut connecter un assistant d'IA de son choix, au moyen d'une clé
+d'API qu'il crée. Le fournisseur de cet assistant est choisi par le Client, n'a aucun contrat avec le
+Sous-traitant et n'est pas un sous-traitant ultérieur au titre du présent ATD ; le Client est
+responsable des données à caractère personnel que son assistant envoie à ce fournisseur, y compris de
+tout transfert hors de l'EEE. L'un des outils de ce point d'accès, `get_document_pdf_link`, crée un lien
+public, sans authentification, vers le PDF d'un document, valable 30 jours et révocable depuis le
+Service.
+
+**Transferts internationaux (clause 7.8).** Resend, Cloudflare et Google LLC peuvent traiter des données
+hors de l'Espace économique européen, notamment aux États-Unis. Un tel transfert repose sur les
+garanties propres à ce prestataire au titre du chapitre V du règlement (UE) 2016/679 (Politique de
+Confidentialité, Section 5). Scaleway SAS traite les données en France.
+
+## Dispositions complémentaires
+
+Ces dispositions sont ajoutées au titre de la clause 2, point b). En vertu de la clause 4, les clauses
+prévalent sur elles, ainsi que sur les Conditions Générales d'Utilisation, en cas de contradiction.
+
+**Durée.** Le présent ATD s'applique aussi longtemps que les Conditions Générales d'Utilisation et prend
+fin avec elles ; la clause 10, point d), continue de s'appliquer jusqu'à ce que les données à caractère
+personnel soient supprimées ou renvoyées.
+
+**Responsabilité et droit applicable.** La limitation de responsabilité ainsi que le droit applicable et
+la juridiction compétente prévus aux Sections 17 et 20.3 des Conditions Générales d'Utilisation
+s'appliquent au présent ATD, dans la mesure où ils ne contredisent pas les clauses.
+
+**Traductions.** Les clauses existent dans une version officielle dans chaque langue officielle de
+l'Union européenne. Chaque traduction du présent ATD reproduit le texte officiel des clauses dans sa
+langue, issu de la même décision d'exécution.
+
+## Langue faisant foi
 
 Le présent document est rédigé et conclu en anglais. Lorsqu'une traduction dans une autre langue est
 fournie pour votre confort de lecture et votre compréhension, cette traduction ne se substitue pas au

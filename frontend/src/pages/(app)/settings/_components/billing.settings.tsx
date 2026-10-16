@@ -353,15 +353,13 @@ export default function BillingSettings() {
           canManageBilling ? (
             <SettingsFormFooter
               hint={
-                // Terms of Service, Section 12.2 states the underlying rule (auto-renewal, no
-                // refund or proration); Polar's own checkout page is where the charge actually
-                // happens, outside this app's own screens, so this button is the last point in the
-                // product itself where that rule can be shown before the customer commits to it.
+                // Polar's checkout runs outside this app: this is the last in-product place to say who
+                // sells the subscription and that it renews, before the customer pays.
                 canSubscribe ? (
                   <>
                     {t(
                       "settings.billing.refundNotice.prefix",
-                      "Subscribing starts a subscription that renews automatically until you cancel it, with no refund or proration for the unused portion of a cancelled period. See our",
+                      "Polar sells this subscription as our reseller. It renews automatically until you cancel it, and cancelling takes effect at the end of the period already paid. Refunds are handled by Polar. See our",
                     )}{" "}
                     <a
                       href="/legal/refund-policy"

@@ -14,7 +14,7 @@ description générale des mesures techniques, organisationnelles et contractuel
 pour empêcher tout accès gouvernemental à des données à caractère non personnel détenues dans l'Union,
 ou leur transfert, lorsque cet accès ou ce transfert serait contraire au droit de l'Union ou d'un État
 membre. Elle ne s'applique qu'à l'**offre hébergée** d'Invoicerr — les
-[Conditions Générales de Vente](./terms-of-service.md), Section 14.4, intègrent la présente page par
+[Conditions Générales d'Utilisation](./terms-of-service.md), Section 14.4, intègrent la présente page par
 référence. Elle ne s'applique pas au logiciel auto-hébergé, qui ne nous envoie jamais aucune donnée.
 
 ## 1. Juridictions
@@ -39,7 +39,7 @@ soumis au droit français et de l'Union européenne, comme tout exploitant du Se
 environnement, ni Vos Données sur l'un ou l'autre, ne sont hébergés, dupliqués ou sauvegardés en dehors
 de la France/de l'UE. Lorsqu'un sous-traitant nommé dans la
 [Politique de Confidentialité](./privacy-policy.md), Section 4, et l'
-[Accord de Traitement des Données](./data-processing-agreement.md), Section 7 (Polar pour la
+[Accord de Traitement des Données](./data-processing-agreement.md), annexe IV (Polar pour la
 facturation de l'abonnement, Resend pour les e-mails transactionnels, Cloudflare et Google LLC pour la
 correspondance de support entrante) est une entité non-UE ou peut traiter des données en dehors de
 l'EEE, ce traitement se limite aux données de compte/facturation ou à la correspondance de support —
@@ -77,17 +77,17 @@ visé par l'article 28.
   pas à les exposer.
 - **Chiffrement des sauvegardes.** Les copies de sauvegarde des documents et fichiers stockés par le
   Service sont chiffrées (AES-256-GCM) avant de quitter notre infrastructure, au moyen d'une clé que le
-  prestataire de stockage ne détient jamais — voir l'Accord de Traitement des Données, Section 9 — de
+  prestataire de stockage ne détient jamais — voir l'Accord de Traitement des Données, annexe III — de
   sorte qu'une demande adressée directement à ce prestataire, ou une copie du compartiment de
   sauvegarde lui-même, n'atteint que du texte chiffré, jamais les documents.
 - **Contrôle d'accès.** L'accès aux données d'une Société au sein du Service est limité par les rôles
   propres à cette Société (propriétaire/administrateur/membre) ; l'accès à l'infrastructure et aux
   données de production au sein de notre propre organisation est limité à ce qui est nécessaire pour
   exploiter et assurer le support du Service, comme décrit dans la Politique de Confidentialité,
-  Section 7, et l'Accord de Traitement des Données, Section 9.
+  Section 7, et l'Accord de Traitement des Données, annexe III.
 - **Garanties contractuelles avec les sous-traitants.** Chaque sous-traitant est tenu, par contrat, à
   des obligations de protection des données substantiellement équivalentes à l'Accord de
-  Traitement des Données (art. 28, § 4, du RGPD) — voir l'Accord de Traitement des Données, Section 7 —
+  Traitement des Données (art. 28, § 4, du RGPD) — voir l'Accord de Traitement des Données, clause 7.7 et annexe IV —
   et, lorsqu'un sous-traitant peut traiter des données en dehors de l'EEE, aux clauses contractuelles
   types de la Commission européenne ou à une autre garantie prévue au Chapitre V du RGPD.
 - **Absence d'accès permanent ou automatisé pour une autorité étrangère.** Nous n'accordons à aucun
@@ -101,7 +101,7 @@ visé par l'article 28.
 
 Cette page est mise à jour chaque fois que la juridiction de l'infrastructure propre du Service, ou les
 mesures décrites ci-dessus, change de manière substantielle — le même engagement que celui pris par les
-[Conditions Générales de Vente](./terms-of-service.md), Section 20.1, pour ce document. Il s'agit d'un
+[Conditions Générales d'Utilisation](./terms-of-service.md), Section 20.1, pour ce document. Il s'agit d'un
 document de référence : accessible via `GET /api/legal/documents` comme tout document qui y est listé,
 mais — comme les Mentions Légales, l'Accord de Traitement des Données et les Cookies et Politique
 d'Utilisation Acceptable — son acceptation n'est jamais requise pour utiliser le Service.

@@ -20,7 +20,7 @@ infrastructure sous la licence figurant dans le fichier `LICENSE` à la racine d
 - Adresse enregistrée : **4 rue du Puits, 26120 Montélier, France**.
 - Contact : **contact@invoicerr.app**.
 - TVA : **TVA non applicable — franchise en base, art. 293 B du Code général des impôts (CGI)** ; voir
-  Conditions Générales de Vente, Section 1.1, pour la même déclaration.
+  Conditions Générales d'Utilisation, Section 1.1, pour la même déclaration.
 
 ## 2. Directeur de la Publication
 
@@ -65,7 +65,7 @@ Section 10.
 ## 4. Propriété Intellectuelle
 
 Le logiciel Invoicerr est distribué sous la licence publiée dans le fichier `LICENSE` à la racine du
-dépôt (voir Conditions Générales de Vente, Section 11.1). Le nom et le logo Invoicerr, tels qu'utilisés
+dépôt (voir Conditions Générales d'Utilisation, Section 11.1). Le nom et le logo Invoicerr, tels qu'utilisés
 sur le Service hébergé et sa documentation, appartiennent à l'Éditeur.
 
 ## 5. Données Personnelles
@@ -81,10 +81,10 @@ Voir la [Cookies et Politique d'Utilisation Acceptable](./cookies-and-acceptable
 
 Les présentes mentions sont régies par le **droit français**. Tout litige est soumis à la compétence
 exclusive du **Tribunal de commerce de Romans-sur-Isère, tribunal du siège social du Prestataire**, sous
-réserve de toute règle impérative contraire — la même clause qu'aux Conditions Générales de Vente,
+réserve de toute règle impérative contraire — la même clause qu'aux Conditions Générales d'Utilisation,
 Section 20.2.
 
-Le Service est proposé exclusivement dans un cadre interentreprises (Conditions Générales de Vente,
+Le Service est proposé exclusivement dans un cadre interentreprises (Conditions Générales d'Utilisation,
 Section 1.2). En conséquence, le dispositif de médiation de la consommation prévu aux articles
 **L.616-1 et suivants du Code de la consommation** ne s'applique pas au présent Contrat.
 

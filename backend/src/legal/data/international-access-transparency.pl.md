@@ -38,7 +38,7 @@ oczywiście nadal podlega prawu francuskiemu i unijnemu, tak jak każdy podmiot 
 jedno, ani drugie środowisko, ani Twoje Dane w żadnym z nich, nie są hostowane, replikowane (mirror) ani
 archiwizowane (backup) poza Francją/UE. W zakresie, w jakim dalszy podmiot przetwarzający wskazany w
 [Polityce Prywatności](./privacy-policy.md), sekcja 4, oraz w
-[Umowie Powierzenia Przetwarzania Danych](./data-processing-agreement.md), sekcja 7 (Polar w zakresie
+[Umowie Powierzenia Przetwarzania Danych](./data-processing-agreement.md), załącznik IV (Polar w zakresie
 rozliczeń subskrypcji, Resend w zakresie transakcyjnej poczty e-mail, Cloudflare i Google LLC w zakresie
 przychodzącej korespondencji wsparcia) jest podmiotem spoza UE lub może przetwarzać dane poza EOG,
 przetwarzanie to jest ograniczone do danych konta/rozliczeniowych lub korespondencji wsparcia — nigdy do
@@ -73,18 +73,18 @@ tu wymienione dla kompletności, a nie dlatego, że mieszczą się w zakresie ob
   `backend/src/utils/secret-crypto.ts` — dzięki czemu sama kopia bazy danych ich nie ujawnia.
 - **Szyfrowanie kopii zapasowych.** Kopie zapasowe dokumentów i plików przechowywanych przez Usługę są
   szyfrowane (AES-256-GCM), zanim opuszczą naszą infrastrukturę, za pomocą klucza, którego dostawca
-  magazynu nigdy nie posiada — zob. Umowa Powierzenia Przetwarzania Danych, sekcja 9 — dzięki czemu
+  magazynu nigdy nie posiada — zob. Umowa Powierzenia Przetwarzania Danych, załącznik III — dzięki czemu
   żądanie skierowane bezpośrednio do tego dostawcy, lub kopia samego magazynu kopii zapasowych,
   dociera wyłącznie do zaszyfrowanego tekstu, nigdy do dokumentów.
 - **Kontrola dostępu.** Dostęp do danych danej Firmy w ramach Usługi jest ograniczony rolami
   przypisanymi w tej Firmie (właściciel/administrator/członek); dostęp do infrastruktury produkcyjnej i
   danych w ramach naszej własnej organizacji jest ograniczony do zakresu niezbędnego do obsługi i
   wsparcia Usługi, zgodnie z opisem w Polityce Prywatności, sekcja 7, oraz w Umowie Powierzenia
-  Przetwarzania Danych, sekcja 9.
+  Przetwarzania Danych, załącznik III.
 - **Zabezpieczenia umowne z dalszymi podmiotami przetwarzającymi.** Każdy dalszy podmiot przetwarzający
   jest umownie zobowiązany do przestrzegania obowiązków w zakresie ochrony danych zasadniczo
   równoważnych Umowie Powierzenia Przetwarzania Danych (art. 28 ust. 4 RODO) — zob. Umowa
-  Powierzenia Przetwarzania Danych, sekcja 7 — oraz, w zakresie, w jakim dalszy podmiot przetwarzający
+  Powierzenia Przetwarzania Danych, klauzula 7.7 i załącznik IV — oraz, w zakresie, w jakim dalszy podmiot przetwarzający
   może przetwarzać dane poza EOG, standardowym klauzulom umownym Komisji Europejskiej lub innemu
   zabezpieczeniu przewidzianemu w rozdziale V RODO.
 - **Brak stałego lub zautomatyzowanego dostępu dla zagranicznego organu.** Nie przyznajemy żadnemu

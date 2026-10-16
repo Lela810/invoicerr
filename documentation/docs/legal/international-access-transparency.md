@@ -1,8 +1,8 @@
 ---
 title: International Access Transparency
 sidebar_position: 7
-version: 2026-09-20
-effectiveDate: 2026-09-20
+version: 2026-10-13
+effectiveDate: 2026-10-13
 ---
 
 :::warning[Draft]
@@ -38,7 +38,7 @@ above, not a weaker one. The Provider himself, of course, remains subject to Fre
 the same way any operator of the Service would be. Neither environment, nor Your Data on either one, is
 hosted, mirrored, or backed up outside France/the EU. Where a sub-processor named in the
 [Privacy Policy](./privacy-policy.md), Section 4,
-and the [Data Processing Agreement](./data-processing-agreement.md), Section 7 (Polar for
+and the [Data Processing Agreement](./data-processing-agreement.md), Annex IV (Polar for
 subscription billing, Resend for transactional email, Cloudflare and Google LLC for inbound support
 correspondence) is a non-EU entity or may process data outside the EEA, that processing is limited to
 account/billing data or support correspondence — never Your Data or the documents you create through
@@ -70,15 +70,15 @@ completeness, not because they fall within the scope Article 28 targets.
   alone does not expose them.
 - **Backup encryption.** Backup copies of the documents and files the Service stores are encrypted
   (AES-256-GCM) before they ever leave our infrastructure, under a key the storage provider never
-  holds — see the Data Processing Agreement, Section 9 — so a demand served directly on that provider,
+  holds — see the Data Processing Agreement, Annex III — so a demand served directly on that provider,
   or a copy of the backup bucket itself, reaches ciphertext, not documents.
 - **Access control.** Access to a Company's data within the Service is scoped by that Company's own
   roles (owner/admin/member); access to production infrastructure and data within our own organization
   is restricted to what is needed to operate and support the Service, as described in the Privacy
-  Policy, Section 7, and the Data Processing Agreement, Section 9.
+  Policy, Section 7, and the Data Processing Agreement, Annex III.
 - **Contractual safeguards with sub-processors.** Every sub-processor is bound, by contract, to
   data-protection obligations materially equivalent to the Data Processing Agreement (GDPR Art.
-  28(4)) — see the Data Processing Agreement, Section 7 — and, where a sub-processor may process data
+  28(4)) — see the Data Processing Agreement, Clause 7.7 and Annex IV — and, where a sub-processor may process data
   outside the EEA, to the European Commission's Standard Contractual Clauses or another GDPR Chapter V
   safeguard.
 - **No standing or automated access for a foreign authority.** We do not grant any government,
@@ -143,3 +143,6 @@ Questions about this page can be sent to **contact@invoicerr.app**.
   subject to French and EU legal process like any operator of the Service. **Section 2**'s "Data
   residency by design" bullet no longer claims a single provider, now that Section 1 correctly
   describes two environments.
+- **2026-10-13**: Cross-references updated after the Data Processing Agreement became the European
+  Commission's standard contractual clauses: its former Section 7 (sub-processors) is now Clause 7.7
+  and Annex IV, its former Section 9 (security measures) is now Annex III. No measure changed.

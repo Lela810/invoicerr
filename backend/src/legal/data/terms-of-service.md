@@ -1,8 +1,8 @@
 ---
 title: Terms of Service
 sidebar_position: 1
-version: 2026-09-20
-effectiveDate: 2026-09-20
+version: 2026-10-13
+effectiveDate: 2026-10-13
 ---
 
 :::warning[Draft]
@@ -23,11 +23,16 @@ commitments, fees, or limitations below apply to a self-hosted deployment.
 individuel)**, an **entrepreneur individuel (micro-entreprise) under French law**, registered under
 number **SIREN 982 187 676 (SIRET 982 187 676 00019)**, with his registered address at **4 rue du
 Puits, 26120 Montélier, France**, VAT: **VAT not applicable — Art. 293 B of the French General Tax
-Code (franchise en base)**; subscription invoices are issued by Polar as merchant of record (this VAT status is a representation
-by the Provider — the public Sirene registry does not itself return a VAT regime field) ("**we**",
-"**us**", "**the Provider**"), and the entity that subscribes to the Service ("**you**", "**the
-Customer**"). By creating an account, starting a trial, or subscribing to the Service, you accept
-these Terms in full.
+Code (franchise en base)** (this VAT status is a representation by the Provider; the public Sirene
+registry does not itself return a VAT regime field) ("**we**", "**us**", "**the Provider**"), and the
+entity that uses the Service ("**you**", "**the Customer**"). By creating an account, starting a
+trial, or subscribing to the Service, you accept these Terms in full.
+
+1.5. **Who sells the subscription.** The paid subscription is not sold by us. It is sold to you by
+**Polar Software, Inc.** ("**Polar**"), which acts as merchant of record and reseller of the Service
+(Section 7.1). Your purchase is a contract between you and Polar, governed by Polar's own terms. These
+Terms are the terms of the Supplier (the Provider) that Polar's terms refer to: they govern your access
+to and use of the Service.
 
 1.2. **The Service is offered strictly business-to-business (B2B).** By entering into this Agreement
 you represent and warrant that you are acting for purposes within your trade, business, craft, or
@@ -55,7 +60,8 @@ obligations under this Agreement in full.
 - **"Owner"** — the user who created a Company, or was later granted that role.
 - **"Seat"** — a billable slot corresponding to one user account attached to a Company; see
   Section 6.2.
-- **"Fees"** — the amounts payable for your subscription, as published on our pricing page.
+- **"Fees"**: the price of your subscription, as published on our pricing page and charged to you
+  by Polar (Section 7).
 - **"Your Data"** — the documents, business records, configuration, and other content you or your
   users input into, or generate through, the Service.
 
@@ -97,7 +103,7 @@ Agreement by reference.
 
 ## 6. Subscription, Seats and Pricing
 
-6.1. Once you subscribe, the Service is billed on a **per-Seat** basis.
+6.1. Once you subscribe, the subscription is priced on a **per-Seat** basis.
 
 6.2. A Seat corresponds to one user account attached to your Company. The **Owner counts as a Seat**
 from the moment the Company is created. An **invitation counts as a Seat only once it is accepted** —
@@ -107,24 +113,28 @@ a pending, unaccepted invitation is never billed.
 tiers, is published on our pricing page and may be revised from time to time; the rate in effect at
 the start of each billing period governs that period.
 
-6.4. You choose a **monthly** or an **annual** billing cycle. An annual subscription is billed once,
-in advance, for twelve (12) times the then-current monthly per-Seat rate, multiplied by your Seat
+6.4. You choose a **monthly** or an **annual** billing cycle. Polar charges an annual subscription
+once, in advance, for twelve (12) times the then-current monthly per-Seat rate, multiplied by your Seat
 count at the time of billing.
 
-## 7. Billing, Payment and Taxes
+## 7. Purchase from Polar, Payment, Invoices and Taxes
 
-7.1. **Fees published on our pricing page are exclusive of VAT and any similar tax.** Subscription
-payments are processed by **Polar Software Inc.** ("Polar"), our payment
-infrastructure provider, which acts as the merchant of record for your subscription. Polar
-calculates, collects, and remits any sales tax, VAT, or similar tax applicable to the subscription
-Fee at checkout, and issues the corresponding invoice for your subscription. Your use of Polar's checkout and
-billing portal is also subject to Polar's own terms.
+7.1. **Polar is the seller.** Polar Software, Inc. ("Polar") acts as **merchant of record** and
+reseller of the Service. You buy the subscription from Polar, through Polar's checkout, under Polar's
+[Buyer Terms and Conditions](https://polar.sh/legal/checkout-buyer-terms), which govern the purchase,
+the payment, cancellation of the purchase, refunds, and chargebacks. These Terms govern your right to
+access and use the Service. Where Polar's terms and these Terms deal with the same matter, Polar's
+terms govern the purchase and the payment, and these Terms govern the use of the Service.
 
-7.2. **All Fees are denominated and charged in United States Dollars (USD).**
+7.2. **Payment, invoices and taxes.** Polar charges the Fees, in **United States Dollars (USD)**,
+calculates, collects, and remits any sales tax, VAT, or similar tax due, and issues the invoice for your
+subscription. **Fees published on our pricing page are exclusive of VAT and any similar tax**, which
+Polar adds at checkout where it applies. We do not invoice you for the subscription and never ask you
+to pay us directly.
 
 7.3. Your Seat count is kept in sync with your Company's actual membership throughout the billing
-period; changes are reflected in the Fees charged for the following billing cycle unless Polar's
-billing mechanics apply a change sooner.
+period; changes are reflected in the Fees Polar charges for the following billing cycle unless
+Polar's billing mechanics apply a change sooner.
 
 7.4. This Agreement covers only your subscription to the Service. It does **not** cover any means you
 connect to collect payment from **your own** customers on the invoices **you** issue through the
@@ -236,9 +246,11 @@ business purposes, for the number of Seats you hold.
 12.1. Your subscription runs for the billing cycle you selected (monthly or annual) and renews
 automatically at the end of each cycle unless cancelled.
 
-12.2. **You may cancel at any time.** Cancellation takes effect at the **end of the period you have
-already paid for** (the end of the current month or year) — access to paid features continues until
-then. **No refund and no proration** is given for the unused portion of a cancelled period.
+12.2. **You may cancel at any time**, from the Polar customer portal or by writing to
+**contact@invoicerr.app**. Cancellation takes effect at the **end of the period you have already paid
+for** (the end of the current month or year), and access to paid features continues until then. We do
+not prorate the unused portion of a cancelled period. Any refund is a matter for Polar, as seller,
+under its own terms; see the [Refund and Cancellation Policy](./refund-policy.md).
 
 ## 13. Suspension for Non-Payment, End of Subscription, Data Archive and Deletion
 
@@ -284,7 +296,8 @@ beta participant's Customer Data once it is retired.
    - **Scaleway SAS** — Kubernetes infrastructure, managed PostgreSQL database, and object storage for
      the **production** environment of the Service and its archived documents (Paris region, France),
      the database reached over Scaleway's own private network rather than the public internet.
-   - **Polar Software Inc.** — payment processing and billing for your subscription (Section 7).
+   - **Polar Software, Inc.**: seller of your subscription as merchant of record, payment processing,
+     and billing (Section 7).
    - **Resend** — delivery of transactional email sent by the Service.
    - The **national e-invoicing and government platforms you choose to connect** (for example, the
      French PDP, Poland's KSeF, Italy's SdI, Portugal's AT, or France's Chorus Pro for B2G invoicing)
@@ -320,15 +333,12 @@ and we act as your processor**, acting only on your documented instructions. For
 your own users (Owner and Seat holders) needed to operate your subscription — authentication, support,
 and billing — **we act as data controller**.
 
-15.2. **Processing summary (GDPR Article 28).** As your processor, we: process personal data only on
-your documented instructions, including with respect to international transfers, unless required
-otherwise by law; ensure persons authorized to process the data are bound by confidentiality;
-implement the security measures described in Section 15.3; only engage a further subprocessor listed
-in Section 14.2, or notified to you with an opportunity to object; assist you, insofar as reasonably
-possible, in responding to data-subject requests and in your own compliance obligations; notify you
-without undue delay after becoming aware of a personal data breach; and, at the end of the provision
-of the Service, make Your Data available to you and delete it, in each case as described in
-Section 13.
+15.2. **Processor terms (GDPR Article 28).** Our obligations as your processor are those of the
+European Commission's standard contractual clauses between controllers and processors (Commission
+Implementing Decision (EU) 2021/915), which make up the Data Processing Agreement together with its
+Annexes: the description of the processing, our technical and organisational measures, and the list of
+sub-processors you authorize. Where these Terms and those clauses contradict each other, the clauses
+prevail.
 
 15.3. **Security.** Credentials and tokens used to connect to third-party channels and platforms are
 encrypted at rest (AES-256-GCM); all traffic to and from the Service is encrypted in transit (TLS).
@@ -354,8 +364,8 @@ law does not allow us to exclude.
 17.1. To the fullest extent permitted by law: (a) neither party is liable for indirect, incidental, or
 consequential damages, including loss of profit, revenue, or data; and (b) our total liability **to
 you** arising out of or relating to this Agreement is capped at the **total amounts you paid for your
-subscription to the Service in the twelve (12) months preceding the event giving rise to the claim,
-whether those amounts were paid to us or, as merchant of record, to Polar on our behalf**.
+subscription to the Service in the twelve (12) months preceding the event giving rise to the claim**,
+those amounts being the price paid to Polar, as seller of the subscription (Section 7.1).
 
 17.2. Nothing in this Agreement limits or excludes either party's liability for its own gross
 negligence, willful misconduct (*dol*), or death or personal injury, or any other liability that
@@ -415,6 +425,8 @@ replaced by one that reflects, as closely as possible, its intended commercial e
 21.2. **Entire agreement.** This Agreement — these Terms together with the Privacy Policy, the Data
 Processing Agreement, and the Cookies & Acceptable Use Policy — is the entire agreement between you
 and us regarding the Service, and supersedes any prior agreement or understanding on the same subject.
+Your purchase of the subscription from Polar is governed by Polar's own terms and is not part of this
+Agreement (Section 7.1).
 
 21.3. **No waiver.** A failure to enforce any provision of this Agreement is not a waiver of the right
 to enforce it later.
@@ -578,3 +590,15 @@ this document; they create no separate or additional rights.
   environment is hosted by us directly, not by a sub-processor. This is the fact this Agreement was
   missing, not a restatement: a beta programme participant's Customer Data does not, today, sit on
   Scaleway's infrastructure.
+- **2026-10-13**: Aligned with Polar acting as merchant of record. Polar's Buyer Terms and Conditions
+  state that the buyer purchases the product from Polar while the right to use it is licensed by the
+  supplier under the supplier's own terms, and Polar's Master Services Terms forbid the supplier from
+  invoicing or asking a buyer for payment. New Section 1.5 says who sells the subscription. Section 7 is
+  renamed "Purchase from Polar, Payment, Invoices and Taxes": Polar sells, charges, invoices and handles
+  refunds and chargebacks under its own terms; these Terms govern the use of the Service. Section 12.2
+  no longer states its own refund rule: cancellation still takes effect at the end of the paid period,
+  without proration, and refunds are left to Polar. Section 15.2 now points to the Data Processing
+  Agreement, which became the European Commission's standard contractual clauses. Section 17.1(b) keeps
+  the same cap and window, now described as the price paid to Polar as seller rather than an amount paid
+  to Polar "on our behalf". Definition of "Fees", Sections 6.1, 6.4, 7.3, 14.2 and 21.2 reworded to
+  match. No section renumbered.

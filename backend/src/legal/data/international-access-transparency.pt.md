@@ -38,7 +38,7 @@ qualquer operador do Serviço. Nem um nem outro ambiente, nem os Seus Dados em q
 alojados, replicados (mirror) ou objeto de cópia de segurança fora de França/da UE. Sempre que um
 subcontratante identificado na
 [Política de Privacidade](./privacy-policy.md), Secção 4, e no
-[Acordo de Tratamento de Dados](./data-processing-agreement.md), Secção 7 (Polar para a faturação da
+[Acordo de Tratamento de Dados](./data-processing-agreement.md), anexo IV (Polar para a faturação da
 subscrição, Resend para o correio eletrónico transacional, Cloudflare e Google LLC para a correspondência
 de suporte recebida) seja uma entidade não pertencente à UE ou possa tratar dados fora do EEE, esse
 tratamento limita-se aos dados de conta/faturação ou à correspondência de suporte — nunca aos Seus Dados
@@ -73,16 +73,16 @@ uma questão de exaustividade, e não por se enquadrarem no âmbito visado pelo 
 - **Encriptação das cópias de segurança.** As cópias de segurança dos documentos e ficheiros
   armazenados pelo Serviço são encriptadas (AES-256-GCM) antes de saírem da nossa infraestrutura, com
   uma chave que o fornecedor de armazenamento nunca detém — ver o Acordo de Tratamento de Dados,
-  Secção 9 — pelo que um pedido dirigido diretamente a esse fornecedor, ou uma cópia do próprio
+  anexo III — pelo que um pedido dirigido diretamente a esse fornecedor, ou uma cópia do próprio
   armazenamento de cópias de segurança, apenas alcança texto cifrado, nunca os documentos.
 - **Controlo de acesso.** O acesso aos dados de uma Empresa dentro do Serviço é delimitado pelas funções
   próprias dessa Empresa (proprietário/administrador/membro); o acesso à infraestrutura de produção e
   aos dados dentro da nossa própria organização está limitado ao que é necessário para operar e apoiar o
   Serviço, conforme descrito na Política de Privacidade, Secção 7, e no Acordo de Tratamento de Dados,
-  Secção 9.
+  anexo III.
 - **Garantias contratuais com os subcontratantes.** Cada subcontratante está vinculado, por contrato, a
   obrigações de proteção de dados materialmente equivalentes ao Acordo de Tratamento de Dados
-  (artigo 28.º, n.º 4, do RGPD) — ver o Acordo de Tratamento de Dados, Secção 7 — e, sempre que um
+  (artigo 28.º, n.º 4, do RGPD) — ver o Acordo de Tratamento de Dados, cláusula 7.7 e anexo IV — e, sempre que um
   subcontratante possa tratar dados fora do EEE, às Cláusulas Contratuais-Tipo da Comissão Europeia ou a
   outra garantia prevista no Capítulo V do RGPD.
 - **Ausência de acesso permanente ou automatizado para uma autoridade estrangeira.** Não concedemos a

@@ -63,7 +63,7 @@ The check is split in two, because the five generic tools above don't map to a s
 
 ## Your assistant's model provider is not a sub-processor of this project
 
-Invoicerr neither calls nor chooses the AI model behind the assistant you connect to this endpoint — you select and configure that provider yourself, and it has no contract with Invoicerr. Full position, including what that means for any Customer Personal Data your assistant sends to that provider: the [Data Processing Agreement](../legal/data-processing-agreement.md), Section 7.
+Invoicerr neither calls nor chooses the AI model behind the assistant you connect to this endpoint — you select and configure that provider yourself, and it has no contract with Invoicerr. Full position, including what that means for any Customer Personal Data your assistant sends to that provider: the [Data Processing Agreement](../legal/data-processing-agreement.md), Notes to Annex IV.
 
 ## Client compatibility
 
