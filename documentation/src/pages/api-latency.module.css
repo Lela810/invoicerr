@@ -1,0 +1,168 @@
+.chart {
+  --p95: #2a78d6;
+  --p99: #eb6834;
+  position: relative;
+  width: 100%;
+  margin: 0.5rem 0 0.25rem;
+}
+
+[data-theme='dark'] .chart,
+[data-theme='dark'] .legend {
+  --p95: #3987e5;
+  --p99: #d95926;
+}
+
+.legend {
+  --p95: #2a78d6;
+  --p99: #eb6834;
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatchP95,
+.swatchP99,
+.swatchRelease {
+  display: inline-block;
+  width: 18px;
+  border-top: 2px solid var(--p95);
+}
+
+.swatchP99 {
+  border-top: 2px dashed var(--p99);
+}
+
+.swatchRelease {
+  border-top: 1px dashed var(--ifm-color-emphasis-500);
+}
+
+.grid {
+  stroke: var(--ifm-color-emphasis-200);
+  stroke-width: 1;
+}
+
+.axis {
+  fill: var(--ifm-color-emphasis-700);
+  font-size: 12px;
+}
+
+.release {
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-dasharray: 3 3;
+}
+
+.releaseLabel {
+  fill: var(--ifm-color-emphasis-700);
+  font-size: 11px;
+}
+
+.p95,
+.p99 {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.p95 {
+  stroke: var(--p95);
+}
+
+.p99 {
+  stroke: var(--p99);
+  stroke-dasharray: 6 4;
+}
+
+.p95Dot,
+.p99Dot {
+  stroke: var(--ifm-background-color);
+  stroke-width: 2;
+}
+
+.p95Dot {
+  fill: var(--p95);
+}
+
+.p99Dot {
+  fill: var(--p99);
+}
+
+.crosshair {
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1;
+}
+
+.tooltip {
+  position: absolute;
+  width: 208px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  background: var(--ifm-background-surface-color);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.tooltip dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 0.75rem;
+  margin: 0.4rem 0 0;
+}
+
+.tooltip dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.controls select {
+  max-width: 100%;
+  padding: 0.35rem 0.5rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.85rem;
+}
+
+.meta {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.table {
+  display: table;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.table td:not(:first-child),
+.table th:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.selected {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.routeButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}

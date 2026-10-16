@@ -1,0 +1,9 @@
+{
+  "name": "invoicerr-api-latency",
+  "private": true,
+  "type": "module",
+  "description": "Per-route API latency on a local stack, see documentation/docs/developer-guide/api-latency.md.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

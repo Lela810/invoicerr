@@ -14,6 +14,12 @@ on:
       # up to the API the next time someone happened to also touch a doc page.
       - "backend/src/**"
       - "backend/prisma/schema.prisma"
+  # A nightly or release run of api-latency.yml appends a record to `perf-data`, which the
+  # /api-latency page is built from.
+  workflow_run:
+    workflows: ["API latency"]
+    types: [completed]
+    branches: [dev]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +31,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     # configure-pages reads the Pages site configuration through the API.
     permissions:
@@ -109,7 +116,18 @@ jobs:
       - name: Publish the OpenAPI spec as a documentation static asset
         run: cp backend/openapi.json documentation/static/openapi.json
 
+      # The /api-latency page is built from the records api-latency.yml appends to `perf-data`.
+      - name: Fetch the API latency records
+        run: |
+          mkdir -p "$RUNNER_TEMP/api-latency"
+          if git fetch --depth=1 origin perf-data; then
+            git archive FETCH_HEAD records | tar -x -C "$RUNNER_TEMP/api-latency"
+          fi
+
       - name: Build documentation site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_LATENCY_RECORDS: ${{ runner.temp }}/api-latency/records
         run: |
           cd documentation
           npm run build

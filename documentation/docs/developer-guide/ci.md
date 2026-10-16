@@ -165,6 +165,13 @@ gate to HIGH, or dropping `ignore-unfixed`, is a deliberate follow-up once the c
 findings is known and triaged, not something to do by just editing the `severity` input.
 :::
 
+## API latency
+
+`api-latency.yml` measures p50, p95 and p99 of every API route with k6 on a stack local to the
+runner, comments the comparison on pull requests labelled `perf` or touching `backend/`, and keeps a
+nightly history plotted on the [API latency](/api-latency) page. It never fails on a regression and
+never runs in the merge queue. See [API latency tracking](./api-latency.md).
+
 ## Lighthouse CI on the frontend
 
 `lighthouse.yml` audits the logged-in screens with [`@lhci/cli`](https://github.com/GoogleChrome/lighthouse-ci).

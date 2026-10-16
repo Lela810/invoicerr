@@ -1,0 +1,295 @@
+name: API latency
+
+# p50/p95/p99 of every API route, measured by k6 against a stack local to the runner (the built
+# backend, Postgres, Redis, Mailpit). Informative: a slower route never fails this workflow, but a
+# stack that does not boot or a measurement that cannot run does.
+# Runs on a pull request labelled `perf` or touching backend/, on the dev to main release pull
+# request, every night on dev, and by hand. Nightly, manual and release runs append a record to the
+# `perf-data` branch, which the documentation site plots. Never part of the merge queue.
+# See documentation/docs/developer-guide/api-latency.md.
+on:
+  pull_request:
+    branches: [dev, main]
+    types: [opened, synchronize, reopened, labeled]
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  decide:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+      kind: ${{ steps.decide.outputs.kind }}
+    steps:
+      - id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          ADDED_LABEL: ${{ github.event.label.name }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != pull_request ]; then
+            kind=nightly
+          elif [ "$BASE_REF" = main ] && [ "$HEAD_REF" = dev ] && [ "$HEAD_REPO" = "$REPO" ]; then
+            kind=release
+          else
+            kind=pr
+          fi
+          run=false
+          if [ "$EVENT" != pull_request ]; then
+            run=true
+          elif [ "$ACTION" = labeled ]; then
+            # Adding any other label must not measure the pull request again.
+            [ "$ADDED_LABEL" = perf ] && run=true
+          elif [ "$kind" = release ] || jq -e 'index("perf")' <<<"$LABELS" > /dev/null; then
+            run=true
+          else
+            files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename')
+            grep -q '^backend/' <<<"$files" && run=true
+          fi
+          echo "kind=$kind run=$run"
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
+  measure:
+    needs: decide
+    if: needs.decide.outputs.run == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    concurrency:
+      group: api-latency-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      contents: read
+    env:
+      DATABASE_URL: postgresql://invoicerr@localhost:5433/invoicerr_db
+      REDIS_URL: redis://localhost:6379
+      K6_VERSION: v1.7.1
+      K6_SHA256: cc127a656f734f8ea1e89f8a417777905ae6a93d42f3e763e95313518180655b
+    services:
+      postgres-test:
+        image: postgres:16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
+        env:
+          POSTGRES_USER: invoicerr
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: invoicerr_db
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-retries 10
+      mailpit:
+        image: axllent/mailpit@sha256:94f6b70c1436defae6799d9ac7ff0eeff9540465b842026d5cdb018f1c0234ea
+        ports:
+          - "8025:8025"
+          - "1025:1025"
+      redis:
+        image: redis:7@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+        ports:
+          - "6379:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s
+          --health-retries 10
+    steps:
+      # Full history and tags: the record names its version with `git describe`.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          npm ci --ignore-scripts
+          ./node_modules/.bin/prisma generate
+          ./node_modules/.bin/prisma migrate deploy
+          PATH="$PWD/node_modules/.bin:$PATH" ./node_modules/.bin/prisma db seed
+
+      # `send` renders real PDFs: same browser provisioning as cypress.yml's `cypress-run`.
+      - name: Cache Playwright Chromium
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        working-directory: backend
+        run: ./node_modules/.bin/playwright-core install chromium
+
+      - name: Install k6, pinned and checksummed
+        run: |
+          curl -sSfL --proto '=https' --tlsv1.2 -o "$RUNNER_TEMP/k6.tgz" \
+            "https://github.com/grafana/k6/releases/download/$K6_VERSION/k6-$K6_VERSION-linux-amd64.tar.gz"
+          echo "$K6_SHA256  $RUNNER_TEMP/k6.tgz" | sha256sum -c -
+          mkdir -p /tmp/ci-tools
+          tar -xzf "$RUNNER_TEMP/k6.tgz" -C /tmp/ci-tools --strip-components=1
+          /tmp/ci-tools/k6 version
+
+      # Boots from a finished build, never `nest start --watch`, whose app can start before every
+      # data/*.json asset is copied.
+      - name: Build and start the backend
+        working-directory: backend
+        run: |
+          npm run build
+          (./node_modules/.bin/dotenv -e .env.test -- node --enable-source-maps dist/src/main \
+            > "$RUNNER_TEMP/backend.log" 2>&1 &)
+          for _ in $(seq 90); do
+            curl -sf http://localhost:4000/api/health > /dev/null && exit 0
+            sleep 2
+          done
+          tail -n 80 "$RUNNER_TEMP/backend.log"
+          echo "::error::the backend did not answer /api/health within 180 s"
+          exit 1
+
+      - name: Measure every route
+        run: K6=/tmp/ci-tools/k6 e2e/perf/measure.sh http://localhost:4000 "$RUNNER_TEMP/perf"
+
+      - name: Write the record and the comparison
+        env:
+          KIND: ${{ needs.decide.outputs.kind }}
+          REF_NAME: ${{ github.head_ref || github.ref_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/perf"
+          cpu=$(lscpu | sed -n 's/^Model name: *//p' | head -n 1)
+          export PERF_KIND="$KIND" PERF_REF="$REF_NAME"
+          PERF_COMMIT=$(git rev-parse --short=12 "$HEAD_SHA")
+          PERF_VERSION=$(git describe --tags --always "$HEAD_SHA")
+          PERF_RUNNER="${ImageOS:-unknown} ${ImageVersion:-}, $(nproc) CPU $cpu"
+          PERF_K6=$(/tmp/ci-tools/k6 version | awk '{print $2}')
+          export PERF_COMMIT PERF_VERSION PERF_RUNNER PERF_K6
+          node e2e/perf/report.mjs record "$out/result.json" "$out/plan.json" "$out/record.json"
+          mkdir -p "$out/history"
+          if git fetch --depth=1 origin perf-data; then
+            git archive FETCH_HEAD records | tar -x -C "$out/history" --strip-components=1
+          fi
+          node e2e/perf/report.mjs compare "$out/record.json" "$out/history" "$out/comment.md"
+          cat "$out/comment.md" >> "$GITHUB_STEP_SUMMARY"
+          cp "$RUNNER_TEMP/backend.log" "$out/backend.log"
+          rm -f "$out/context.json"
+
+      - name: Upload the measurement
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: api-latency
+          path: ${{ runner.temp }}/perf
+          if-no-files-found: warn
+          retention-days: 30
+
+  comment:
+    needs: measure
+    # A fork's token cannot comment; its numbers stay in the run summary.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: api-latency
+          path: perf
+
+      - name: Post or update the comment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const fs = require('fs')
+            const body = fs.readFileSync('perf/comment.md', 'utf8')
+            const marker = '<!-- api-latency-comment -->'
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find((c) => c.body && c.body.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+  store:
+    needs: [decide, measure]
+    if: needs.decide.outputs.kind != 'pr'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    concurrency:
+      group: api-latency-store
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: api-latency
+          path: perf
+
+      # `perf-data` is an orphan branch holding records/<date>-<kind>-<commit>.json only. One file per
+      # run, so two runs never edit the same file.
+      - name: Append the record to perf-data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          record="$PWD/perf/record.json"
+          name="$(jq -r '.date | gsub("[:.]"; "-")' "$record")-$(jq -r .kind "$record")-$(jq -r .commit "$record").json"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git init -q store
+          cd store
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config http.https://github.com/.extraheader "$auth"
+          git remote add origin "https://github.com/$REPO.git"
+          for attempt in 1 2 3 4 5; do
+            if git fetch -q --depth=1 origin perf-data; then
+              git checkout -q -B perf-data FETCH_HEAD
+            else
+              git symbolic-ref HEAD refs/heads/perf-data
+            fi
+            mkdir -p records
+            cp "$record" "records/$name"
+            git add "records/$name"
+            git commit -q -m "perf: $(jq -r '.kind + " " + .commit' "$record")"
+            if git push -q origin perf-data; then
+              echo "stored records/$name"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "::error::could not push the record to perf-data"
+          exit 1
