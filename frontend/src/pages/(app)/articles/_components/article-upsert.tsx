@@ -1,7 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useRef } from "react"
+import type { TFunction } from "i18next"
+import { useEffect, useMemo, useRef } from "react"
 import { type Control, type FieldValues, useForm, type UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -35,7 +36,7 @@ import type { Article } from "@/types"
 // `null` is what EditArticleDto reads as "un-track stock" / "clear the alert threshold" — see
 // articles.service.ts's `update` and its own `!== undefined` comment. So leaving either input blank
 // on an EDIT is how a user turns stock tracking (or the alert) back off, not a no-op.
-const nullableNonNegativeInt = z.number().int().min(0, { message: "Must be >= 0" }).nullable()
+const nullableNonNegativeInt = (message: string) => z.number().int().min(0, { message }).nullable()
 
 /** `unitPrice`/`vatRate` are, unlike stock's `quantity`/`lowStockThreshold` above, genuinely REQUIRED
  *  on the `Article` model (`unitPrice Float @default(0)`, `vatRate Float @default(0)` —
@@ -52,17 +53,24 @@ const requiredAmount = (requiredMessage: string, rangeMessage: string) =>
     message: rangeMessage,
   })
 
-const articleSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  description: z.string().optional(),
-  type: z.enum(["HOUR", "DAY", "DEPOSIT", "SERVICE", "PRODUCT"]),
-  unitPrice: requiredAmount("Price is required", "Price must be >= 0"),
-  vatRate: requiredAmount("VAT rate is required", "VAT must be >= 0"),
-  quantity: nullableNonNegativeInt,
-  lowStockThreshold: nullableNonNegativeInt,
-})
+const buildArticleSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(1, { message: t("articles.upsert.errors.nameRequired") }),
+    description: z.string().optional(),
+    type: z.enum(["HOUR", "DAY", "DEPOSIT", "SERVICE", "PRODUCT"]),
+    unitPrice: requiredAmount(
+      t("articles.upsert.errors.priceRequired"),
+      t("articles.upsert.errors.priceMin"),
+    ),
+    vatRate: requiredAmount(
+      t("articles.upsert.errors.vatRateRequired"),
+      t("articles.upsert.errors.vatRateMin"),
+    ),
+    quantity: nullableNonNegativeInt(t("articles.upsert.errors.nonNegative")),
+    lowStockThreshold: nullableNonNegativeInt(t("articles.upsert.errors.nonNegative")),
+  })
 
-type ArticleForm = z.infer<typeof articleSchema>
+type ArticleForm = z.infer<ReturnType<typeof buildArticleSchema>>
 
 interface ArticleUpsertProps {
   article?: Article | null
@@ -286,6 +294,7 @@ function StockStep({ control }: { control: Control<ArticleForm> }) {
  */
 export function ArticleUpsert({ article, open, onOpenChange }: ArticleUpsertProps) {
   const { t } = useTranslation()
+  const articleSchema = useMemo(() => buildArticleSchema(t), [t])
   const isEdit = !!article
   const queryClient = useQueryClient()
   const { data: company } = useCompany()

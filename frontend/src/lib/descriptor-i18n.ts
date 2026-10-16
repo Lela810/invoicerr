@@ -24,14 +24,21 @@ import type { Widget } from "@/components/widgets/types"
  *
  *   documents.descriptors.<typeId>.label
  *   documents.descriptors.<typeId>.fields.<fieldKey>.label
+ *   documents.descriptors.<typeId>.fields.<fieldKey>.helpText
  *   documents.descriptors.<typeId>.fields.<fieldKey>.options.<optionValue>
  *   documents.descriptors.<typeId>.fields.<fieldKey>.suggestedValues.<value>
  *   documents.descriptors.<typeId>.fields.<arrayFieldKey>.fields.<rowFieldKey>.label   (nested 'array' rows)
  *   documents.descriptors.<typeId>.actions.<actionId>.label
  *   documents.descriptors.<typeId>.actions.<actionId>.params.<paramKey>.label
+ *   documents.descriptors.<typeId>.actions.<actionId>.params.<paramKey>.helpText
  *   documents.descriptors.<typeId>.actions.<actionId>.params.<paramKey>.options.<optionValue>
  *   documents.descriptors.<typeId>.statuses.<statusId>
  *   documents.descriptors.<typeId>.widgets.<widgetId>.label
+ *
+ * A field whose text depends on data rather than on its type (a country overlay, a help text the
+ * backend substitutes at runtime) carries its own `labelKey`/`helpTextKey`, used instead of the
+ * derived key. backend descriptors/descriptor-i18n-keys.spec.ts fails when a native key is missing
+ * from locales/en/translation.json.
  *
  * `locales/en/translation.json` only ever carries keys for the five NATIVE types — see that file's
  * own "descriptors" section. A plugin type's id/field key/action id never matches any of them, so
@@ -96,6 +103,17 @@ export function descriptorFieldLabel(
   return t(`documents.descriptors.${typeId}.fields.${segment}.label`, { defaultValue: rawLabel })
 }
 
+/** One field's own `helpText`, same `fieldPath` as `descriptorFieldLabel`. */
+export function descriptorFieldHelpText(
+  t: DescriptorTranslator,
+  typeId: string,
+  fieldPath: string[],
+  rawHelpText: string,
+): string {
+  const segment = fieldPathSegment(fieldPath)
+  return t(`documents.descriptors.${typeId}.fields.${segment}.helpText`, { defaultValue: rawHelpText })
+}
+
 /** One `select` field's own `options[].label`, for the option whose `value` is `optionValue`. */
 export function descriptorFieldOptionLabel(
   t: DescriptorTranslator,
@@ -151,6 +169,20 @@ export function descriptorActionParamLabel(
   })
 }
 
+/** One action param's own `helpText`. */
+export function descriptorActionParamHelpText(
+  t: DescriptorTranslator,
+  typeId: string,
+  actionId: string,
+  paramPath: string[],
+  rawHelpText: string,
+): string {
+  const segment = fieldPathSegment(paramPath)
+  return t(`documents.descriptors.${typeId}.actions.${actionId}.params.${segment}.helpText`, {
+    defaultValue: rawHelpText,
+  })
+}
+
 /** One action param's own `options[].label`. */
 export function descriptorActionParamOptionLabel(
   t: DescriptorTranslator,
@@ -196,13 +228,23 @@ export function descriptorWidgetLabel(t: DescriptorTranslator, widgetId: string,
 
 // ---- whole-tree translations — what the query hooks actually call -----------------------------
 
+/** A field's `labelKey`/`helpTextKey` wins over the derived key. */
+function explicitOrDerived(
+  t: DescriptorTranslator,
+  explicitKey: string | undefined,
+  raw: string,
+  derive: () => string,
+): string {
+  return explicitKey ? t(explicitKey, { defaultValue: raw }) : derive()
+}
+
 /**
  * Translates every field in `fields` (and, recursively, an 'array' field's own row `fields`) IN
  * PLACE conceptually — returns a fresh array/objects, never mutates `fields` itself, the same
  * "transform over a clone" discipline the backend's own company-view.ts holds for the identical
- * reason (never mutate a descriptor's shared, cached fields). Only `label` and `options[].label` are
- * ever replaced — `key`/`kind`/`value`/every other property is carried over untouched, since those
- * are read by validation and form submission, never displayed as translatable text.
+ * reason (never mutate a descriptor's shared, cached fields). Only `label`, `helpText`,
+ * `options[].label` and `suggestedValues[].label` are replaced; every other property is carried over
+ * untouched, since those are read by validation and form submission, never displayed as text.
  */
 function translateDocumentFields(
   t: DescriptorTranslator,
@@ -212,7 +254,14 @@ function translateDocumentFields(
 ): DocumentFieldDescriptor[] {
   return fields.map((field) => {
     const path = [...parentPath, field.key]
-    const label = descriptorFieldLabel(t, typeId, path, field.label)
+    const label = explicitOrDerived(t, field.labelKey, field.label, () =>
+      descriptorFieldLabel(t, typeId, path, field.label),
+    )
+    const helpText =
+      field.helpText &&
+      explicitOrDerived(t, field.helpTextKey, field.helpText, () =>
+        descriptorFieldHelpText(t, typeId, path, field.helpText ?? ""),
+      )
     const options = field.options?.map((option) => ({
       ...option,
       label: descriptorFieldOptionLabel(t, typeId, path, option.value, option.label),
@@ -225,6 +274,7 @@ function translateDocumentFields(
     return {
       ...field,
       label,
+      ...(helpText ? { helpText } : {}),
       ...(options ? { options } : {}),
       ...(suggestedValues ? { suggestedValues } : {}),
       ...(nestedFields ? { fields: nestedFields } : {}),
@@ -245,7 +295,14 @@ function translateActionParams(
 ): DocumentFieldDescriptor[] {
   return params.map((field) => {
     const path = [...parentPath, field.key]
-    const label = descriptorActionParamLabel(t, typeId, actionId, path, field.label)
+    const label = explicitOrDerived(t, field.labelKey, field.label, () =>
+      descriptorActionParamLabel(t, typeId, actionId, path, field.label),
+    )
+    const helpText =
+      field.helpText &&
+      explicitOrDerived(t, field.helpTextKey, field.helpText, () =>
+        descriptorActionParamHelpText(t, typeId, actionId, path, field.helpText ?? ""),
+      )
     const options = field.options?.map((option) => ({
       ...option,
       label: descriptorActionParamOptionLabel(t, typeId, actionId, path, option.value, option.label),
@@ -256,6 +313,7 @@ function translateActionParams(
     return {
       ...field,
       label,
+      ...(helpText ? { helpText } : {}),
       ...(options ? { options } : {}),
       ...(nestedFields ? { fields: nestedFields } : {}),
     }

@@ -542,9 +542,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         label: 'Corrects invoice',
         required: false,
         entity: 'invoice',
-        helpText:
-          "The invoice this one corrects, if any — a post-clearance correction (e.g. Poland's " +
-          'faktura korygująca). Leave empty for an ordinary invoice.',
+        helpText: 'The invoice this one corrects, if any. Leave empty for an ordinary invoice.',
         hideWhenEmpty: true,
       },
       {
@@ -581,7 +579,7 @@ export function buildInvoiceDescriptor(): DocumentTypeDescriptor {
         kind: 'text',
         label: 'Client reference / PO number',
         required: false,
-        helpText: "The buyer's own reference for this document — their purchase order or file number.",
+        helpText: "The buyer's own reference for this document: their purchase order or file number.",
         hideWhenEmpty: true,
       },
       {

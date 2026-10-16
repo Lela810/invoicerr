@@ -11,11 +11,9 @@ import { MailService } from '@/mail/mail.service';
 import { WebhookDispatcherService } from '@/modules/webhooks/webhook-dispatcher.service';
 import { WebhooksModule } from '@/modules/webhooks/webhooks.module';
 
-import { ActionExtensionRegistry } from './actions/action-extensions';
+import { buildActionExtensionRegistry } from './actions/native-extensions';
 import { ActionRegistry } from './actions/action-registry';
 import { registerConvertToInvoiceAction } from './actions/convert-to-invoice';
-import { applyDateRecalc, registerDuplicateExtension } from './actions/duplicate-extension';
-import { withDefaultDueDate } from './actions/quote-to-invoice';
 import { registerExpenseActions } from './actions/expense-actions';
 import { registerGoodsReceiptActions } from './actions/goods-receipt-actions';
 import { registerInvoiceActions } from './actions/invoice-actions';
@@ -52,13 +50,7 @@ import { VatRateCatalog } from './vat-rates/registry';
 import { DocumentsService } from './documents.service';
 import { FieldKindRegistry, registerCoreFieldKinds } from './descriptors/field-kinds';
 import { DocumentTypeRegistry } from './descriptors/type-registry';
-import { buildCreditNoteDescriptor } from './descriptors/credit-note.descriptor';
-import { buildExpenseDescriptor } from './descriptors/expense.descriptor';
-import { buildGoodsReceiptDescriptor } from './descriptors/goods-receipt.descriptor';
-import { buildInvoiceDescriptor } from './descriptors/invoice.descriptor';
-import { buildPurchaseOrderDescriptor } from './descriptors/purchase-order.descriptor';
-import { buildQuoteDescriptor } from './descriptors/quote.descriptor';
-import { buildReceivedInvoiceDescriptor } from './descriptors/received-invoice.descriptor';
+import { buildNativeDocumentTypeDescriptors } from './descriptors/native-types';
 import { DOCUMENT_WEBHOOK_EMITTER, DocumentWebhookEmitter } from './queue/document-webhooks';
 import { DocumentEventsPublisher } from './queue/document-events-publisher';
 import { DocumentQueueDispatcher } from './queue/document-queue.dispatcher';
@@ -120,24 +112,7 @@ import {
 
 function buildDocumentTypeRegistry(): DocumentTypeRegistry {
   const registry = new DocumentTypeRegistry();
-  // Adding a document type is exactly this one line — a descriptor, registered. No controller, no
-  // service, no frontend screen of its own. The credit note (THIRD type) proves it again; the
-  // expense (FOURTH — migrated OUT of its own former bespoke module, see expense.descriptor.ts)
-  // proves it once more, this time for a type that used to be something else entirely.
-  registry.register(buildQuoteDescriptor());
-  registry.register(buildInvoiceDescriptor());
-  registry.register(buildCreditNoteDescriptor());
-  registry.register(buildExpenseDescriptor());
-  // The FIFTH type, and the first in the "inbound"
-  // category: see received-invoice.descriptor.ts for the full reasoning.
-  registry.register(buildReceivedInvoiceDescriptor());
-  // Purchase orders & goods receipts — the SIXTH type: see purchase-order.descriptor.ts for the full
-  // reasoning (first pass: EMIT a purchase order; 3-way match against a received invoice is a
-  // deliberately separate, second pass).
-  registry.register(buildPurchaseOrderDescriptor());
-  // Purchase orders & goods receipts, SECOND PASS (three-way match) — the SEVENTH type: see
-  // goods-receipt.descriptor.ts for the full reasoning.
-  registry.register(buildGoodsReceiptDescriptor());
+  for (const descriptor of buildNativeDocumentTypeDescriptors()) registry.register(descriptor);
   return registry;
 }
 
@@ -610,33 +585,6 @@ function buildActionRegistry(
   registerGoodsReceiptActions(registry, webhookDispatcher);
   // "record-payment" (invoice) IS registered — see registerInvoiceActions inside invoice-actions.ts.
   // "export-accounting" (invoice) is intentionally left unregistered here — see that file's header.
-  return registry;
-}
-
-/**
- * Where a THIRD PARTY's extra actions get attached to an EXISTING type — none of this touches the
- * type's own descriptor factory above. Adding "duplicate" to quotes is exactly this one line, the
- * same way registering the quote type itself is exactly one line in buildDocumentTypeRegistry.
- *
- * Only the invoice gets `dateRecalc`: recomputing `issueDate`/`dueDate` on a scheduled occurrence
- * (schedules/) is exactly what the invoice case needs — the quote has no
- * recurrence screen wired to it today, so there is no real caller yet to build a `dateRecalc` for
- * without inventing one. Nothing here wires "send" chaining onto "duplicate" — see
- * duplicate-extension.ts's own header ("Why 'then send' does NOT live here") for why that is now
- * schedule-sweep-runner.ts's job instead.
- */
-function buildActionExtensionRegistry(actionRegistry: ActionRegistry): ActionExtensionRegistry {
-  const registry = new ActionExtensionRegistry();
-  registerDuplicateExtension('quote', registry, actionRegistry);
-  const invoiceDateRecalc = { anchorField: 'issueDate', dependentFields: ['dueDate'] };
-  registerDuplicateExtension('invoice', registry, actionRegistry, {
-    dateRecalc: invoiceDateRecalc,
-    prepareManualCopy: async (companyId, sourceData) => {
-      const today = new Date().toISOString().slice(0, 10);
-      const redated = applyDateRecalc(sourceData, today, invoiceDateRecalc);
-      return withDefaultDueDate(companyId, { ...redated, issueDate: today });
-    },
-  });
   return registry;
 }
 

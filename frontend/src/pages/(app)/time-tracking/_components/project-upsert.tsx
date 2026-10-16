@@ -1,7 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useState } from "react"
+import type { TFunction } from "i18next"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -18,16 +19,20 @@ import { useClientSearch, useCompany, useCreateProject, useUpdateProject } from 
 import { currencies } from "@/lib/constants/currencies"
 import type { Project } from "@/types"
 
-const projectSchema = z.object({
-  clientId: z.string().min(1, { message: "Client is required" }),
-  name: z.string().min(1, { message: "Name is required" }),
-  description: z.string().optional(),
-  // `null` (never `undefined`) when emptied — same "explicit null clears it" convention
-  // articles.service.ts's own quantity/lowStockThreshold fields hold (see ArticleUpsert).
-  hourlyRate: z.number().min(0).nullable(),
-})
+export const buildProjectSchema = (t: TFunction) =>
+  z.object({
+    clientId: z.string().min(1, { message: t("timeTracking.projects.errors.clientRequired") }),
+    name: z.string().min(1, { message: t("timeTracking.projects.errors.nameRequired") }),
+    description: z.string().optional(),
+    // `null` (never `undefined`) when emptied — same "explicit null clears it" convention
+    // articles.service.ts's own quantity/lowStockThreshold fields hold (see ArticleUpsert).
+    hourlyRate: z
+      .number({ invalid_type_error: t("timeTracking.projects.errors.hourlyRateMin") })
+      .min(0, { message: t("timeTracking.projects.errors.hourlyRateMin") })
+      .nullable(),
+  })
 
-type ProjectForm = z.infer<typeof projectSchema>
+type ProjectForm = z.infer<ReturnType<typeof buildProjectSchema>>
 
 interface ProjectUpsertProps {
   project?: Project | null
@@ -40,6 +45,7 @@ interface ProjectUpsertProps {
 
 export function ProjectUpsert({ project, defaultClientId, open, onOpenChange }: ProjectUpsertProps) {
   const { t } = useTranslation()
+  const projectSchema = useMemo(() => buildProjectSchema(t), [t])
   const isEdit = !!project
   const { data: company } = useCompany()
   const currencySymbol = company?.currency ? currencies[company.currency]?.symbol : undefined

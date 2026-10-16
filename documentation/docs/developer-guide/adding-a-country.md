@@ -812,7 +812,13 @@ Some countries genuinely need code, not just data:
 - **A new document field only one country's law gives meaning to** needs a `countryFields`
   overlay (`add`/`modify`/`remove` on the trunk shape), not a change to the trunk descriptor
  itself - see France's own `countryFields` section's `supplyType` addition, which exists only to
-  let France's own BT-23 content requirement derive a value.
+  let France's own BT-23 content requirement derive a value. Every field an overlay adds names its
+  own translation keys, `labelKey` and `helpTextKey`, next to the English `label` and `helpText`,
+  and those keys exist in `frontend/src/locales/en/translation.json` under
+  `documents.countryFields.<fieldKey>`. A field that is the same everywhere shares one label key
+  (`supplyType.label`); a help text that differs by country gets a variant named after what it says
+  (`supplyType.crossBorderTax.helpText`, `supplyType.billingFramework.helpText`), so two countries
+  that explain a field the same way share one key. `descriptors/descriptor-i18n-keys.spec.ts` fails on a missing key.
 
 One part of a country stays in TypeScript on purpose: its demo seed pool. The sample content used
 to populate the demo (country name and language, cities and postal codes, company, client and

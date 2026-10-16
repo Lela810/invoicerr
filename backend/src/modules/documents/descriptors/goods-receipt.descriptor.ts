@@ -103,7 +103,7 @@ export function buildGoodsReceiptDescriptor(): DocumentTypeDescriptor {
         label: 'Purchase order',
         required: true,
         entity: 'purchase-order',
-        helpText: "The purchase order this delivery fulfills — required, see this type's own header.",
+        helpText: 'The purchase order this delivery fulfills. Required.',
       },
       {
         key: 'receiptDate',

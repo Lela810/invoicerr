@@ -119,8 +119,7 @@ export function registerDuplicateExtension(
         label: 'Occurrence date',
         required: false,
         helpText:
-          "Internal — set by a scheduled recurrence to recompute this type's " +
-          'own date fields on the duplicate. Left empty for an ordinary, manual duplicate.',
+          "Set by a scheduled recurrence to recompute this document's dates on the duplicate. Left empty for an ordinary, manual duplicate.",
       },
     ],
   });

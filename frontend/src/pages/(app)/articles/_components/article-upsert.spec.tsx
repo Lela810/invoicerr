@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import i18n from "i18next"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ArticleUpsert } from "@/pages/(app)/articles/_components/article-upsert"
 import { ArticleType, type Article } from "@/types/article"
@@ -73,6 +74,10 @@ describe("<ArticleUpsert>", () => {
     vi.clearAllMocks()
   })
 
+  afterEach(async () => {
+    await i18n.changeLanguage("en")
+  })
+
   it("rejects an emptied price as a validation error instead of silently saving it as 0", async () => {
     const patch = vi.fn()
     installFetchMock({
@@ -98,6 +103,20 @@ describe("<ArticleUpsert>", () => {
     expect(await screen.findByText("Price is required")).toBeInTheDocument()
     expect(screen.getByTestId("article-dialog-step-body-pricing")).toBeInTheDocument()
     expect(patch).not.toHaveBeenCalled()
+  })
+
+  it("shows its validation messages in the interface language", async () => {
+    i18n.addResource("fr", "translation", "articles.upsert.errors.priceRequired", "Le prix est obligatoire")
+    await i18n.changeLanguage("fr")
+    installFetchMock({ "GET /api/company/info": () => ({ id: "company-1", currency: "EUR" }) })
+
+    renderDialog(ARTICLE)
+
+    fireEvent.click(await screen.findByTestId("article-dialog-step-pricing"))
+    fireEvent.change(fieldInput("unitPrice"), { target: { value: "" } })
+    fireEvent.click(screen.getByTestId("article-dialog-continue"))
+
+    expect(await screen.findByText("Le prix est obligatoire")).toBeInTheDocument()
   })
 
   it("shows a field error instead of an unhandled rejection when a stale, unrevalidated step is submitted", async () => {

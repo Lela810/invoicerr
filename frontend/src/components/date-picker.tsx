@@ -79,7 +79,7 @@ const DatePicker: React.FC<DatePickerProps> = (field: DatePickerProps) => {
             locale: languageToLocale(i18n.language),
           })
         ) : (
-          <span>{field.placeholder || "Pick a date"}</span>
+          <span>{field.placeholder || t("component.date-picker.placeholder")}</span>
         )}
         <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
       </Button>

@@ -186,7 +186,7 @@ export function buildExpenseDescriptor(): DocumentTypeDescriptor {
         label: 'Distance (km)',
         required: false,
         min: 0,
-        helpText: 'Optional, informational — this app does not apply a per-country mileage rate.',
+        helpText: 'Optional, for information only: this app does not apply a per-country mileage rate.',
       },
       {
         key: 'ratePerKm',
@@ -195,7 +195,8 @@ export function buildExpenseDescriptor(): DocumentTypeDescriptor {
         required: false,
         min: 0,
         currencyField: 'currency',
-        helpText: 'Your own rate — multiply by the distance yourself into "Amount" above.',
+        helpText:
+          'Your own rate. Multiply it by the distance yourself and enter the result in "Amount" above.',
       },
       {
         key: 'notes',

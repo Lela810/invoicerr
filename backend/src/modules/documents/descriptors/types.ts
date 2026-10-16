@@ -368,6 +368,11 @@ export interface DocumentFieldDescriptor {
    */
   requiredIfAbsent?: string;
   helpText?: string;
+  /** Translation key for `label`, for a field whose text depends on data rather than on its type
+   *  (a country overlay). Without it the frontend derives the key from the type id and field path. */
+  labelKey?: string;
+  /** Same as `labelKey`, for `helpText`. */
+  helpTextKey?: string;
   /**
    * "client reference / PO number" — ANY kind, not just this field's
    * own 'text': skips this field ENTIRELY (never a label + em-dash placeholder) wherever a consumer

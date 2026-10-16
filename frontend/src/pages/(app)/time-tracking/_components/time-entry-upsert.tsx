@@ -1,7 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect } from "react"
+import type { TFunction } from "i18next"
+import { useEffect, useMemo } from "react"
 import { type Control, type FieldValues, useForm, type UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -18,17 +19,21 @@ import { fromCalendarDate, toCalendarDate, todayCalendarDate } from "@/lib/calen
 import { currencies } from "@/lib/constants/currencies"
 import type { TimeEntry } from "@/types"
 
-const timeEntrySchema = z.object({
-  date: z.string().min(1, { message: "Date is required" }),
-  // Hours, not minutes — the unit a person actually thinks in; converted at the submit boundary
-  // (onSubmit below) the same way ArticleUpsert converts a typed price into minor units server-side.
-  hours: z.number().gt(0, { message: "Duration must be greater than 0" }),
-  description: z.string().optional(),
-  billable: z.boolean(),
-  hourlyRate: z.number().min(0).nullable(),
-})
+export const buildTimeEntrySchema = (t: TFunction) =>
+  z.object({
+    date: z.string().min(1, { message: t("timeTracking.entries.errors.dateRequired") }),
+    // Hours, not minutes — the unit a person actually thinks in; converted at the submit boundary
+    // (onSubmit below) the same way ArticleUpsert converts a typed price into minor units server-side.
+    hours: z.number().gt(0, { message: t("timeTracking.entries.errors.durationPositive") }),
+    description: z.string().optional(),
+    billable: z.boolean(),
+    hourlyRate: z
+      .number({ invalid_type_error: t("timeTracking.entries.errors.hourlyRateMin") })
+      .min(0, { message: t("timeTracking.entries.errors.hourlyRateMin") })
+      .nullable(),
+  })
 
-type TimeEntryForm = z.infer<typeof timeEntrySchema>
+type TimeEntryForm = z.infer<ReturnType<typeof buildTimeEntrySchema>>
 
 interface TimeEntryUpsertProps {
   projectId: string
@@ -207,6 +212,7 @@ function BillingStep({
  */
 export function TimeEntryUpsert({ projectId, projectName, entry, open, onOpenChange }: TimeEntryUpsertProps) {
   const { t } = useTranslation()
+  const timeEntrySchema = useMemo(() => buildTimeEntrySchema(t), [t])
   const isEdit = !!entry
   const { data: company } = useCompany()
   const currencySymbol = company?.currency ? currencies[company.currency]?.symbol : undefined

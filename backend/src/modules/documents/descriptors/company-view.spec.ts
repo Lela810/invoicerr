@@ -69,6 +69,8 @@ describe('applyCompanyFieldView', () => {
     const vatField = result.find((f) => f.key === 'lines')?.fields?.find((f) => f.key === 'vatRate');
     expect(vatField?.options).toEqual([]);
     expect(vatField?.helpText).toMatch(/No known VAT rate list/);
+    // The substituted text needs its own key, or the frontend would show the trunk field's translation.
+    expect(vatField?.helpTextKey).toBe('documents.fieldHelp.noVatRateCatalog');
   });
 
   it('an UNRESOLVED country (undefined) behaves exactly like an unknown one — never throws', () => {

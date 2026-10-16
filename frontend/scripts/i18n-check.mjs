@@ -78,6 +78,10 @@ function parseArgs(argv) {
             // The country-identifiers catalog (backend countries/data/<cc>.json) names these
             // as each scheme's helpTextKey, sent to the identifier forms as plain data.
             'settings.identifiers.help.',
+            // Country overlay fields (backend countries/data/<cc>.json) name these as their own
+            // labelKey/helpTextKey; the backend's company view names documents.fieldHelp.* the same way.
+            'documents.countryFields.',
+            'documents.fieldHelp.',
         ]
     }
     return opts

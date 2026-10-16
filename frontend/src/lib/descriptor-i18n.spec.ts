@@ -5,6 +5,7 @@ import {
   descriptorActionLabel,
   descriptorActionParamLabel,
   descriptorActionParamOptionLabel,
+  descriptorFieldHelpText,
   descriptorFieldLabel,
   descriptorFieldOptionLabel,
   descriptorStatusLabel,
@@ -28,6 +29,12 @@ const TRANSLATIONS: Record<string, string> = {
   "documents.descriptors.invoice.fields.notes.label": "Remarques",
   "documents.descriptors.invoice.fields.lines.fields.description.label": "Désignation",
   "documents.descriptors.invoice.fields.lines.fields.unit.suggestedValues.DAY": "Jour",
+  "documents.descriptors.invoice.fields.notes.helpText": "Visibles sur la facture",
+  "documents.descriptors.invoice.fields.lines.fields.unit.helpText": "Unité de mesure",
+  "documents.descriptors.invoice.fields.lines.fields.supplyType.label": "Libellé dérivé",
+  "documents.descriptors.invoice.fields.lines.fields.supplyType.helpText": "Aide dérivée",
+  "documents.countryFields.supplyType.variant.label": "Nature de la livraison",
+  "documents.countryFields.supplyType.variant.helpText": "Aide propre au pays",
   "documents.descriptors.invoice.actions.send.label": "Envoyer",
   "documents.descriptors.invoice.actions.record-payment.params.method.label": "Moyen",
   "documents.descriptors.invoice.actions.record-payment.params.method.options.card": "Carte",
@@ -83,6 +90,13 @@ describe("descriptor-i18n", () => {
     })
   })
 
+  it("descriptorFieldHelpText translates through the derived key and falls back to the raw text", () => {
+    expect(descriptorFieldHelpText(fakeT, "invoice", ["notes"], "Shown on the invoice")).toBe(
+      "Visibles sur la facture",
+    )
+    expect(descriptorFieldHelpText(fakeT, "plugin-acme-widget", ["rating"], "Sur 5")).toBe("Sur 5")
+  })
+
   describe("the fallback contract — no matching key", () => {
     it("descriptorFieldOptionLabel falls back to the raw option label untouched", () => {
       // No "documents.descriptors.invoice.fields.currency.options.EUR" key was ever added (a currency
@@ -123,7 +137,7 @@ describe("descriptor-i18n", () => {
       id: "invoice",
       label: "Invoice",
       fields: [
-        { key: "notes", kind: "longText", label: "Notes" },
+        { key: "notes", kind: "longText", label: "Notes", helpText: "Shown on the invoice" },
         {
           key: "lines",
           kind: "array",
@@ -131,9 +145,18 @@ describe("descriptor-i18n", () => {
           fields: [
             { key: "description", kind: "text", label: "Designation" },
             {
+              key: "supplyType",
+              kind: "select",
+              label: "Supply type",
+              labelKey: "documents.countryFields.supplyType.variant.label",
+              helpText: "Country help",
+              helpTextKey: "documents.countryFields.supplyType.variant.helpText",
+            },
+            {
               key: "unit",
               kind: "text",
               label: "Unit",
+              helpText: "How the quantity is counted",
               suggestedValues: [
                 { value: "DAY", label: "Day" },
                 { value: "HUR", label: "Hour" },
@@ -158,6 +181,7 @@ describe("descriptor-i18n", () => {
               key: "method",
               kind: "select",
               label: "Method",
+              helpText: "How it was paid",
               options: [
                 { value: "card", label: "Card" },
                 { value: "cash", label: "Cash" },
@@ -206,6 +230,22 @@ describe("descriptor-i18n", () => {
         { value: "card", label: "Carte" },
         { value: "cash", label: "Cash" }, // no matching key — untouched
       ])
+    })
+
+    it("translates a field's help text, top-level and nested", () => {
+      expect(translated.fields[0].helpText).toBe("Visibles sur la facture")
+      const unit = translated.fields[1].fields?.find((field) => field.key === "unit")
+      expect(unit?.helpText).toBe("Unité de mesure")
+    })
+
+    it("an explicit labelKey and helpTextKey win over the derived keys", () => {
+      const supplyType = translated.fields[1].fields?.find((field) => field.key === "supplyType")
+      expect(supplyType?.label).toBe("Nature de la livraison")
+      expect(supplyType?.helpText).toBe("Aide propre au pays")
+    })
+
+    it("an action param's help text falls back to the raw text when no key matches", () => {
+      expect(translated.actions[0].params?.[0].helpText).toBe("How it was paid")
     })
 
     it("translates statuses, one by one", () => {

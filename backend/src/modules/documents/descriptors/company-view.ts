@@ -25,7 +25,8 @@ import { VatRateCatalog, vatRateFieldOptions } from '../vat-rates/registry';
 import { DocumentFieldDescriptor } from './types';
 
 const NO_VAT_CATALOG_HELP_TEXT =
-  "No known VAT rate list for this company's country — enter the applicable rate manually.";
+  "No known VAT rate list for this company's country. Enter the applicable rate manually.";
+export const NO_VAT_CATALOG_HELP_TEXT_KEY = 'documents.fieldHelp.noVatRateCatalog';
 
 /**
  * Recursively finds every field with `usesVatRateCatalog: true` — including one nested inside an
@@ -45,6 +46,7 @@ function applyVatRateCatalogOptions(
       field.legacyOptions = resolution.legacyOptions;
       if (!resolution.known) {
         field.helpText = NO_VAT_CATALOG_HELP_TEXT;
+        field.helpTextKey = NO_VAT_CATALOG_HELP_TEXT_KEY;
       }
     }
     if (field.kind === 'array' && field.fields) {

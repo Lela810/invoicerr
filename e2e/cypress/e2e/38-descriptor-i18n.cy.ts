@@ -137,6 +137,18 @@ describe("i18n descriptors (item 25) -- key derived in EN, falling back to the r
 		cy.continueDocumentWizard(); // Lines -> Options
 
 		cy.get('[data-cy="document-field-notes"]').should("contain.text", "Notes");
+
+		// Help texts take the same derived-key path as labels
+		// (documents.descriptors.invoice.fields.<key>.helpText) and reach the popover.
+		cy.get('[data-cy="document-field-clientReference-help"]').should(
+			"have.text",
+			"The buyer's own reference for this document: their purchase order or file number.",
+		);
+		cy.get('[data-cy="document-field-correctsInvoiceId"]').should("contain.text", "Corrects invoice");
+		cy.get('[data-cy="document-field-correctsInvoiceId-help"]').should(
+			"have.text",
+			"The invoice this one corrects, if any. Leave empty for an ordinary invoice.",
+		);
 		cy.continueDocumentWizard(); // Options -> Summary
 
 		// The actions — documents.descriptors.invoice.actions.<id>.label, the same EN value as before.

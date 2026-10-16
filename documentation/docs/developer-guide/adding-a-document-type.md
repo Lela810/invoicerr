@@ -87,10 +87,44 @@ implementation yet to observe declares no `transitions` at all — `availableWhe
 sole, hand-declared fact about when it may run, exactly as it always did before `transitions`
 existed.
 
-Labels (`label`, action `label`, status `label`) are **plain text, not i18n keys** — a descriptor
-is data a third-party plugin can ship in any language it likes, so it is rendered verbatim by the
-frontend rather than looked up through `t()`, the one deliberate exception to this codebase's
-usual `t()`-everywhere rule for user-facing strings.
+### Translating descriptor text
+
+A descriptor's text (type `label`, field `label` and `helpText`, action `label`, action param
+`label` and `helpText`, status `label`) is **plain English, not an i18n key**: a third-party plugin
+can ship a type in any language. The frontend still translates it. `frontend/src/lib/descriptor-i18n.ts`
+derives a key from the type id and the field path, looks it up with `t()`, and falls back to the
+descriptor's own text when the key does not exist, so a plugin type renders exactly what it
+declared.
+
+| Text | Key |
+| --- | --- |
+| Type label | `documents.descriptors.<typeId>.label` |
+| Field label | `documents.descriptors.<typeId>.fields.<fieldKey>.label` |
+| Field help text | `documents.descriptors.<typeId>.fields.<fieldKey>.helpText` |
+| Row field of an `array` | `documents.descriptors.<typeId>.fields.<arrayKey>.fields.<rowKey>.label` (or `.helpText`) |
+| Action label | `documents.descriptors.<typeId>.actions.<actionId>.label` |
+| Action param | `documents.descriptors.<typeId>.actions.<actionId>.params.<paramKey>.label` (or `.helpText`) |
+| Status | `documents.descriptors.<typeId>.statuses.<statusId>` |
+
+A field whose text depends on data rather than on its type sets `labelKey` or `helpTextKey`, which
+win over the derived key: a country overlay field (see [Adding a country](./adding-a-country.md)),
+or a help text the backend substitutes at runtime (`company-view.ts` uses
+`documents.fieldHelp.noVatRateCatalog` when no VAT rate list is known).
+
+A type this application ships adds its English keys to `frontend/src/locales/en/translation.json`
+in the same pull request; Weblate fills the other languages. `backend/src/modules/documents/descriptors/descriptor-i18n-keys.spec.ts`
+walks every native descriptor, including extension actions such as `duplicate`, and fails on any
+label or help text without an English key, or whose English value differs from the descriptor's own
+text: English has one wording, written in both places. A new native type is registered in
+`descriptors/native-types.ts`, and a new extension action in `actions/native-extensions.ts`; both
+the module and that spec read them.
+
+:::info[Options are not checked]
+
+Select `options` and `suggestedValues` labels take the same derived-key path but are not required to
+have a key: many of them are codes (currencies, unit codes) or come from a per-company catalog.
+
+:::
 
 ### One table for every type — `DocumentInstance`
 
@@ -119,19 +153,21 @@ sets them at all, on any record.
 ### Registering the type — one line
 
 ```ts
-// documents-core.module.ts
-function buildDocumentTypeRegistry(): DocumentTypeRegistry {
-  const registry = new DocumentTypeRegistry();
-  registry.register(buildQuoteDescriptor());
-  registry.register(buildInvoiceDescriptor());
-  registry.register(buildCreditNoteDescriptor());
-  registry.register(buildExpenseDescriptor());
-  registry.register(buildReceivedInvoiceDescriptor());
-  registry.register(buildPurchaseOrderDescriptor());
-  registry.register(buildGoodsReceiptDescriptor()); // ← adding a type is exactly this one line
-  return registry;
+// descriptors/native-types.ts
+export function buildNativeDocumentTypeDescriptors(): DocumentTypeDescriptor[] {
+  return [
+    buildQuoteDescriptor(),
+    buildInvoiceDescriptor(),
+    buildCreditNoteDescriptor(),
+    buildExpenseDescriptor(),
+    buildReceivedInvoiceDescriptor(),
+    buildPurchaseOrderDescriptor(),
+    buildGoodsReceiptDescriptor(), // adding a type is exactly this one line
+  ];
 }
 ```
+
+`documents-core.module.ts` registers each of them, and the translation-key spec reads the same list.
 
 `DocumentTypeRegistry.register()` (`descriptors/type-registry.ts`) does two things, synchronously,
 the instant it runs — at real app boot, or the moment a vitest spec calls it directly:

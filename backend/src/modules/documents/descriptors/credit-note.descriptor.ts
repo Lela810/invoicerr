@@ -313,8 +313,7 @@ export function buildCreditNoteDescriptor(): DocumentTypeDescriptor {
         label: 'Reason',
         requiredIfAbsent: 'invoice',
         helpText:
-          'Why this credit note exists — required once there is no invoice to correct (a FREE credit ' +
-          'note). Optional once one is set: the correction itself already says what this document is for.',
+          'Why this credit note exists. Required when there is no invoice to correct (a free credit note); optional once one is set, since the correction already says what this document is for.',
       },
       {
         key: 'correctedLines',
