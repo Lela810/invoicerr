@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useDocumentAuthorityEvents } from "@/hooks/queries"
+import { useDocumentAuthorityEvents } from "@/hooks/queries/use-document-types"
 import { cn } from "@/lib/utils"
 
 import { SectionCard } from "./section-card"

@@ -15,6 +15,7 @@ import { Sidebar } from "@/components/sidebar"
 import { WaitingForSeatScreen } from "@/components/waiting-for-seat-screen"
 import { useDocumentEventsSse } from "@/hooks/use-document-events-sse"
 import { useApplyAccountLocale } from "@/hooks/use-apply-account-locale"
+import { useRoutePrefetch } from "@/hooks/use-route-prefetch"
 import { ApiError } from "@/hooks/use-api-query"
 import { useCompanies, useLegalStatus, useSeats } from "@/hooks/queries"
 import { authClient } from "@/lib/auth"
@@ -106,6 +107,9 @@ const AuthenticatedLayout = ({ accountLocale }: { accountLocale?: string | null 
   // reasoning; the Preferences screen also calls it directly, for the case where THAT screen is all
   // that's under test/rendered on its own).
   useApplyAccountLocale(accountLocale)
+
+  // Signed-in only: on a public page it would pull the whole app for an anonymous visitor.
+  useRoutePrefetch()
 
   // Decides whether the footer strip below even exists — see that element's own comment for why a
   // `<footer>` wrapper can't just contain `<LegalLinks/>` and rely on it rendering `null`.
